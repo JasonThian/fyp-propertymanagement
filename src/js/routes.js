@@ -1,4 +1,4 @@
-import AppJs from '../js/app.js';
+
 import HomePage from '../pages/home.f7.html';
 import AboutPage from '../pages/about.f7.html';
 import FormPage from '../pages/form.f7.html';
@@ -6,6 +6,7 @@ import NewsPage from '../pages/news.f7.html';
 import FacilitiesPage from '../pages/facilities.f7.html';
 import QRCodePage from '../pages/qrcode.f7.html';
 import PaymentPage from '../pages/payment.f7.html';
+import PaymentMethodPage from '../pages/paymentmethod.f7.html';
 import EditPage from '../pages/edit.f7.html';
 
 import DynamicRoutePage from '../pages/dynamic-route.f7.html';
@@ -13,10 +14,6 @@ import RequestAndLoad from '../pages/request-and-load.f7.html';
 import NotFoundPage from '../pages/404.f7.html';
 
 var routes = [
-  {
-    path: '/appjs/',
-    component: AppJs,
-  },
   {
     path: '/',
     component: HomePage,
@@ -44,6 +41,10 @@ var routes = [
   {
     path: '/payment/',
     component: PaymentPage,
+  },
+  {
+    path: '/paymentmethod/',
+    component: PaymentMethodPage,
   },
   {
     path: '/edit/',

@@ -26,7 +26,6 @@ window.app = new Framework7({
     dateFormat: 'dd.mm.yyyy',
   },
   data:{ calendar: function(){
-alert("hi");
 var now = new Date();
 var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 var weekLater = new Date().setDate(today.getDate() + 7);
@@ -49,7 +48,7 @@ var calendarEvents = app.calendar.create({
         color: '#00ff00'
       },
     ]
-});}},
+});}, start: function(){alert("start");}},
   // App routes
   routes: routes,
 
