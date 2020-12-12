@@ -1,0 +1,98 @@
+@body-width: 480px;
+@body-height: 853px;
+@announcement-width: @body-width * 0.8;
+@announcement-height: @announcement-width * (9/16);
+@card-view-width: @body-width * 0.9;
+@card-width: @card-view-width * 0.4;
+
+/* iOS Cordova Tweak */
+.device-cordova.device-ios {
+  height: 100vh;
+}
+
+/* Your app custom styles here */
+/*.landlord{
+	display:none;
+}*/
+
+/*body{
+	max-width: @body-width;
+	max-weight: @body-height;
+	margin: 0 auto;
+	background-color: #000000;
+}*/
+
+//dashboard
+.no-margin-block{
+	margin: 0;
+}
+
+.left{
+	margin-left: 10px;
+
+}
+
+.right{
+	margin-top:10px;
+	margin-right:10px;
+}
+
+.card-margin-middle{
+	margin: auto;
+	vertical-align: middle;
+	padding: 65px 0;
+	text-align: center;
+}
+
+.card-inline-blocks{
+	margin: 2% 5%;
+	width: @card-width;
+	display:inline-block; 
+	height:200px;
+}
+
+/*.navbar-bg{
+	visibility:hidden;
+}*/
+
+.swiper-slide{
+	text-align: center;
+}
+
+.announcement-img{
+	width: @announcement-width;
+	max-height: @announcement-height;
+	margin: 0 auto;
+}
+
+.card-views{
+	width: @card-view-width;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.list-buttons{
+	width:100%;
+	font-size:14px;
+	text-align:center;
+	height: 48px;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.logout{
+	position:absolute;
+	bottom: 0px;
+	width:100%;
+}
+
+//payment
+.amount-title{
+	text-align:center;
+	font-size:18px;
+}
+
+.amount-large{
+	text-align:center;
+	font-size:28px;
+}
