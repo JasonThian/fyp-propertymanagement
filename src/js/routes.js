@@ -1,6 +1,5 @@
-
+import LoginPage from '../pages/login.f7.html';
 import HomePage from '../pages/home.f7.html';
-import AboutPage from '../pages/about.f7.html';
 import FormPage from '../pages/form.f7.html';
 import NewsPage from '../pages/news.f7.html';
 import AnnouncementPage from '../pages/announcement.f7.html';
@@ -8,6 +7,8 @@ import FacilitiesPage from '../pages/facilities.f7.html';
 import QRCodePage from '../pages/qrcode.f7.html';
 import PaymentPage from '../pages/payment.f7.html';
 import PaymentMethodPage from '../pages/paymentmethod.f7.html';
+import PaymentOnlinePage from '../pages/paymentonline.f7.html';
+import PaymentCreditPage from '../pages/paymentcredit.f7.html';
 import EditPage from '../pages/edit.f7.html';
 import BookingSuccessPage from '../pages/bookingsuccess.f7.html';
 
@@ -19,10 +20,6 @@ var routes = [
   {
     path: '/',
     component: HomePage,
-  },
-  {
-    path: '/about/',
-    component: AboutPage,
   },
   {
     path: '/form/',
@@ -60,7 +57,18 @@ var routes = [
     path: '/announcement/',
     component: AnnouncementPage,
   },
-
+  {
+    path: '/paymentonline/',
+    component: PaymentOnlinePage,
+  },
+  {
+    path: '/paymentcredit/',
+    component: PaymentCreditPage,
+  },
+  {
+    path: '/login/',
+    component: LoginPage,
+  },
 
   {
     path: '/dynamic-route/blog/:blogId/post/:postId/',

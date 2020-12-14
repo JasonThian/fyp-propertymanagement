@@ -1,5 +1,24 @@
 <template>
 <div class="page" data-name="payment">
+	<script>
+		var selection = null;
+		var button = document.getElementById("payment-selection");
+		
+		function payment_selection(el){
+			selection = el;
+			if(selection == null){
+				button.disabled = true;
+				button.onclick = function(){alert("Please select a payment type")};
+			}
+			else{
+				button.onclick = null;
+				button.href = selection;
+				button.disabled = false;
+			}
+		}
+		
+		payment_selection(null);
+	</script>
   <div class="navbar">
     <div class="navbar-bg"></div>
     <div class="navbar-inner sliding">
@@ -29,13 +48,13 @@
 		  <ul>
 			<li>
 				<div class="item-inner">
-					<input type="radio" name="pMethod" value="online" id="online">
+					<input type="radio" name="pMethod" onclick="payment_selection('/paymentonline/')" id="online">
 					<label for="online">Online Transfer<img src="#"></label>
 				</div>
 			</li>
 			<li>
 				<div class="item-inner">
-					<input type="radio" name="pMethod" value="credit" id="credit">
+					<input type="radio" name="pMethod" onclick="payment_selection('/paymentcredit/')" id="credit">
 					<label for="credit">Credit Card<img src="#"></label>
 				</div>
 			</li>
@@ -43,7 +62,7 @@
 		</div>
     </div>
 	<div class="block block-strong no-margin-block">
-		<a class="button button-raised button-fill button-large">Next</a>
+		<a class="button button-raised button-fill button-large" id="payment-selection">Next</a>
 	</div>
   </div>
 </div>
