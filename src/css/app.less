@@ -21,6 +21,7 @@
 
 .no-margin-block{
 	margin: 0;
+	clear: both;
 }
 
 .top-margin-block{
@@ -29,6 +30,18 @@
 
 .block-strong:before, .block-strong:after,.list .item-inner:after{
 	background-color:transparent;
+}
+
+.list .item-inner{
+	justify-content: unset;
+}
+
+.list .item-inner label{
+	margin-left: 50px;
+}
+
+.list .item-inner label img{
+	margin-left: 20px;
 }
 
 /*body{
@@ -96,6 +109,27 @@
 	position:absolute;
 	bottom: 0px;
 	width:100%;
+}
+
+//announcement
+.announcement-small-icon{
+	width: 50px;
+	height: 50px;
+}
+
+.announcement-small-title{
+	margin: 0;
+}
+
+.announcement-small-text{
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 700px;
+}
+
+.announcement-list-row{
+	padding: 15px 0;
 }
 
 //payment

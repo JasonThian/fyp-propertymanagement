@@ -1,22 +1,6 @@
 <template>
   <div id="app">
-    <!-- Left panel with cover effect-->
-    <!--<div class="panel panel-left panel-cover theme-dark panel-init">
-      <div class="view">
-        <div class="page">
-          <div class="navbar">
-            <div class="navbar-bg"></div>
-            <div class="navbar-inner">
-              <div class="title">Left Panel</div>
-            </div>
-          </div>
-          <div class="page-content">
-            <div class="block">Left panel content goes here</div>
-          </div>
-        </div>
-      </div>
-    </div>-->
-	<!--<div class="page-content"><img data-src="path/to/image.jpg" class="lazy"></div>-->
+
     <!-- Right panel with cover effect-->
     <div class="panel panel-right panel-cover theme-dark panel-init">
       <div class="view">
@@ -31,12 +15,12 @@
           <div class="page-content">
 			<div class="list">
 				<ul>
-					<a href="/edit/" class="button list-buttons">Edit Profile</a>
-					<a href="/news/" class="button list-buttons">Booking Detail</a>
-					<a href="/news/" class="button list-buttons">Change Password</a>
-					<a href="/news/" class="button list-buttons landlord">Payment Reminder</a>
-					<a href="/news/" class="button list-buttons landlord">Payment History</a>
-					<a href="/news/" class="button list-buttons landlord">Tenant List</a>
+					<a onclick="app.data.close_panel()" href="/edit/" class="button list-buttons">Edit Profile</a>
+					<a onclick="app.data.close_panel()" href="/news/" class="button list-buttons">Booking Detail</a>
+					<a onclick="app.data.close_panel()" data-popup=".popup-change-password" class="popup-open button list-buttons">Change Password</a>
+					<a onclick="app.data.close_panel()" href="/news/" class="button list-buttons landlord">Payment Reminder</a>
+					<a onclick="app.data.close_panel()" href="/news/" class="button list-buttons landlord">Payment History</a>
+					<a onclick="app.data.close_panel()" href="/news/" class="button list-buttons landlord">Tenant List</a>
 				</ul>
 			</div>
 			<a class="button button-raised button-fill button-large logout">Logout</a>
@@ -48,14 +32,14 @@
     <!-- Your main view, should have "view-main" class -->
     <div class="view view-main view-init safe-areas" data-url="/"></div>
 
-    <!-- Popup -->
-    <!--<div class="popup" id="my-popup">
+    <!-- Change Password Popup -->
+    <div class="popup popup-change-password" id="popup-change-password">
       <div class="view">
         <div class="page">
           <div class="navbar">
             <div class="navbar-bg"></div>
             <div class="navbar-inner">
-              <div class="title">Popup</div>
+              <div class="title">Change Password</div>
               <div class="right">
                 <a href="#" class="link popup-close">Close</a>
               </div>
@@ -63,12 +47,82 @@
           </div>
           <div class="page-content">
             <div class="block">
-              <p>Popup content goes here.</p>
+			<div class="list no-hairlines-md">
+			<ul>
+			<li>
+				<div class="item-content item-input">
+				<div class="item-inner">
+				  <div class="item-input-wrap">
+					<input type="password" id="cPassword" placeholder="Current Password">
+				</div>
+				</div>
+				</div>
+			</li>
+			<li>
+				<div class="item-content item-input">
+				<div class="item-inner">
+				  <div class="item-input-wrap">
+					<input type="password" id="nPassword" placeholder="New Password">
+				</div>
+				</div>
+				</div>
+			</li>
+			<li>
+				<div class="item-content item-input">
+				<div class="item-inner">
+				  <div class="item-input-wrap">
+					<input type="password" id="cnPassword" placeholder="Confirm New Password">
+				</div>
+				</div>
+				</div>
+			</li>
+			</ul>
+			</div>
+			<div class="block">
+				<a onclick="alert('success')" class="button button-raised button-fill button-large">Confirm</a>
+			</div>
             </div>
+          </div>
+      </div>
+    </div>
+	</div>
+	
+	<!-- Forgot Password Popup -->
+    <div class="popup popup-forgot-password" id="forgot-password">
+      <div class="view">
+        <div class="page">
+          <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+              <div class="title">Forgot Password</div>
+              <div class="right">
+                <a href="#" class="link popup-close">Close</a>
+              </div>
+            </div>
+          </div>
+          <div class="page-content">
+            <div class="block">
+			<div class="list no-hairlines-md">
+			<ul>
+			<li>
+				<div class="item-content item-input">
+				<div class="item-inner">
+				  <div class="item-input-wrap">
+					<input type="email" id="email" placeholder="Please enter your email address">
+				</div>
+				</div>
+				</div>
+			</li>
+			</ul>
+			</div>
+			<div class="block">
+				<a onclick="alert('success')" class="button button-raised button-fill button-large">Confirm</a>
+			</div>
           </div>
         </div>
       </div>
-    </div>-->
+    </div>
+	</div>
 
     <!-- Login Screen -->
     <!--<div class="login-screen" id="my-login-screen">

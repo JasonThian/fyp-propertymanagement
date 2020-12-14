@@ -3,11 +3,13 @@ import HomePage from '../pages/home.f7.html';
 import AboutPage from '../pages/about.f7.html';
 import FormPage from '../pages/form.f7.html';
 import NewsPage from '../pages/news.f7.html';
+import AnnouncementPage from '../pages/announcement.f7.html';
 import FacilitiesPage from '../pages/facilities.f7.html';
 import QRCodePage from '../pages/qrcode.f7.html';
 import PaymentPage from '../pages/payment.f7.html';
 import PaymentMethodPage from '../pages/paymentmethod.f7.html';
 import EditPage from '../pages/edit.f7.html';
+import BookingSuccessPage from '../pages/bookingsuccess.f7.html';
 
 import DynamicRoutePage from '../pages/dynamic-route.f7.html';
 import RequestAndLoad from '../pages/request-and-load.f7.html';
@@ -49,6 +51,14 @@ var routes = [
   {
     path: '/edit/',
     component: EditPage,
+  },
+  {
+    path: '/bookingsuccess/',
+    component: BookingSuccessPage,
+  },
+  {
+    path: '/announcement/',
+    component: AnnouncementPage,
   },
 
 

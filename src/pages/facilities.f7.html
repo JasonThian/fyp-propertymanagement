@@ -21,7 +21,7 @@
 			  <div class="item-content item-input">
 				<div class="item-inner">
 				  <div class="item-input-wrap">
-					<input type="text" placeholder="Select date" readonly="readonly" id="calendar-events-disable"/>
+					<input type="text" onchange="alert('changed')" placeholder="Select date" readonly="readonly" id="calendar-events-disable"/>
 				  </div>
 				</div>
 			  </div>
@@ -29,6 +29,16 @@
 		  </ul>
 		</div>
     </div>
+	<div class="block block-strong">
+		<span id="facilities-progressbar" class="progressbar-infinite"></span>
+    </div>
+	<div class="block block-strong">
+		<a class="button button-raised button-fill button-large book-button" id="book-button" href="/bookingsuccess/">Book</a>
+    </div>
   </div>
+	<script type="text/javascript">
+	var book = document.getElementById("book-button");
+	book.disabled = true;
+	</script>
 </div>
 </template>

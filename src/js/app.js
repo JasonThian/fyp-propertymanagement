@@ -23,32 +23,25 @@ window.app = new Framework7({
   theme: 'auto', // Automatic theme detection,
   calendar: {
     url: 'calendar/',
-    dateFormat: 'dd.mm.yyyy',
   },
-  data:{ calendar: function(){
-var now = new Date();
-var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-var weekLater = new Date().setDate(today.getDate() + 7);
-var calendarEvents = app.calendar.create({
-    minDate: new Date(),
-    inputEl: '#calendar-events-disable',
-    dateFormat: 'dd M yyyy',
-    events: [
-      {
-        from: today,
-        to: weekLater
-      },
-      //- more events this day
-      {
-        date: today,
-        color: '#ff0000'
-      },
-      {
-        date: today,
-        color: '#00ff00'
-      },
-    ]
-});}, start: function(){alert("start");}},
+  data: {
+    calendar: function () {
+      calendar_init();
+    },
+    start: function () {
+      alert("start");
+    },
+	  close_panel: function(){
+		  app.panel.close('right');
+	  },
+	  toast_center: function(el){
+		  app.toast.create({
+			  text: el,
+			  position: center,
+			  closeTimeout: 2000,
+		  });
+	  }
+  },
   // App routes
   routes: routes,
 
@@ -72,7 +65,29 @@ var calendarEvents = app.calendar.create({
       if (f7.device.cordova) {
         // Init cordova APIs (see cordova-app.js)
         cordovaApp.init(f7);
-	}
+      }
     },
   },
 });
+
+function calendar_init(){
+	var now = new Date();
+      var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      var calendarEvents = app.calendar.create({
+        minDate: new Date(),
+        inputEl: '#calendar-events-disable',
+        dateFormat: 'dd M yyyy',
+        events: [
+          //- more events this day
+          {
+            date: today,
+            color: '#ff0000'
+          },
+          {
+            date: today,
+            color: '#00ff00'
+          },
+        ]
+      });
+}
+
