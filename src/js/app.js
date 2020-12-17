@@ -12,8 +12,51 @@ import cordovaApp from './cordova-app.js';
 // Import Routes
 import routes from './routes.js';
 
+//Import Firebase functions
+
+// Firebase App (the core Firebase SDK) is always required and must be listed first
+import firebase from "firebase/app";
+// If you are using v7 or any earlier version of the JS SDK, you should import firebase using namespace import
+// import * as firebase from "firebase/app"
+
+// If you enabled Analytics in your project, add the Firebase SDK for Analytics
+import "firebase/analytics";
+
+// Add the Firebase products that you want to use
+import "firebase/auth";
+import "firebase/firestore";
+import "firebase/functions";
+import "firebase/storage";
+
+//Add Firebase configs
+//import fb from './firebase.js'
+
 // Import main app component
 import App from '../app.f7.html';
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is  optional
+var firebaseConfig = {
+	apiKey: "AIzaSyA57cBRSvRm3U-9mi5aHRts3Z15LslfkPo",
+	authDomain: "propertymanagement-88d03.firebaseapp.com",
+	databaseURL: "https://propertymanagement-  88d03.firebaseio.com",
+	projectId: "propertymanagement-88d03",
+	storageBucket: "propertymanagement-88d03.appspot.com",
+	messagingSenderId: "429741658289",
+	appId: "1:429741658289:web:4d2f4f490fac045e8e5290",
+	measurementId: "G-6PBDHNV9RS"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+firebase.analytics();
+			
+//make auth and firestore references
+const auth = firebase.auth();
+const db = firebase.firestore();
+const functions = firebase.functions();
+const storage = firebase.storage();
+		
+		console.log("Initializing auth script");
 
 window.app = new Framework7({
   root: '#app', // App root element
@@ -73,6 +116,7 @@ window.app = new Framework7({
       var f7 = this;
       if (f7.device.cordova) {
         // Init cordova APIs (see cordova-app.js)
+		
         cordovaApp.init(f7);
       }
 	  init_script();
@@ -107,6 +151,7 @@ function init_script(){
 	var stripe = document.createElement('script');
 	stripe.src = "https://js.stripe.com/v3/";
 	document.head.appendChild(stripe);
+	
 }
 
 
@@ -125,6 +170,15 @@ function createQrCode(){
 		timer.innerHTML = string;
 		time--;
 	}
+	
+	//auth.signInWithEmailAndPassword("master2@gmail.com", "master2pass").then((cred) => {
+	//	console.log("user logged in");
+	//	//location.replace("residents.html");
+	//	//err.innerHTML = '';
+  	//}).catch(err => {
+	//	console.log(err.message);
+	//	//err.innerHTML = 'password incorrect or user does not exist';
+  	//});
 	
 	var QRCode = require('qrcode');
 	var canvas = document.getElementById("qrcode-canvas");
