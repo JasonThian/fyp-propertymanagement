@@ -46,6 +46,9 @@ window.app = new Framework7({
 	},
 	credit_payment: function(){
 		credit_payment_function();
+	},
+	createQrCode: function(){
+		createQrCode();
 	}
   },
   // App routes
@@ -112,7 +115,37 @@ function init_script(){
 
 
 
-
+function createQrCode(){
+	function count_time(){
+		string = "";
+		hours = time/3600;
+		minutes = (time/60) % 60;
+		seconds = time % 60;
+		string = string + ("0" + Math.floor(hours)).slice(-2) + ":" + ("0" + Math.floor(minutes)).slice(-2) + ":" + ("0" + seconds).slice(-2);
+		timer.innerHTML = string;
+		time--;
+	}
+	
+	var QRCode = require('qrcode');
+	var canvas = document.getElementById("qrcode-canvas");
+	var timer = document.getElementById("time-left");
+	var time = 7200;
+	var hours = 0;
+	var minutes = 0;
+	var seconds = 0;
+	var string = "";
+	
+	QRCode.toCanvas(canvas, 'sample text', {width: 500}, function (error) {
+		if (error) console.error(error)
+		console.log('success!');
+	});
+	
+	count_time();
+	
+	setInterval(function(){
+		count_time();
+	}, 1000);
+}
 
 function online_payment_function(){
 	var stripe = Stripe('pk_test_51HYjjzF4IJ8BHvcZASjHh7DzctvdHJn2u9kQma9CnPvTbLPoqKm2LeonLfIaoZ7crChlTVsqtADSXslC60JkH9i100nXYkuYni');
