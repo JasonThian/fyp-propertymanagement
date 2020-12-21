@@ -56,7 +56,7 @@ const db = firebase.firestore();
 const functions = firebase.functions();
 const storage = firebase.storage();
 		
-		console.log("Initializing auth script");
+//console.log("Initializing auth script");
 
 window.app = new Framework7({
   root: '#app', // App root element
@@ -92,6 +92,9 @@ window.app = new Framework7({
 	},
 	createQrCode: function(){
 		createQrCode();
+	},
+	SelectAnnc: function(id){
+		SelectAnnc(id);
 	}
   },
   // App routes
@@ -124,6 +127,9 @@ window.app = new Framework7({
   },
 });
 
+
+
+
 //initialize calendar
 function calendar_init(){
 	var now = new Date();
@@ -154,11 +160,114 @@ function init_script(){
 	
 }
 
+var annc_selected;
 
+//page handler
+$$(document).on('page:init', function (e, page) {
+  var pn = page.name;
+	console.log(pn);
+	
+	if(pn == "news"){
+		getAnnouncement();
+	}else if(pn == "announcement"){
+		
+	}
+})
 
+function SelectAnnc(id){
 
+	console.log(id);
 
+	//console.log(annc.innerHTML);
+	
+	var docRef = db.collection("announcement").doc(id);
 
+	docRef.get().then(function(doc) {
+		var title = doc.data().title;
+		var desc = doc.data().description;
+		var imageurl = doc.data().imageurl;
+			
+		var pathReference = storage.ref("announcement/"+imageurl);
+			
+		pathReference.getDownloadURL().then(function(url) {
+
+			var annc = document.getElementById("annc");
+			annc.innerHTML = `<img id="annc_pic" src="${url}"/>
+							<p id="annc_title">${title}</p>
+							<p id="annc_desc">${desc}</p>`;
+					
+		}).catch(function(error) {
+			console.log(error);
+		});
+		
+		
+	}).catch(function(error) {
+		console.log("Error getting document:", error);
+	});
+	
+}
+
+function getAnnouncement(){
+	
+	var annc_list = document.getElementById("annc_list");
+	var list_ele = "";
+	var url_list = [];
+	  
+	db.collection("announcement").orderBy("date","desc").get().then((querySnapshot) => {
+		querySnapshot.forEach((doc) => {
+			
+			var title = doc.data().title;
+			var desc = doc.data().description;
+			var imageurl = doc.data().imageurl;
+			
+			annc_list.innerHTML += `<tr class="announcement-list-row" onclick="app.data.SelectAnnc('${doc.id}')">
+						<td>
+							<a href="/announcement/">
+								<img class="announcement-small-icon" src="#" id="${doc.id}')"/>
+							</a>
+						</td>
+						<td>
+							<a href="/announcement/">
+								<h2 class="announcement-small-title">${title}</h2>
+								<p class="announcement-small-text">${desc}</p>
+							</a>
+						</td>
+					</tr>`;
+					
+					
+			url_list.push(imageurl);
+			console.log(imageurl);
+		});
+		
+		//annc_list.innerHTML = list_ele;	
+		
+		return url_list;
+	}).then((url_list)=>{
+		
+		var imgset = document.getElementsByClassName('announcement-small-icon');
+		
+		
+		var d = 0;
+
+		setURL(url_list[d],url_list,d,imgset);
+	});
+}
+
+async function setURL(url,url_list,d,imgset){
+	var pathReference = storage.ref("announcement/"+url_list[d]);
+	pathReference.getDownloadURL().then(function(url) {
+	//console.log(url_list[d]);
+					
+		imgset[d].src = url;
+		d++;
+	}).then(()=>{
+		if(d < url_list.length){
+			setURL(url,url_list,d,imgset)
+		}
+	}).catch(function(error) {
+		console.log(error);
+	});
+}
 
 function createQrCode(){
 	function count_time(){
