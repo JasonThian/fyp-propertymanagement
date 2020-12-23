@@ -11,6 +11,10 @@ import PaymentOnlinePage from '../pages/paymentonline.f7.html';
 import PaymentCreditPage from '../pages/paymentcredit.f7.html';
 import EditPage from '../pages/edit.f7.html';
 import BookingSuccessPage from '../pages/bookingsuccess.f7.html';
+import BookingDetailPage from '../pages/bookingdetail.f7.html';
+import PaymentHistoryPage from '../pages/paymenthistory.f7.html';
+import PaymentReminderPage from '../pages/paymentreminder.f7.html';
+import TenantListPage from '../pages/tenantlist.f7.html';
 
 import DynamicRoutePage from '../pages/dynamic-route.f7.html';
 import RequestAndLoad from '../pages/request-and-load.f7.html';
@@ -68,6 +72,22 @@ var routes = [
   {
     path: '/login/',
     component: LoginPage,
+  },
+  {
+    path: '/paymentreminder/',
+    component: PaymentReminderPage,
+  },
+  {
+    path: '/paymenthistory/',
+    component: PaymentHistoryPage,
+  },
+  {
+    path: '/bookingdetail/',
+    component: BookingDetailPage,
+  },
+  {
+    path: '/tenantlist/',
+    component: TenantListPage,
   },
 
   {

@@ -1,7 +1,56 @@
 <template>
-<div class="login-screen">
-  <!-- Default view-page layout -->
-  <div class="view">
+<div class="page">
+  <div class="navbar">
+    <div class="navbar-bg"></div>
+    <div class="navbar-inner sliding">
+      <div class="left">
+        <a href="#" class="link back">
+          <i class="icon icon-back"></i>
+          <span class="if-not-md">Back</span>
+        </a>
+      </div>
+      <div class="login-screen-title">My App</div>
+    </div>
+  </div>
+  <div class="page-content">
+  <div class="login-screen-title">My App</div>
+    <form>
+          <div class="list">
+            <ul>
+              <li class="item-content item-input">
+                <div class="item-inner">
+                  <div class="item-title item-label">Username</div>
+                  <div class="item-input-wrap">
+                    <input type="text" name="username" placeholder="Username">
+                    <span class="input-clear-button"></span>
+                  </div>
+                </div>
+              </li>
+              <li class="item-content item-input">
+                <div class="item-inner">
+                  <div class="item-title item-label">Password</div>
+                  <div class="item-input-wrap">
+                    <input type="password" name="password" placeholder="Password">
+                    <span class="input-clear-button"></span>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="list">
+            <ul>
+              <li>
+                <a href="#" class="list-button">Sign In</a>
+              </li>
+			  <li>
+                <a data-popup=".popup-forgot-password" class="popup-open list-button">Forgot Password</a>
+              </li>
+            </ul>
+            <div class="block-footer">Some text with login information.</div>
+          </div>
+        </form>
+  </div>
+</div>
     <div class="page login-screen-page">
       <!-- page-content has additional login-screen content -->
       <div class="page-content login-screen-content">
@@ -42,7 +91,6 @@
       </div>
     </div>
   </div>
-</div>
 </template>
 <script>
 export default {};

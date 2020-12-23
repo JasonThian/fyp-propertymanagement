@@ -14,7 +14,7 @@
   </div>
   <div class="page-content">
 	<div class="block block-strong">
-      <div class="amount-large">RM100</div>
+      <div class="amount-large">RM <span id="amount-data">0.00</span></div>
 	  <div class="amount-title">Total Due</div>
     </div>
 	<div class="block block-strong no-margin-block">
@@ -26,7 +26,7 @@
 			  <div class="item-content item-input">
 				<div class="item-inner">
 				  <div class="item-input-wrap">
-					<input type="text" placeholder="-" readonly="readonly"/>
+					<input type="text" id="pay-by" placeholder="-" readonly="readonly"/>
 				  </div>
 				</div>
 			  </div>
@@ -42,7 +42,7 @@
 			  <div class="item-content item-input">
 				<div class="item-inner">
 				  <div class="item-input-wrap">
-					<input type="text" placeholder="-" readonly="readonly"/>
+					<input type="text" id="payment-details" placeholder="-" readonly="readonly"/>
 				  </div>
 				</div>
 			  </div>
@@ -58,7 +58,7 @@
 			  <div class="item-content item-input">
 				<div class="item-inner">
 				  <div class="item-input-wrap">
-					<input type="text" placeholder="-" readonly="readonly"/>
+					<input type="text" id="order-number" placeholder="-" readonly="readonly"/>
 				  </div>
 				</div>
 			  </div>
@@ -68,7 +68,7 @@
     </div>
 	</div>
 	<div class="block block-strong no-margin-block">
-		<a href="/paymentmethod/" class="button button-raised button-fill button-large">Pay Now</a>
+		<a onclick="app.data.paymentMethodData()" href="/paymentmethod/" class="button button-raised button-fill button-large">Pay Now</a>
 	</div>
   </div>
 </div>

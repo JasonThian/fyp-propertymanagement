@@ -95,6 +95,12 @@ window.app = new Framework7({
 	},
 	SelectAnnc: function(id){
 		SelectAnnc(id);
+	},
+	getPayment: function(){
+		getUserBilling();
+	},
+	paymentMethodData: function(){
+		getUserBillingPaymentMethod();
 	}
   },
   // App routes
@@ -157,7 +163,15 @@ function init_script(){
 	var stripe = document.createElement('script');
 	stripe.src = "https://js.stripe.com/v3/";
 	document.head.appendChild(stripe);
-	
+	console.log(auth);
+	auth.signInWithEmailAndPassword("100086673@students.swinburne.edu.my", "123456").then((cred) => {
+		console.log("user logged in");
+		//location.replace("residents.html");
+		//err.innerHTML = '';
+  	}).catch(err => {
+		console.log(err.message);
+		//err.innerHTML = 'password incorrect or user does not exist';
+  	});	
 }
 
 var annc_selected;
@@ -310,8 +324,59 @@ function createQrCode(){
 	}, 1000);
 }
 
+var amount = '';
+var amountString = '';
+var paymentDescrip = '';
+
+/*
+temp
+sessionStorage.getItem('label')
+sessionStorage.setItem('label', 'value')
+
+perm
+localStorage.getItem('label')
+localStorage.setItem('label', 'value')*/
+
+function getUserBillingPaymentMethod(){
+	document.getElementById("amount").innerHTML = amountString;
+	document.getElementById("payment-description").innerHTML = paymentDescrip;
+}
+
+function getUserBilling(){
+	var user_id = auth.currentUser.uid;
+	db.collection("billing").where("user_id", "==", user_id).orderBy("date", "desc").limit(1).get().then((querySnapshot) => {
+		querySnapshot.forEach((doc) => {
+		if(doc.data().status != "paid"){
+			var time = new Date();
+			time.setTime(doc.data().date.seconds * 1000);
+			amountString = (doc.data().amount/100).toFixed(2);
+			paymentDescrip = doc.data().description;
+			document.getElementById("amount-data").innerHTML = amountString;
+			document.getElementById("pay-by").value = time.toLocaleDateString("en-US");
+			document.getElementById("payment-details").value = paymentDescrip;
+			document.getElementById("order-number").value = doc.id;
+		}
+	})});
+}
+
 function online_payment_function(){
-	var stripe = Stripe('pk_test_51HYjjzF4IJ8BHvcZASjHh7DzctvdHJn2u9kQma9CnPvTbLPoqKm2LeonLfIaoZ7crChlTVsqtADSXslC60JkH9i100nXYkuYni');
+	var jsonString = { "amount": 8000 };
+	console.log(JSON.stringify(jsonString));
+	var online = firebase.functions().httpsCallable('Online');
+online(JSON.stringify(jsonString))
+  .then((result) => {
+    // Read result of the Cloud Function.
+    var sanitizedMessage = result.data.text;
+	console.log(sanitizedMessage);
+  })
+  .catch((error) => {
+    // Getting the Error details.
+    var code = error.code;
+    var message = error.message;
+    var details = error.details;
+    // ...
+  });
+	var stripe = Stripe('pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ');
 	var elements = stripe.elements();
 	var style = {
 	  base: {
@@ -352,10 +417,11 @@ function online_payment_function(){
 }
 
 function credit_payment_function(){
-	var stripe = Stripe("pk_test_51HYjjzF4IJ8BHvcZASjHh7DzctvdHJn2u9kQma9CnPvTbLPoqKm2LeonLfIaoZ7crChlTVsqtADSXslC60JkH9i100nXYkuYni");
+	var stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
 
 	var purchase = {
-	  items: [{ id: "Bill" }]
+	  "amount":"8000",
+	  "currency":"myr"
 	};
 
 	document.querySelector("button").disabled = true;
