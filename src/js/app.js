@@ -356,6 +356,16 @@ function getUserBilling(){
 			document.getElementById("payment-details").value = paymentDescrip;
 			document.getElementById("order-number").value = doc.id;
 		}
+		else{
+			var payNowButton = document.getElementById("pay-now-button");
+			payNowButton.disabled = true;
+			payNowButton.onclick = function(){
+					var toastBottom = app.toast.create({
+					text: 'This is default bottom positioned toast',
+					closeTimeout: 2000,
+				});
+			}
+		}
 	})});
 }
 
