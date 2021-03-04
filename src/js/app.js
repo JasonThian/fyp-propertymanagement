@@ -183,11 +183,39 @@ $$(document).on('page:init', function (e, page) {
 	
 	if(pn == "news"){
 		getAnnouncement();
-	}else if(pn == "announcement"){
-		
+	}else if(pn == "booking_details"){
+		getBookingDetails()
 	}
 })
 
+function getBookingDetails(){
+	var user_id = auth.currentUser.uid;
+	var booking_list = document.getElementById("booking_container");
+	
+	db.collection("booking").where("user_id", "==", user_id).orderBy("date", "desc").get().then((querySnapshot) => {
+		querySnapshot.forEach((doc) => {
+			
+			var facility = doc.data().facility;
+			var date = doc.data().date;
+			var duration = doc.data().duration;
+			var status = doc.data().status;
+			var time = doc.data().time;
+			
+			
+			var elements = `<div class="block block-strong">
+				<img src='static/icons/favicon.png'>
+				<p>${facility}</p>
+				<p>${date}</p>
+				<p>${time}</p>
+				<p>${duration}</p>
+				<p>${status}</p>
+			</div>`;
+			
+			booking_list.innerHTML += elements;
+	})});
+}
+
+//announcements
 function SelectAnnc(id){
 
 	console.log(id);
@@ -323,7 +351,7 @@ function createQrCode(){
 		count_time();
 	}, 1000);
 }
-
+//payments
 var amount = '';
 var amountString = '';
 var paymentDescrip = '';
