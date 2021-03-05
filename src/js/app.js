@@ -185,9 +185,50 @@ $$(document).on('page:init', function (e, page) {
 		getAnnouncement();
 	}else if(pn == "booking_details"){
 		getBookingDetails()
+	}else if(pn == "payment_history"){
+		getPaymentHistory()
 	}
 })
 
+function getPaymentHistory(){
+	var user_id = auth.currentUser.uid;
+	var Payment_list = document.getElementById("Payment_list");
+	var elements = "";
+	
+	db.collection("payment").where("user_id", "==", user_id).orderBy("time", "desc").get().then((querySnapshot) => {
+		querySnapshot.forEach((doc) => {
+			if (doc.exists) {
+				var time = doc.data().time;
+				var amount = doc.data().amount;
+				var bank = doc.data().bank;
+				var description = doc.data().description;
+				var status = doc.data().status;
+				var payment_method = doc.data().payment_method;
+				
+				
+				elements = `<div class="block block-strong">
+					<p>Time: ${time}</p>
+					<p>Amount: ${amount}</p>
+					<p>Bank: ${bank}</p>
+					<p>Description: ${description}</p>
+					<p>Status: ${status}</p>
+					<p>Payment Method: ${payment_method}</p>
+				</div>`;
+				
+				
+			}else{
+				elements = `<div class="block block-strong">
+					  <p>Sorry</p>
+					  <p>You have not made any payments</p>
+					</div>`
+			}
+			
+			Payment_list.innerHTML += elements;
+	})});
+}
+
+
+//Booking details
 function getBookingDetails(){
 	var user_id = auth.currentUser.uid;
 	var booking_list = document.getElementById("booking_container");
