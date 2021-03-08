@@ -160,18 +160,49 @@ function calendar_init(){
 
 //import scripts
 function init_script(){
+	//stripe
 	var stripe = document.createElement('script');
 	stripe.src = "https://js.stripe.com/v3/";
 	document.head.appendChild(stripe);
 	console.log(auth);
 	auth.signInWithEmailAndPassword("100086673@students.swinburne.edu.my", "123456").then((cred) => {
 		console.log("user logged in");
-		//location.replace("residents.html");
-		//err.innerHTML = '';
   	}).catch(err => {
 		console.log(err.message);
-		//err.innerHTML = 'password incorrect or user does not exist';
-  	});	
+  	});
+	
+	//ChangePassword
+	var change_pass = document.getElementById('changePassword');
+	change_pass.addEventListener('click', function(e){
+		var cfm_pass = document.getElementById('cnPassword').value.trim();
+		var old_pass = document.getElementById('cPassword').value;
+		var new_pass = document.getElementById('nPassword').value.trim();
+		
+		if(cfm_pass == new_pass){
+			var user = firebase.auth().currentUser;
+			const credential = firebase.auth.EmailAuthProvider.credential(
+				user.email, 
+				old_pass
+			);
+			
+			// Now you can use that to reauthenticate
+			user.reauthenticateWithCredential(credential).then(promise =>{
+				user.updatePassword(new_pass).then(function() {
+					alert("Password update successful");
+				}).catch(function(error) {
+					alert("An error has occured");
+				});
+				
+			}).catch(err => {
+				alert(err.message);
+			});
+		}
+		
+		
+		
+		
+		
+	});
 }
 
 var annc_selected;
@@ -190,6 +221,7 @@ $$(document).on('page:init', function (e, page) {
 	}
 })
 
+//Payment History
 function getPaymentHistory(){
 	var user_id = auth.currentUser.uid;
 	var Payment_list = document.getElementById("Payment_list");
