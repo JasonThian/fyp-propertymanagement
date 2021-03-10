@@ -9,7 +9,8 @@
        url(../fonts/MaterialIcons-Regular.woff2) format('woff2'),
        url(../fonts/MaterialIcons-Regular.woff) format('woff'),
        url(../fonts/MaterialIcons-Regular.ttf) format('truetype');
-}
+} */
+
 .material-icons {
   font-family: 'Material Icons';
   font-weight: normal;
@@ -27,6 +28,34 @@
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'liga';
 }
+
+/* @font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 400;
+  src: url(../fonts/Nunito-Regular.ttf);
+  src: local('Nunito'),
+       local('Nunito-Regular'),
+       url(../fonts/Nunito-Regular.ttf) format('truetype');
+}
+
+.material-icons {
+  font-family: 'Nunito';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga';
+} */
 
 /* Framework7 Icons Font (for iOS theme) */
 @font-face {
