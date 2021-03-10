@@ -54,6 +54,7 @@ var routes = [
     component: EditPage,
   },
   {
+	name: "bookingsuccess",
     path: '/bookingsuccess/',
     component: BookingSuccessPage,
   },
