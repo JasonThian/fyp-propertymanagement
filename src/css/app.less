@@ -1,9 +1,11 @@
-@body-width: 480px;
-@body-height: 853px;
+// @body-width: 480px;
+// @body-height: 853px;
+@body-height: 50em;
+@body-width: 22.5em;
 @announcement-width: @body-width * 0.8;
 @announcement-height: @announcement-width * (9/16);
-@card-view-width: @body-width * 0.9;
-@card-width: @card-view-width * 0.4;
+@card-view-width: @body-width * 0.8;
+@card-width: @card-view-width * 0.5;
 
 /* iOS Cordova Tweak */
 .device-cordova.device-ios {
@@ -48,37 +50,48 @@
 	margin-left: 20px;
 }
 
-/*body{
-	max-width: @body-width;
-	max-weight: @body-height;
-	margin: 0 auto;
-	background-color: #000000;
-}*/
+// body{
+// 	max-width: @body-width;
+// 	max-height: @body-height;
+// 	margin: 0 auto;
+// 	background-color: #000000;
+// }
 
 //dashboard
+.page{
+	background-color: #C8E0FF;
+}
+
+.page-content{
+	overflow-x: hidden;
+	overflow-y: scroll;
+	padding: 10% 2%;
+}
+
 .left{
 	margin-left: 10px;
-
 }
 
 .right{
-	margin-top:10px;
-	margin-right:10px;
+	margin-top: 10px;
+	margin-right: 10px;
 }
 
 .card-margin-middle{
 	margin: auto;
 	vertical-align: middle;
-	padding: 65px 0;
+	padding: 16% 15%;
 	text-align: center;
 }
 
 .card-inline-blocks{
-	margin: 2% 5%;
+	margin: 2%;
 	width: @card-width;
-	display:inline-block; 
-	height:200px;
+	display: inline-block; 
+	height: 40%;
+	border-radius: 7%;
 }
+
 
 /*.navbar-bg{
 	visibility:hidden;
@@ -86,17 +99,17 @@
 
 .swiper-slide{
 	text-align: center;
+	margin-top: 5%;
 }
 
 .announcement-img{
-	width: @announcement-width;
-	max-height: @announcement-height;
+	width: @announcement-width - 20%;
 	margin: 0 auto;
 }
 
 .card-views{
-	width: @card-view-width;
-	margin: 0 auto;
+	// width: @card-view-width;
+	margin: auto;
 	text-align: center;
 }
 
@@ -117,8 +130,8 @@
 
 //announcement
 .announcement-small-icon{
-	width: 50px;
-	height: 50px;
+	width: 15vw;
+	height: 15vw;
 }
 
 .announcement-small-title{
