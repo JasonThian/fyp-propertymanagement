@@ -307,7 +307,7 @@ function SelectAnnc(id){
 		pathReference.getDownloadURL().then(function(url) {
 
 			var annc = document.getElementById("annc");
-			annc.innerHTML = `<img id="annc_pic" src="${url}"/>
+			annc.innerHTML = `<img id="annc_pic" width="100%" src="${url}"/>
 							<p id="annc_title">${title}</p>
 							<p id="annc_desc">${desc}</p>`;
 					
@@ -413,7 +413,7 @@ function createQrCode(){
 	var seconds = 0;
 	var string = "";
 	
-	QRCode.toCanvas(canvas, 'sample text', {width: 500}, function (error) {
+	QRCode.toCanvas(canvas, 'sample text', {width: 320}, function (error) {
 		if (error) console.error(error)
 		console.log('success!');
 	});
