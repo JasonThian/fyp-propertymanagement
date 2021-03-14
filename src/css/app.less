@@ -65,16 +65,23 @@
 .page-content{
 	overflow-x: hidden;
 	overflow-y: scroll;
-	padding: 10% 2%;
+	padding: 10% 0%;
 }
 
 .left{
-	margin-left: 10px;
+	margin-top: 8%;
+	// margin-left: 10px;
+	float: left;
 }
 
 .right{
-	margin-top: 10px;
-	margin-right: 10px;
+	margin-top: 8%;
+	// margin-right: 10px;
+	float: right;
+}
+
+.title{
+	margin-top: 8%;
 }
 
 .card-margin-middle{
@@ -82,6 +89,7 @@
 	vertical-align: middle;
 	padding: 16% 15%;
 	text-align: center;
+	font-size: 18px;
 }
 
 .card-inline-blocks{
@@ -90,6 +98,12 @@
 	display: inline-block; 
 	height: 40%;
 	border-radius: 7%;
+}
+
+.navbar-inner{
+	padding: 10%;
+	margin-top: 50%;
+	background-color: #c8e0ff;
 }
 
 
@@ -113,25 +127,47 @@
 	text-align: center;
 }
 
+//Right Panel List
 .list-buttons{
-	width:100%;
-	font-size:14px;
-	text-align:center;
-	height: 48px;
+	width: 100%;
+	font-size: 5vw;
+	text-align: center;
     font-weight: 500;
-    text-transform: uppercase;
+    text-transform: capitalize;
+	margin: 8% auto;
+	height: 3rem;
+	background-color: #C8E0FF;
 }
 
 .logout{
-	position:absolute;
+	position: absolute;
 	bottom: 0px;
-	width:100%;
+	width: 100%;
+	text-transform: capitalize;
+}
+
+.list ul, .navbar-bg{
+	background-color: #C8E0FF;
+}
+
+.user-icon{
+	width: 13vw;
+	height: 13vw;
+	margin: 5% 4%;
+
+}
+
+.username{
+	color: #d0954e;
+	text-shadow: #CCA679;
+	font-size: 24px;
+	font-style: oblique;
 }
 
 //announcement
 .announcement-small-icon{
-	width: 10vw;
-	height: 10vw;
+	max-width: 20vw;
+	max-height: 20vw;
 }
 
 .announcement-small-title{
@@ -145,8 +181,24 @@
 	max-width: 700px;
 }
 
+.announcement-list{
+	margin-top: 5%;
+}
+
 .announcement-list-row{
 	padding: 15px 0;
+}
+
+p#annc_title{
+	font-size: 6vw;
+    font-weight: bold;
+    text-transform: capitalize;
+    text-align: center;
+}
+
+p#annc_desc {
+    font-size: 18px;
+    text-align: justify;
 }
 
 //qr code
