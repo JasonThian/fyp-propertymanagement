@@ -217,6 +217,8 @@ function init_script(){
 
 		if (user) {
 			var uid = user.uid;
+			set_changepassword();
+			
 			console.log("user logged in");
 			mainView.router.navigate({ name: 'home'});
 			//fields
@@ -225,6 +227,7 @@ function init_script(){
 			var user_icon = document.getElementById("user_icon");
 			
 			db.collection('landlord').doc(uid).get().then(function(doc) {
+				
 				var name = doc.data().name;
 				var imageurl = doc.data().imageurl;
 				
@@ -252,7 +255,8 @@ function init_script(){
 		}
 	})
 	
-	
+}
+function set_changepassword(){
 	//ChangePassword
 	var change_pass = document.getElementById('changePassword');
 	change_pass.addEventListener('click', function(e){
@@ -280,10 +284,8 @@ function init_script(){
 			});
 		}		
 	});
-	
-	/**/
-	
 }
+
 //anouncement var
 var annc_selected;
 
