@@ -202,7 +202,7 @@ function set_logout(){
 }
 
 //import scripts
-function init_script(){
+async function init_script(){
 	//stripe
 	var stripe = document.createElement('script');
 	set_logout();
@@ -211,6 +211,21 @@ function init_script(){
 	document.head.appendChild(stripe);
 	console.log(auth);
 	
+	let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(4).get();
+	var annc_img = document.getElementsByClassName('announcement-img');
+	var annc = 0; 
+	querySnapshot.forEach(async (doc) => {
+		var imageurl = doc.data().imageurl;
+		
+		var pathReference = storage.ref("announcement/"+imageurl);
+		
+		console.log(imageurl);
+		let url = await pathReference.getDownloadURL();
+
+		//annc_img[annc].src = url;
+		
+		annc++; 
+	});
 	
 	auth.onAuthStateChanged(user => {
 		var mainView = app.view.main;
