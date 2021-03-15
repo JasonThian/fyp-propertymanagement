@@ -8,7 +8,7 @@
           <div class="navbar">
             <div class="navbar-bg"></div>
             <div class="navbar-inner">
-              <img class="user-icon" src="static/icons/favicon.png" width="60vw" height="60vw">
+              <img class="user-icon" id="user_icon" src="static/icons/favicon.png" width="60vw" height="60vw">
 			  <p class="username"></p>
             </div>
           </div>
@@ -23,7 +23,7 @@
 					<a onclick="app.data.close_panel()" href="/tenantlist/" class="button list-buttons landlord">Tenant List</a>
 				</ul>
 			</div>
-			<a onclick="app.data.close_panel()" href="/login/" class="button button-raised button-fill button-large logout">Logout</a>
+			<a onclick="app.data.close_panel()" href="/login/" class="button button-raised button-fill button-large logout" id="logout">Logout</a>
           </div>
         </div>
       </div>

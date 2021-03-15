@@ -57,6 +57,7 @@ const functions = firebase.functions();
 const storage = firebase.storage();
 		
 //console.log("Initializing auth script");
+//f7 variables
 
 window.app = new Framework7({
   root: '#app', // App root element
@@ -187,18 +188,70 @@ function calendar_init(){
     });
 }
 
+function set_logout(){
+	var logout = document.getElementById('logout');
+	logout.addEventListener("click", function(e){
+		e.preventDefault();
+		auth.signOut().then(() => {
+			console.log("user signed out");
+			
+			var mainView = app.view.main;
+			mainView.router.navigate({ name: 'login'});
+		});
+	})
+}
+
 //import scripts
 function init_script(){
 	//stripe
 	var stripe = document.createElement('script');
+	set_logout();
+	
 	stripe.src = "https://js.stripe.com/v3/";
 	document.head.appendChild(stripe);
 	console.log(auth);
-	auth.signInWithEmailAndPassword("100086673@students.swinburne.edu.my", "123456").then((cred) => {
-		console.log("user logged in");
-  	}).catch(err => {
-		console.log(err.message);
-  	});
+	
+	
+	auth.onAuthStateChanged(user => {
+		var mainView = app.view.main;
+
+		if (user) {
+			var uid = user.uid;
+			console.log("user logged in");
+			mainView.router.navigate({ name: 'home'});
+			//fields
+			var username = document.getElementById("username");
+			var user_pic = document.getElementById("user_pic");
+			var user_icon = document.getElementById("user_icon");
+			
+			db.collection('landlord').doc(uid).get().then(function(doc) {
+				var name = doc.data().name;
+				var imageurl = doc.data().imageurl;
+				
+				username.innerHTML = name;
+					
+				var pathReference = storage.ref(imageurl);
+					
+				pathReference.getDownloadURL().then(function(url) {
+
+					user_pic.src = url;
+					user_icon.src = url;
+					
+				}).catch(function(error) {
+					console.log(error);
+				});
+				
+				
+			}).catch(function(error) {
+				console.log("Error getting document:", error);
+			});
+			
+			
+		}else{
+			mainView.router.navigate({ name: 'login'});
+		}
+	})
+	
 	
 	//ChangePassword
 	var change_pass = document.getElementById('changePassword');
@@ -231,132 +284,153 @@ function init_script(){
 	/**/
 	
 }
-
+//anouncement var
 var annc_selected;
 
+//login
+function set_login(){
+	
+	var sign_in = document.getElementById("sign_in");
+	var login_err = document.getElementById("login_err");
+		
+	sign_in.addEventListener("click",async function(e){
+		var login_username = document.getElementById("login_username").value;
+		var login_password = document.getElementById("login_password").value;
+		
+		auth.signInWithEmailAndPassword(login_username, login_password).then((cred) => {
+			console.log("user logged in");
+		}).catch(err => {
+			console.log(err.message);
+			login_err.innerHTML = err.message;
+			
+		});
+	});
+}
+
+//booking
+async function set_booking(){
+	//get today
+	var now = new Date();
+	var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		
+	let querySnapshot = await db.collection("booking").get();
+		
+	querySnapshot.forEach((doc) => {
+		var booked_date = new Date(doc.data().date);
+		var facility_type = doc.data().facility;
+		var bookings = "";
+		
+		//filter booked facilities
+		if(facility_type === "AV Room")
+			bookings = booking_list.AV_Room;
+		else if(facility_type === "Sauna")
+			bookings = booking_list.Sauna;
+		else if(facility_type === "Sky Lounge")
+			bookings = booking_list.SkyLounge;
+		else if(facility_type === "BBQ Pit")
+			bookings = booking_list.BBQ;
+		else if(facility_type === "Ping-Pong Table")
+			bookings = booking_list.PingPong;
+		
+		//if date is in the future or today
+		if(booked_date >= today){
+			
+			var booking_time = doc.data().time;
+			
+			var facility_bookings = bookings[booked_date];
+			//console.log(facility_bookings);
+			//create object with date as key
+			if(facility_bookings == null){
+				var time_list = [];
+			
+				time_list.push(booking_time);
+				
+				bookings[booked_date] = time_list;
+			}else{
+				//append time to the booked date
+				bookings[booked_date].push(booking_time);
+			}
+		}
+	});
+	//initialize calendar
+	calendar_init();
+		
+	//disable time_select until a date is chosen
+	var time_select = document.getElementById("time_select");
+	time_select.disabled = true;
+	var date_chosen = document.getElementById('calendar-events-disable');
+	date_chosen.addEventListener('change', function(e){
+		time_select.disabled = false;
+		disableTimeSlots()
+	})
+		
+	//update calendar and available dates on change
+	var facility_button = document.getElementById("facility");
+	facility_button.addEventListener('change', function(e){
+		//update calendar
+		calendarEvents.destroy();
+		calendar_init();
+		disableTimeSlots()
+	})
+		
+	//submit button clicked
+	var book_button = document.getElementById("book-button");
+	book_button.addEventListener('click', function(e){
+		var user_id = auth.currentUser.uid;
+		var facility_chosen = document.getElementById('facility').value;
+		var time_chosen = document.getElementById('time_select').value;
+		var date_chosen = document.getElementById('calendar-events-disable').value;
+		
+		//filter booked facilities
+		var facility = "";
+		if(facility_chosen === "AV_Room")
+			facility = "AV Room";
+		else if(facility_chosen === "Sauna")
+			facility = "Sauna";
+		else if(facility_chosen === "SkyLounge")
+			facility = "Sky Lounge";
+		else if(facility_chosen === "BBQ")
+			facility = "BBQ Pit";
+		else if(facility_chosen === "PingPong")
+			facility = "Ping-Pong Table";
+		
+		//format date
+		var dateObj = new Date(date_chosen);
+		var month = monthNames[dateObj.getMonth()];
+		var day = String(dateObj.getDate()).padStart(2, '0');
+		var year = dateObj.getFullYear();
+		var date = day  + '-'+ month  + '-' + year;
+		if(facility_chosen != "" && time_chosen != "" && date_chosen != ""){
+			db.collection("booking").add({
+				date: date,
+				duration: "2 hours",
+				facility: facility,
+				status: "pending",
+				time: time_chosen,
+				user_id: user_id
+			}).then(()=>{
+				var mainView = app.view.main;
+				mainView.router.navigate({ name: 'bookingsuccess'});
+			})
+		}
+		
+	})
+}
 //page handler
 $$(document).on('page:init', async function (e, page) {
   var pn = page.name;
-	console.log(pn);
+	console.log(pn+" Entered");
 	
-	if(pn == "news"){
+	if(pn == "login"){
+		set_login();
+	}else if(pn == "news"){
 		getAnnouncement();
 	}else if(pn == "booking_details"){
-		getBookingDetails()
+		getBookingDetails();
 	}else if(pn == "payment_history"){
-		getPaymentHistory()
+		getPaymentHistory();
 	}else if(pn == "facilities"){
-		
-		
-		//get today
-		var now = new Date();
-		var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-		
-		let querySnapshot = await db.collection("booking").get();
-		
-		querySnapshot.forEach((doc) => {
-			var booked_date = new Date(doc.data().date);
-			var facility_type = doc.data().facility;
-			var bookings = "";
-			
-			//filter booked facilities
-			if(facility_type === "AV Room")
-				bookings = booking_list.AV_Room;
-			else if(facility_type === "Sauna")
-				bookings = booking_list.Sauna;
-			else if(facility_type === "Sky Lounge")
-				bookings = booking_list.SkyLounge;
-			else if(facility_type === "BBQ Pit")
-				bookings = booking_list.BBQ;
-			else if(facility_type === "Ping-Pong Table")
-				bookings = booking_list.PingPong;
-			
-			//if date is in the future or today
-			if(booked_date >= today){
-				
-				var booking_time = doc.data().time;
-				
-				var facility_bookings = bookings[booked_date];
-				//console.log(facility_bookings);
-				//create object with date as key
-				if(facility_bookings == null){
-					var time_list = [];
-				
-					time_list.push(booking_time);
-					
-					bookings[booked_date] = time_list;
-				}else{
-					//append time to the booked date
-					bookings[booked_date].push(booking_time);
-				}
-			}
-		});
-		//initialize calendar
-		calendar_init();
-		
-		//disable time_select until a date is chosen
-		var time_select = document.getElementById("time_select");
-		time_select.disabled = true;
-		var date_chosen = document.getElementById('calendar-events-disable');
-		date_chosen.addEventListener('change', function(e){
-			time_select.disabled = false;
-			disableTimeSlots()
-		})
-		
-		//update calendar and available dates on change
-		var facility_button = document.getElementById("facility");
-		facility_button.addEventListener('change', function(e){
-			//update calendar
-			calendarEvents.destroy();
-			calendar_init();
-			disableTimeSlots()
-		})
-		
-		//submit button clicked
-		var book_button = document.getElementById("book-button");
-		book_button.addEventListener('click', function(e){
-			var user_id = auth.currentUser.uid;
-			var facility_chosen = document.getElementById('facility').value;
-			var time_chosen = document.getElementById('time_select').value;
-			var date_chosen = document.getElementById('calendar-events-disable').value;
-			
-			//filter booked facilities
-			var facility = "";
-			if(facility_chosen === "AV_Room")
-				facility = "AV Room";
-			else if(facility_chosen === "Sauna")
-				facility = "Sauna";
-			else if(facility_chosen === "SkyLounge")
-				facility = "Sky Lounge";
-			else if(facility_chosen === "BBQ")
-				facility = "BBQ Pit";
-			else if(facility_chosen === "PingPong")
-				facility = "Ping-Pong Table";
-			
-			//format date
-			var dateObj = new Date(date_chosen);
-			var month = monthNames[dateObj.getMonth()];
-			var day = String(dateObj.getDate()).padStart(2, '0');
-			var year = dateObj.getFullYear();
-			var date = day  + '-'+ month  + '-' + year;
-			if(facility_chosen != "" && time_chosen != "" && date_chosen != ""){
-				db.collection("booking").add({
-					date: date,
-					duration: "2 hours",
-					facility: facility,
-					status: "pending",
-					time: time_chosen,
-					user_id: user_id
-				}).then(()=>{
-					//window.location.href = "/bookingsuccess/";
-					var mainView = app.view.main;
-					mainView.router.navigate({ name: 'bookingsuccess'});
-						//,path:"/bookingsuccess/" 
-					
-				})
-			}
-			
-		})
+		set_booking();
 	}
 })
 
