@@ -1,6 +1,6 @@
 <template>
-<div class="page">
-  <div class="navbar">
+<div class="page" data-name="login">
+  <!--<div class="navbar">
     <div class="navbar-bg"></div>
     <div class="navbar-inner sliding">
       <div class="left">
@@ -11,26 +11,26 @@
       </div>
       <div class="login-screen-title">My App</div>
     </div>
-  </div>
+  </div>-->
   <div class="page-content">
-  <div class="login-screen-title">My App</div>
+  <div class="login-screen-title">D'ryx residence</div>
     <form>
           <div class="list">
             <ul>
               <li class="item-content item-input">
                 <div class="item-inner">
-                  <div class="item-title item-label">Username</div>
+                  <div class="item-title item-label" >Username</div>
                   <div class="item-input-wrap">
-                    <input type="text" name="username" placeholder="Username">
+                    <input id="login_username" type="text" name="username" placeholder="Username">
                     <span class="input-clear-button"></span>
                   </div>
                 </div>
               </li>
               <li class="item-content item-input">
                 <div class="item-inner">
-                  <div class="item-title item-label">Password</div>
+                  <div class="item-title item-label" >Password</div>
                   <div class="item-input-wrap">
-                    <input type="password" name="password" placeholder="Password">
+                    <input id="login_password" type="password" name="password" placeholder="Password">
                     <span class="input-clear-button"></span>
                   </div>
                 </div>
@@ -40,13 +40,13 @@
           <div class="list">
             <ul>
               <li>
-                <a href="#" class="list-button">Sign In</a>
+                <a href="#" class="list-button" id="sign_in">Sign In</a>
               </li>
 			  <li>
                 <a data-popup=".popup-forgot-password" class="popup-open list-button">Forgot Password</a>
               </li>
             </ul>
-            <div class="block-footer">Some text with login information.</div>
+            <div class="block-footer" id="login_err"></div>
           </div>
         </form>
   </div>
@@ -85,7 +85,7 @@
                 <a href="#" class="list-button">Sign In</a>
               </li>
             </ul>
-            <div class="block-footer">Some text with login information.</div>
+            <div class="block-footer"></div>
           </div>
         </form>
       </div>

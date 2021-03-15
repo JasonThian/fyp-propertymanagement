@@ -4,7 +4,7 @@
 	<!-- Scrollable page content-->
 	<div class="page-content">
 	<div class="navbar navbar-transparent navbar-large">
-      	<div class="navbar-bg"></div>
+    <div class="navbar-bg"></div>
 		<div class="navbar-inner">
 			<div class="left">
 				<p><span>Hello</span>,<br><span class="username"></span></p>
@@ -19,8 +19,12 @@
 		<div data-pagination='{"el": ".swiper-pagination"}' data-slides-per-view="auto" data-centered-slides="true" class="swiper-container swiper-init demo-swiper demo-swiper-auto">
 		  <div class="swiper-pagination"></div>
 		  <div class="swiper-wrapper">
-			<div class="swiper-slide"><img class="announcement-img" src="static/icons/ann1.png"></div>
-			<div class="swiper-slide"><img class="announcement-img" src="static/icons/ann2.png"></div>
+
+        <div class="swiper-slide"><img class="announcement-img" id="annc1" src="static/icons/ann1.png"></div>
+        <div class="swiper-slide"><img class="announcement-img" id="annc2" src="static/icons/ann2.png"></div>
+        <div class="swiper-slide"><img class="announcement-img" id="annc3" src="static/icons/favicon.png"></div>
+        <div class="swiper-slide"><img class="announcement-img" id="annc4" src="static/icons/favicon.png"></div>
+
 		  </div>
 		</div>
 		<div class="card-views">
@@ -61,11 +65,5 @@
 		</div>
       
     </div>
-	<script type="text/javascript">
-		var username = document.getElementsByClassName("username");
-		for (var i = 0; i < username.length; i++) {
-		   username[i].innerHTML = "John Doe";
-		}
-	</script>
   </div>
 </template>
