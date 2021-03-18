@@ -579,7 +579,7 @@ function SelectAnnc(id){
 		pathReference.getDownloadURL().then(function(url) {
 
 			var annc = document.getElementById("annc");
-			annc.innerHTML = `<img id="annc_pic" width="100%" src="${url}"/>
+			annc.innerHTML = `<img id="annc_pic" src="${url}"/>
 							<p id="annc_title">${title}</p>
 							<p id="annc_desc">${desc}</p>`;
 					
