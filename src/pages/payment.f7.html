@@ -13,61 +13,64 @@
     </div>
   </div>
   <div class="page-content">
-	<div class="block block-strong">
+	<div class="block">
       <div class="amount-large">RM <span id="amount-data">0.00</span></div>
 	  <div class="amount-title">Total Due</div>
     </div>
-	<div class="block block-strong no-margin-block">
+	<div class="block">
     <div>
-      <div class="block-title">Pay By</div>
+     
 		<div class="list no-hairlines-md">
 		  <ul>
-			<li>
-			  <div class="item-content item-input">
-				<div class="item-inner">
-				  <div class="item-input-wrap">
+          <li class="item-content item-input">
+            <div class="item-inner">
+              <div class="item-title item-label">Pay By</div>
+				<div class="item-input-wrap">
 					<input type="text" id="pay-by" placeholder="-" readonly="readonly"/>
-				  </div>
-				</div>
-			  </div>
+				 </div>
+			</div>
+		</div>
 			</li>
 		  </ul>
-		</div>
-    </div>
-	<div>
-      <div class="block-title">Payment Details</div>
-		<div class="list no-hairlines-md">
-		  <ul>
-			<li>
-			  <div class="item-content item-input">
-				<div class="item-inner">
-				  <div class="item-input-wrap">
-					<input type="text" id="payment-details" placeholder="-" readonly="readonly"/>
-				  </div>
-				</div>
-			  </div>
-			</li>
-		  </ul>
-		</div>
-    </div>
-	<div>
-      <div class="block-title">Order Number</div>
-		<div class="list no-hairlines-md">
-		  <ul>
-			<li>
-			  <div class="item-content item-input">
-				<div class="item-inner">
-				  <div class="item-input-wrap">
-					<input type="text" id="order-number" placeholder="-" readonly="readonly"/>
-				  </div>
-				</div>
-			  </div>
-			</li>
-		  </ul>
-		</div>
-    </div>
 	</div>
-	<div class="block block-strong no-margin-block">
+    </div>
+	<div class="block">
+    <div>
+     
+		<div class="list no-hairlines-md">
+		  <ul>
+          <li class="item-content item-input">
+            <div class="item-inner">
+              <div class="item-title item-label">Payment Detail</div>
+				<div class="item-input-wrap">
+					<input type="text" id="payment-details" placeholder="-" readonly="readonly"/>
+
+				 </div>
+			</div>
+		</div>
+			</li>
+		  </ul>
+	</div>
+    </div>
+	<div class="block">
+    <div>
+     
+		<div class="list no-hairlines-md">
+		  <ul>
+          <li class="item-content item-input">
+            <div class="item-inner">
+              <div class="item-title item-label">Order Number</div>
+				<div class="item-input-wrap">
+					<input type="text" id="order-number" placeholder="-" readonly="readonly"/>
+				 </div>
+			</div>
+		</div>
+			</li>
+		  </ul>
+	</div>
+    </div>
+	
+	<div class="block">
 		<a id="pay-now-button" onclick="app.data.paymentMethodData()" href="/paymentmethod/" class="button button-raised button-fill button-large">Pay Now</a>
 	</div>
   </div>
