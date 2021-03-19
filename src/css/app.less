@@ -12,6 +12,10 @@
   height: 100vh;
 }
 
+*{
+	font-family: Arial, Helvetica, sans-serif;
+}
+
 /* Your app custom styles here */
 /*.landlord{
 	display:none;
@@ -32,6 +36,10 @@
 
 .top-margin-block{
 	margin: 25px 0 0 0;
+}
+
+.block-strong{
+	background-color: transparent;
 }
 
 .block-strong:before, .block-strong:after,.list .item-inner:after{
@@ -67,6 +75,7 @@
 	overflow-x: hidden;
 	overflow-y: scroll;
 	padding: 5px;
+	top: 10px;
 }
 
 .left{
@@ -99,8 +108,8 @@
 }
 
 .navbar-inner{
-	background-color: #c8e0ff;
-	// background-color: transparent;
+	// background-color: #c8e0ff;
+	background-color: transparent;
 }
 
 
@@ -134,13 +143,14 @@
 //Right Panel List
 .list-buttons{
 	width: 100%;
-	font-size: 5vw;
-	text-align: center;
+    font-size: 20px;
+    text-align: center;
     font-weight: 500;
     text-transform: capitalize;
-	margin: 8% auto;
-	height: 3rem;
-	background-color: #C8E0FF;
+    /* margin: auto; */
+    height: 55px;
+    // background-color: #C8E0FF;
+	background-color: transparent;
 }
 
 .logout{
@@ -151,14 +161,15 @@
 }
 
 .list ul, .navbar-bg{
-	background-color: #C8E0FF;
+	// background-color: #C8E0FF;
+	background-color: transparent;
 }
 
 .user-icon{
 	// width: 13vw;
 	// height: 13vw;
-	width: 50px;
-	height: 50px;
+	width: 2rem;
+	height: 2rem;
 	// margin: 5% 4%;
 	border-radius: 100px;
 	// border: 3px solid #CCA679;
@@ -190,7 +201,7 @@
 }
 
 .announcement-list{
-	margin-top: 35px;
+	margin-top: 55px;
 }
 
 .announcement-list-row{
@@ -238,10 +249,7 @@ p#annc_desc {
 	font-size: 3vw;
 }
 
-img.user-icon{
-	display: block;
-	margin: 0 auto;
-}
+
 
 .profile-inputs > p{
 	font-weight: bold;
@@ -257,7 +265,117 @@ img.user-icon{
 	font-size: 3vw;
 }
 
+//Booking Details
+.booking-details{
+	border: 1px solid rgba(255,255,255,1);
+	border-radius: 8px;
+	background: linear-gradient(
+		to right bottom, 
+		rgba(255, 255, 255, 0.8), 
+	rgba(255, 255, 255, 0.3)
+	);
+	backdrop-filter: blur(2rem);
+	padding: 20px;
+	margin: 5px;
+	display: flex;
+}
+
+.booking-icons{
+	width: 50px;
+	height: 50px;	
+}
+
+.booking-image{
+	flex: 1;
+	display: flex;	
+	justify-content: center;
+	flex-direction: column;
+}
+
+.booking-info{
+  	flex: 2;
+	display: flex;	
+	justify-content: center;
+	flex-direction: column;
+}
+
+.facility-name, .booking-time, .booking-duration, .booking-status{
+	margin: 0;
+}
+
+//  Select Facilities
+.f1, .f2, .f3, .f4, .f5{
+	background-size: cover;
+	display: flex;
+	padding: 5px;
+	margin-bottom: 20px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.652);
+	min-height: 120px;
+	border-radius: 8px;
+	background-position: center;
+}
+
+.facility-name{
+	color: white;
+	padding: 10px;
+	color: rgba(255, 96, 96, 0.65);
+	font-size: 20px;
+	text-shadow: rgba(200,224,255,1);
+
+}
+
+.f1{
+	background-image: url("../static/icons/bbq.svg");
+	
+}
+
+.f2{
+	background-image: url("../static/icons/lounge.svg");
+	filter: brightness(50%);
+}
+
+.f3{
+	background-image: url("../static/icons/cinema.svg");
+}
+
+.f4{
+	background-image: url("../static/icons/sauna.svg");
+	filter: brightness(50%);
+}
+
+.f5{
+	background-image: url("../static/icons/gym.svg");
+}
+
+//Select Time, Date and Duration
+label[for="booking_time"], label[for="booking_duration"]{
+	font-size: 20px;
+	font-weight: bold;
+	color: #7278B9;
+}
+
+select[name="booking_time"], select[name="booking_time"] option,
+select[name="booking_duration"], select[name="booking_duration"] option{
+	width: 80%;
+	font-size: 18px;
+	padding: 4px;
+}
 
 
+//Booking Success
+.booking-success{
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	text-align: center;
+}
 
+.booking-success img{
+	width: 50%;
+	margin: 0 auto;
+}
+// .booking-success-img{
+// 	display: inline-block;
+// 	flex-direction: column;
+// }
 
