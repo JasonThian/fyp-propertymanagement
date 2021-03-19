@@ -16,13 +16,18 @@
     </div>
   </div>
   <div class="page-content">
-    <div class="block block-strong">
+  <div class="block">
+      <div class="amount-large">RM <span id="amount-data">0.00</span></div>
+	  <div class="amount-title">Total Due</div>
+    </div>
+    <div class="block">
       <form id="payment-form">
       <div id="card-element"><!--Stripe.js injects the Card Element--></div>
-      <button id="submit">
-        <div class="spinner hidden" id="spinner"></div>
-        <span id="button-text">Pay</span>
-      </button>
+	  
+	  <div class="block" id="submit">
+		<a id="button-text" class="button button-raised button-fill button-large">Pay Now</a>
+	</div>
+     
       <p id="card-error" role="alert"></p>
       <p class="result-message hidden">
         Payment succeeded, see the result in your
