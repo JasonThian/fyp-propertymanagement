@@ -58,9 +58,12 @@
   display: inline-block;
   height: 200px;
 }
-/*.navbar-bg{
-	visibility:hidden;
-}*/
+
+.navbar-bg{
+	/* visibility:hidden; */
+  background: transparent;
+}
+
 .swiper-slide {
   text-align: center;
 }
