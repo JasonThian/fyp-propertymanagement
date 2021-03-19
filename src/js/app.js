@@ -203,12 +203,12 @@ function set_logout(){
 
 //import scripts
 async function init_script(){
-	//stripe
-	var stripe = document.createElement('script');
+	//jquery
+	var jquery = document.createElement('script');
 	set_logout();
 	
-	stripe.src = "https://js.stripe.com/v3/";
-	document.head.appendChild(stripe);
+	jquery.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
+	document.head.appendChild(jquery);
 	console.log(auth);
 	
 	let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(4).get();
@@ -743,163 +743,17 @@ function getUserBilling(){
 }
 
 function online_payment_function(){
-	var jsonString = { "amount": 8000 };
-	console.log(JSON.stringify(jsonString));
-	var online = firebase.functions().httpsCallable('Online');
-online(JSON.stringify(jsonString))
-  .then((result) => {
-    // Read result of the Cloud Function.
-    var sanitizedMessage = result.data.text;
-	console.log(sanitizedMessage);
-  })
-  .catch((error) => {
-    // Getting the Error details.
-    var code = error.code;
-    var message = error.message;
-    var details = error.details;
-    // ...
-  });
-	var stripe = Stripe('pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ');
-	var elements = stripe.elements();
-	var style = {
-	  base: {
-		padding: '10px 12px',
-		color: '#32325d',
-		fontSize: '16px',
-	  },
-	};
-
-	var fpxBank = elements.create(
-	  'fpxBank',
-	  {
-		style: style,
-		accountHolderType: 'individual',
-	  }
-	);
-
-	fpxBank.mount('#fpx-bank-element');
-	var form = document.getElementById('payment-form');
-
-	form.addEventListener('submit', function(event) {
-	  event.preventDefault();
-
-	  var fpxButton = document.getElementById('fpx-button');
-	  var clientSecret = fpxButton.dataset.secret;
-	  stripe.confirmFpxPayment(clientSecret, {
-		payment_method: {
-		  fpx: fpxBank,
-		},
-		return_url: `${window.location.href}`,
-	  }).then((result) => {
-		if (result.error) {
-		  var errorElement = document.getElementById('error-message');
-		  errorElement.textContent = result.error.message;
+	app.on('pageInit', function (page) {  
+		if (page.name === 'payment-online'){
+			$('#payment-online-redirect-page').html('<iframe style="height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/payment.php"></iframe>'); 
 		}
-	  });
 	});
 }
 
 function credit_payment_function(){
-	var stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
-
-	var purchase = {
-	  "amount":"8000",
-	  "currency":"myr"
-	};
-
-	document.querySelector("button").disabled = true;
-	fetch("/create-payment-intent", {
-	  method: "POST",
-	  headers: {
-		"Content-Type": "application/json"
-	  },
-	  body: JSON.stringify(purchase)
-	})
-	  .then(function(result) {
-		return result.json();
-	  })
-	  .then(function(data) {
-		var elements = stripe.elements();
-
-		var style = {
-		  base: {
-			color: "#32325d",
-			fontFamily: 'Arial, sans-serif',
-			fontSmoothing: "antialiased",
-			fontSize: "16px",
-			"::placeholder": {
-			  color: "#32325d"
-			}
-		  },
-		  invalid: {
-			fontFamily: 'Arial, sans-serif',
-			color: "#fa755a",
-			iconColor: "#fa755a"
-		  }
-		};
-
-		var card = elements.create("card", { style: style });
-		card.mount("#card-element");
-
-		card.on("change", function (event) {
-		  document.querySelector("button").disabled = event.empty;
-		  document.querySelector("#card-error").textContent = event.error ? event.error.message : "";
-		});
-
-		var form = document.getElementById("payment-form");
-		form.addEventListener("submit", function(event) {
-		  event.preventDefault();
-		  payWithCard(stripe, card, data.clientSecret);
-		});
-	  });
-
-	var payWithCard = function(stripe, card, clientSecret) {
-	  loading(true);
-	  stripe
-		.confirmCardPayment(clientSecret, {
-		  payment_method: {
-			card: card
-		  }
-		})
-		.then(function(result) {
-		  if (result.error) {
-			showError(result.error.message);
-		  } else {
-			orderComplete(result.paymentIntent.id);
-		  }
-		});
-	};
-
-	var orderComplete = function(paymentIntentId) {
-	  loading(false);
-	  document
-		.querySelector(".result-message a")
-		.setAttribute(
-		  "href",
-		  "https://dashboard.stripe.com/test/payments/" + paymentIntentId
-		);
-	  document.querySelector(".result-message").classList.remove("hidden");
-	  document.querySelector("button").disabled = true;
-	};
-
-	var showError = function(errorMsgText) {
-	  loading(false);
-	  var errorMsg = document.querySelector("#card-error");
-	  errorMsg.textContent = errorMsgText;
-	  setTimeout(function() {
-		errorMsg.textContent = "";
-	  }, 4000);
-	};
-
-	var loading = function(isLoading) {
-	  if (isLoading) {
-		document.querySelector("button").disabled = true;
-		document.querySelector("#spinner").classList.remove("hidden");
-		document.querySelector("#button-text").classList.add("hidden");
-	  } else {
-		document.querySelector("button").disabled = false;
-		document.querySelector("#spinner").classList.add("hidden");
-		document.querySelector("#button-text").classList.remove("hidden");
-	  }
-	};
+	app.on('pageInit', function (page) {  
+		if (page.name === 'payment-credit'){
+			$('#payment-credit-redirect-page').html('<iframe style="height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/payment.php"></iframe>'); 
+		}
+	});
 }
