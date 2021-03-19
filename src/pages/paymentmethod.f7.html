@@ -34,28 +34,28 @@
   <div class="page-content">
   <div class="">
     <div>
-      <div class="block-title ">Total Amount</div>
-		<div class="block block-description">RM <span id="amount">0.00</span></div>
+      <div class="title ">Total Amount</div>
+		<div class="description">RM <span id="amount">0.00</span></div>
     </div>
 	<div>
-      <div class="block-title">Payment Details</div>
-		<div class="block block-description" id="payment-description">Bill</div>
+      <div class="title">Payment Details</div>
+		<div class="description" id="payment-description">Bill</div>
     </div>
 	</div>
-	<div class="">
-      <div class="block-title text-center">Choose Payment Method</div>
-		<div class="block list ">
-		  <ul>
+	<div>
+      <div class="title text-center">Choose Payment Method</div>
+		<div class="block list">
+		  <ul class="payment_method">
 			<li>
 				<div class="item-inner">
 					<input type="radio" name="pMethod" onclick="payment_selection('/paymentonline/')" id="online">
-					<label for="online">Online Transfer<img src="#"></label>
+					<label for="online">Online Transfer<img src="static/icons/online.png" ></label>
 				</div>
 			</li>
 			<li>
 				<div class="item-inner">
 					<input type="radio" name="pMethod" onclick="payment_selection('/paymentcredit/')" id="credit">
-					<label for="credit">Credit Card<img src="#"></label>
+					<label for="credit">Credit Card<img src="static/icons/creditcard.png" ></label>
 				</div>
 			</li>
 		  </ul>
