@@ -15,6 +15,7 @@ import BookingDetailPage from '../pages/bookingdetail.f7.html';
 import PaymentHistoryPage from '../pages/paymenthistory.f7.html';
 import PaymentReminderPage from '../pages/paymentreminder.f7.html';
 import TenantListPage from '../pages/tenantlist.f7.html';
+import BookFacilityPage from '../pages/bookfacility.f7.html';
 
 import DynamicRoutePage from '../pages/dynamic-route.f7.html';
 import RequestAndLoad from '../pages/request-and-load.f7.html';
@@ -33,6 +34,10 @@ var routes = [
   {
     path: '/news/',
     component: NewsPage,
+  },
+  {
+    path: '/bookfacility/',
+    component: BookFacilityPage,
   },
   {
     path: '/facilities/',
