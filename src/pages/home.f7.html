@@ -4,40 +4,42 @@
 	<!-- Scrollable page content-->
 	<div class="page-content">
 	<div class="navbar navbar-transparent navbar-large">
-      <div class="navbar-bg"></div>
-	<div class="navbar-inner">
-		<div class="left">
-			<p><span>Hello</span>,<br><span class="username" id="username"></span></p>
+	<div class="navbar-bg"></div>
+		<div class="navbar-inner">
+			<div class="left">
+				<p><span>Hello</span>,<br><span class="username"></span></p>
+			</div>
+			<div class="right">
+				<a href="#" class="link icon-only panel-open" style="width: 50%;" data-panel="right">
+					<img class="user-icon" src="static/icons/favicon.png" width="50" height="50">
+				</a>
+			</div>
 		</div>
-		<div class="right">
-			<a href="#" class="link icon-only panel-open" style="width:100%;" data-panel="right">
-				<img class="user-icon" id="user_pic" src="static/icons/favicon.png" width="50" height="50">
-			</a>
-		</div>
-	</div>
 	</div>
 		<div data-pagination='{"el": ".swiper-pagination"}' data-slides-per-view="auto" data-centered-slides="true" class="swiper-container swiper-init demo-swiper demo-swiper-auto">
 		  <div class="swiper-pagination"></div>
 		  <div class="swiper-wrapper">
-			<div class="swiper-slide"><img class="announcement-img" id="annc1" src="static/icons/favicon.png"></div>
-			<div class="swiper-slide"><img class="announcement-img" id="annc2" src="static/icons/favicon.png"></div>
-			<div class="swiper-slide"><img class="announcement-img" id="annc3" src="static/icons/favicon.png"></div>
-			<div class="swiper-slide"><img class="announcement-img" id="annc4" src="static/icons/favicon.png"></div>
+
+        <div class="swiper-slide"><img class="announcement-img" id="annc1" src="static/icons/ann1.png"></div>
+        <div class="swiper-slide"><img class="announcement-img" id="annc2" src="static/icons/ann2.png"></div>
+
+
 		  </div>
 		</div>
 		<div class="card-views">
 			<div class="card card-inline-blocks">
-				<a href="/news/" onclick="app.data.start()">
+				<a href="/news/" onclick="app.data.start();">
 				  <div class="card-content card-content-padding card-margin-middle">
-					  <img src="static/icons/favicon.png" width="30" height="30">
+					  <img src="static/icons/loudspeaker.png" width="50" height="50">
 					  <p>News</p>
 				  </div>
 				</a>
 			</div>
 			<div class="card card-inline-blocks">
-				<a href="/facilities/" onclick="app.data.calendar();">
+				<!-- <a href="/facilities/" onclick="app.data.calendar();"> -->
+				<a href="/bookfacility/">
 				  <div class="card-content card-content-padding card-margin-middle">
-					  <img src="static/icons/favicon.png" width="30" height="30">
+					  <img src="static/icons/swimming.png" width="50" height="50">
 					  <p>Facilities</p>
 				  </div>
 				</a>
@@ -46,7 +48,8 @@
 			<div class="card card-inline-blocks">
 				<a href="/qrcode/">
 				  <div class="card-content card-content-padding card-margin-middle">
-					  <img src="static/icons/favicon.png" width="30" height="30">
+					  <img src="static/icons/qr.png" width="50" height="50">
+					  <!-- <p></p>QR Code</p> -->
 					  <p>QR Code</p>
 				  </div>
 				</a>
@@ -54,7 +57,7 @@
 			<div class="card card-inline-blocks">
 				<a onclick="app.data.getPayment()" href="/payment/"  class="landlord">
 				  <div class="card-content card-content-padding card-margin-middle">
-					  <img src="static/icons/favicon.png" width="30" height="30">
+					  <img src="static/icons/debit_card.png" width="50" height="50">
 					  <p>Payment</p>
 				  </div>
 				</a>

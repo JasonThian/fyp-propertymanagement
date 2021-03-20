@@ -1,15 +1,19 @@
-// @body-width: 480px;
-// @body-height: 853px;
-@body-height: 50em;
-@body-width: 22.5em;
+@body-width: 480px;
+@body-height: 853px;
+//@body-height: 50em;
+//@body-width: 22.5em;
 @announcement-width: @body-width * 0.8;
 @announcement-height: @announcement-width * (9/16);
 @card-view-width: @body-width * 0.8;
-@card-width: @card-view-width * 0.5;
+@card-width: @card-view-width * 0.3;
 
 /* iOS Cordova Tweak */
 .device-cordova.device-ios {
   height: 100vh;
+}
+
+*{
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 /* Your app custom styles here */
@@ -33,21 +37,29 @@
 .top-margin-block{
 	margin: 25px 0 0 0;
 }
-
+.block-strong{
+	background-color: transparent;
+}
 .block-strong:before, .block-strong:after,.list .item-inner:after{
 	background-color:transparent;
 }
 
 .list .item-inner{
 	justify-content: unset;
+	
 }
 
 .list .item-inner label{
-	margin-left: 50px;
+	margin-left: 70px;
+	font-size:25px;
+	text-align:center;
+	
+	
 }
 
 .list .item-inner label img{
 	margin-left: 20px;
+	
 }
 
 // body{
@@ -59,37 +71,51 @@
 
 //dashboard
 .page{
-	background-color: #C8E0FF;
+	
+	background: rgb(200,224,255);
+	background: linear-gradient(180deg, rgba(200,224,255,1) 0%, rgba(252,252,252,1) 100%);
 }
 
 .page-content{
 	overflow-x: hidden;
 	overflow-y: scroll;
-	padding: 10% 2%;
+	padding: 5px;
+	top: 10px;
 }
 
 .left{
-	margin-left: 10px;
+	// margin-left: 15px;
+	margin-left: 2vw;
 }
 
 .right{
-	margin-top: 10px;
-	margin-right: 10px;
+	// margin-right: 15px;
+	margin-left: 2vw;
 }
+
+// .title{
+// 	margin-top: ;
+// }
 
 .card-margin-middle{
 	margin: auto;
 	vertical-align: middle;
 	padding: 16% 15%;
 	text-align: center;
+	font-size: 18px;
 }
 
 .card-inline-blocks{
-	margin: 2%;
+	
 	width: @card-width;
 	display: inline-block; 
-	height: 40%;
+	
 	border-radius: 7%;
+}
+
+.navbar-inner{
+	// background-color: #c8e0ff;
+	background-color: transparent;
 }
 
 
@@ -97,14 +123,20 @@
 	visibility:hidden;
 }*/
 
-.swiper-slide{
-	text-align: center;
-	margin-top: 5%;
+// .swiper-slide{
+// 	text-align: center;
+// 	margin-top: 5%;
+// }
+
+
+.demo-swiper .swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .announcement-img{
-	width: @announcement-width - 20%;
-	margin: 0 auto;
+	width: @announcement-width;
 }
 
 .card-views{
@@ -113,25 +145,56 @@
 	text-align: center;
 }
 
+//Right Panel List
 .list-buttons{
-	width:100%;
-	font-size:14px;
-	text-align:center;
-	height: 48px;
+	width: 100%;
+	font-size: 20px;
+    text-align: center;
     font-weight: 500;
-    text-transform: uppercase;
+    text-transform: capitalize;
+	
+	 height: 55px;
+	background-color: transparent;
 }
 
 .logout{
-	position:absolute;
+	position: absolute;
 	bottom: 0px;
-	width:100%;
+	width: 100%;
+	text-transform: capitalize;
 }
+
+.list ul, .navbar-bg{
+	background-color: #C8E0FF;
+}
+.list .payment
+{
+	background-color: transparent;
+}
+
+.user-icon{
+	// width: 13vw;
+	// height: 13vw;
+	width: 2rem;
+	height: 2rem;
+	// margin: 5% 4%;
+	border-radius: 100px;
+	// border: 3px solid #CCA679;
+}
+
+.username{
+	color: #d0954e;
+	text-shadow: #CCA679;
+	font-size: 24px;
+	font-style: oblique;
+}
+
 
 //announcement
 .announcement-small-icon{
-	width: 15vw;
-	height: 15vw;
+	max-width: 20vw;
+	max-height: 20vw;
+
 }
 
 .announcement-small-title{
@@ -140,20 +203,46 @@
 
 .announcement-small-text{
 	overflow: hidden;
-	text-overflow: ellipsis;
+	// text-overflow: ellipsis;
 	white-space: nowrap;
 	max-width: 700px;
+}
+
+.announcement-list{
+
+	margin-top: 55px;
+
 }
 
 .announcement-list-row{
 	padding: 15px 0;
 }
 
+p#annc_title{
+	font-size: 6vw;
+    font-weight: bold;
+    text-transform: capitalize;
+    text-align: center;
+}
+
+p#annc_desc {
+    font-size: 18px;
+    text-align: justify;
+}
+
 //qr code
 #qrcode-canvas{
 	padding: 0;
     margin: 0 auto;
-    display: block;
+}
+.qr{
+	margin-top:60px;
+	font-size:25px;
+	text-align:center;
+}
+.qr_button
+{
+	margin-top:20px;
 }
 
 //payment
@@ -165,4 +254,181 @@
 .amount-large{
 	text-align:center;
 	font-size:28px;
+	margin-top:70px;
+}
+.page-content1{
+	overflow-x: hidden;
+	overflow-y: scroll;
+	padding: 10% 0%;
+	background-color:white;
+}
+//payment history
+.item-link{
+	background-color:white;
+	margin-top:10px;
+}
+//payment method 
+.title_payment{
+	font-size:25px;
+	margin-left:20px;
+	font-weight: bold;
+	margin-top:40px;
+	
+}
+.description{
+	font-size:20px;
+	margin-left:20px;
+	margin-top:10px;
+}
+.list .payment_method
+{
+	background-color:transparent;
+}
+
+//tenant_list
+.list .tenant_list
+{
+	background-color:white;
+}
+.card .card-content1
+{
+	margin-top:10px;
+}
+.card .card-content2
+{
+	margin-top:55px;
+}
+//edit profile
+.edit-profile{
+	width: 100%;
+	text-align: center;
+	background: transparent;
+}
+
+.edit-profile > a{
+	font-size: 3vw;
+}
+
+.profile-inputs > p{
+	font-weight: bold;
+	color: #7278B9;
+	font-size: 4vw;
+}
+.profile-inputs > input{
+	width: 100%;
+	border-bottom: 1px solid grey;
+	margin: 0 auto;
+	padding: 1%;
+	font-size: 3vw;
+}
+//Booking Details
+.booking-details{
+	border: 1px solid rgba(255,255,255,1);
+	border-radius: 8px;
+	background: linear-gradient(to right bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
+	backdrop-filter: blur(2rem);
+	padding: 20px;
+	margin: 5px;
+	display: flex;
+}
+
+.booking-icons{
+	width: 50px;
+	height: 50px;	
+}
+
+.booking-image{
+	flex: 1;
+	display: flex;	
+	justify-content: center;
+	flex-direction: column;
+}
+
+.booking-info{
+  	flex: 2;
+	display: flex;	
+	justify-content: center;
+	flex-direction: column;
+}
+
+.facility-name, .booking-time, .booking-duration, .booking-status{
+	margin: 0;
+}
+
+//  Select Facilities
+.f1, .f2, .f3, .f4, .f5{
+	background-size: cover;
+	display: flex;
+	padding: 5px;
+	margin-bottom: 20px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.652);
+	min-height: 120px;
+	border-radius: 8px;
+	background-position: center;
+}
+
+.facility-name{
+	color: white;
+	padding: 10px;
+	color: rgba(255, 96, 96, 0.65);
+	font-size: 20px;
+	text-shadow: rgba(200,224,255,1);
+
+}
+
+.f1{
+	background-image: url("../static/icons/bbq.svg");
+	
+}
+
+.f2{
+	background-image: url("../static/icons/lounge.svg");
+	filter: brightness(50%);
+}
+
+.f3{
+	background-image: url("../static/icons/cinema.svg");
+}
+
+.f4{
+	background-image: url("../static/icons/sauna.svg");
+	filter: brightness(50%);
+}
+
+.f5{
+	background-image: url("../static/icons/gym.svg");
+}
+
+//Select Time, Date and Duration
+label[for="booking_time"], label[for="booking_duration"]{
+	font-size: 20px;
+	font-weight: bold;
+	color: #7278B9;
+}
+
+select[name="booking_time"], select[name="booking_time"] option,
+select[name="booking_duration"], select[name="booking_duration"] option{
+	width: 80%;
+	font-size: 18px;
+	padding: 4px;
+}
+
+
+//Booking Success
+.booking-success{
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+	text-align: center;
+}
+
+.booking-success img{
+	width: 50%;
+	margin: 0 auto;
+}
+//payment_reminder
+.list .reminder
+{
+	background-color:white;
+	
 }

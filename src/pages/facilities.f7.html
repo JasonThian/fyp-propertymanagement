@@ -32,7 +32,7 @@
 	<div class="block block-strong">
 		<span id="facilities-progressbar" class="progressbar-infinite"></span>
     </div>
-	<div class="block block-strong" id="time-selection">
+	<!-- <div class="block block-strong" id="time-selection">
 		<label for="booking_time">Select Facility:</label>
 		<select name="booking_time" id="facility">
 			<option value="AV_Room">AV Room</option>
@@ -41,9 +41,9 @@
 			<option value="BBQ">BBQ Pit</option>
 			<option value="SkyLounge">Sky Lounge</option>
 		</select>
-    </div>
+    </div> -->
 	<div class="block block-strong" id="time-selection">
-		<label for="booking_time">Select time:</label>
+		<label for="booking_time">Select Time:</label>
 		<select name="booking_time" id="time_select">
 			<option value="08:00" class="time_slot">8am</option>
 			<option value="10:00" class="time_slot">10am</option>
@@ -53,6 +53,15 @@
 			<option value="06:00" class="time_slot">6pm</option>
 			<option value="08:00" class="time_slot">8pm</option>
 			<option value="10:00" class="time_slot">10pm</option>
+		</select>
+    </div>
+
+	<div class="block block-strong" id="duration-selection">
+		<label for="booking_duration">Select Duration:</label>
+		<select name="booking_duration" id="duration_select">
+			<option value="1 hour" class="duration">1 hour</option>
+			<option value="2 hours" class="duration">2 hours</option>
+			<option value="3 hours" class="duration">3 hours</option>
 		</select>
     </div>
 	<div class="block block-strong">
