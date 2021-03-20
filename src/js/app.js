@@ -745,7 +745,7 @@ function getUserBilling(){
 function online_payment_function(){
 	app.on('pageInit', function (page) {  
 		if (page.name === 'payment-online'){
-			$('#payment-online-redirect-page').html('<iframe style="height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/payment.php"></iframe>'); 
+			$('#payment-online-redirect-page').html('<iframe style="height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/online_payment.php"></iframe>'); 
 		}
 	});
 }
@@ -753,7 +753,7 @@ function online_payment_function(){
 function credit_payment_function(){
 	app.on('pageInit', function (page) {  
 		if (page.name === 'payment-credit'){
-			$('#payment-credit-redirect-page').html('<iframe style="height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/payment.php"></iframe>'); 
+			$('#payment-credit-redirect-page').html('<iframe style="height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/credit_payment.php"></iframe>'); 
 		}
 	});
 }
