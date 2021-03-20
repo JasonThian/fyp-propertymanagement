@@ -826,7 +826,7 @@ function getAnnouncement(){
 	var list_ele = "";
 	var url_list = [];
 	  
-	db.collection("announcement").orderBy("date","desc").get().then((querySnapshot) => {
+	/*db.collection("announcement").orderBy("date","desc").get().then((querySnapshot) => {
 		querySnapshot.forEach((doc) => {
 			
 			var title = doc.data().title;
@@ -863,7 +863,7 @@ function getAnnouncement(){
 		var d = 0;
 
 		setURL(url_list[d],url_list,d,imgset);
-	});
+	});*/
 }
 
 async function setURL(url,url_list,d,imgset){
