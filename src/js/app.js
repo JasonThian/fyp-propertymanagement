@@ -134,59 +134,7 @@ window.app = new Framework7({
   },
 });
 
-//booking variables
-var booking_list = {
-	"AV_Room": {},
-	"Sauna": {},
-	"PingPong": {},
-	"BBQ": {},
-	"SkyLounge": {} 
-	};
- var calendarEvents = "";
- const monthNames = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"];
-//initialize calendar
-function calendar_init(){
-	//get today
-	var now = new Date();
-    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-	
-	//initialize var for checking disabled dates
-	var disabledDates = [];
-	var facility_chosen = document.getElementById('facility').value;
-	var booked_dates = booking_list[facility_chosen];
-	console.log(booked_dates);
-	
-	//initialize var for time slots
-	var time_slots = document.getElementsByClassName("time_slot");
-	for(var t = 0; t<time_slots.length;t++){
-		time_slots[0].disabled = false;
-	}
-	//disable dates
-	for(var date in booked_dates){
-		if(booked_dates[date].length == 8){
-			disabledDates.push(date);
-		}
-	}
-	
-	calendarEvents = app.calendar.create({
-		disabled: disabledDates,
-		minDate: new Date(),
-        inputEl: '#calendar-events-disable',
-        dateFormat: 'dd M yyyy',
-        events: [
-          //- more events this day
-          {
-            date: today,
-            color: '#ff0000'
-          },
-          {
-            date: today,
-            color: '#00ff00'
-          },
-        ]
-    });
-}
+
 
 function set_logout(){
 	var logout = document.getElementById('logout');
@@ -211,7 +159,7 @@ async function init_script(){
 	document.head.appendChild(jquery);
 	console.log(auth);
 	
-	let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(4).get();
+	let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(2).get();
 	var annc_img = document.getElementsByClassName('announcement-img');
 	var annc = 0; 
 	querySnapshot.forEach(async (doc) => {
@@ -222,7 +170,7 @@ async function init_script(){
 		console.log(imageurl);
 		let url = await pathReference.getDownloadURL();
 
-		//annc_img[annc].src = url;
+		annc_img[annc].src = url;
 		
 		annc++; 
 	});
@@ -240,7 +188,7 @@ async function init_script(){
 			var username = document.getElementById("username");
 			var user_pic = document.getElementById("user_pic");
 			var user_icon = document.getElementById("user_icon");
-			
+			console.log(user_icon);
 			db.collection('landlord').doc(uid).get().then(function(doc) {
 				
 				var name = doc.data().name;
@@ -251,9 +199,10 @@ async function init_script(){
 				var pathReference = storage.ref(imageurl);
 					
 				pathReference.getDownloadURL().then(function(url) {
-
-					user_pic.src = url;
+					console.log(url);
 					user_icon.src = url;
+					user_pic.src = url;
+					
 					
 				}).catch(function(error) {
 					console.log(error);
@@ -324,14 +273,84 @@ function set_login(){
 	});
 }
 
-//booking
+//////////////BOOKING FEATURE
+var facility_chosen = ""
+//booking variables
+var booking_list = {
+	"AV_Room": {},
+	"Sauna": {},
+	"PingPong": {},
+	"BBQ": {},
+	"SkyLounge": {} 
+	};
+ var calendarEvents = "";
+ const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+//initialize calendar
+function calendar_init(){
+	if(calendarEvents != ""){
+		console.log("calendar destroyed");
+		calendarEvents.destroy();
+	}
+	
+	//get today
+	var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+	
+	//initialize var for checking disabled dates
+	var disabledDates = [];
+	console.log(facility_chosen);
+	var booked_dates = booking_list[facility_chosen];
+	console.log(booked_dates);
+	
+	//initialize var for time slots
+	var time_slots = document.getElementsByClassName("time_slot");
+	for(var t = 0; t<time_slots.length;t++){
+		time_slots[0].disabled = false;
+	}
+	//disable dates
+	for(var date in booked_dates){
+		console.log(booked_dates[date]);
+		if(booked_dates[date].length >= 8){
+			disabledDates.push(date);
+		}
+	}
+	console.log(disabledDates);
+	calendarEvents = app.calendar.create({
+		disabled: disabledDates,
+		minDate: new Date(),
+        inputEl: '#calendar-events-disable',
+        dateFormat: 'dd M yyyy',
+        events: [
+          //- more events this day
+          {
+            date: today,
+            color: '#ff0000'
+          },
+          {
+            date: today,
+            color: '#00ff00'
+          },
+        ]
+    });
+	
+}
+
 async function set_booking(){
 	//get today
 	var now = new Date();
 	var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-		
+	
 	let querySnapshot = await db.collection("booking").get();
-		
+	//reset booking list
+	booking_list = {
+	"AV_Room": {},
+	"Sauna": {},
+	"PingPong": {},
+	"BBQ": {},
+	"SkyLounge": {} 
+	};
+	
 	querySnapshot.forEach((doc) => {
 		var booked_date = new Date(doc.data().date);
 		var facility_type = doc.data().facility;
@@ -369,6 +388,7 @@ async function set_booking(){
 			}
 		}
 	});
+	
 	//initialize calendar
 	calendar_init();
 		
@@ -381,20 +401,11 @@ async function set_booking(){
 		disableTimeSlots()
 	})
 		
-	//update calendar and available dates on change
-	var facility_button = document.getElementById("facility");
-	facility_button.addEventListener('change', function(e){
-		//update calendar
-		calendarEvents.destroy();
-		calendar_init();
-		disableTimeSlots()
-	})
-		
 	//submit button clicked
 	var book_button = document.getElementById("book-button");
 	book_button.addEventListener('click', function(e){
 		var user_id = auth.currentUser.uid;
-		var facility_chosen = document.getElementById('facility').value;
+		//var facility_chosen = document.getElementById('facility').value;
 		var time_chosen = document.getElementById('time_select').value;
 		var date_chosen = document.getElementById('calendar-events-disable').value;
 		
@@ -433,6 +444,11 @@ async function set_booking(){
 		
 	})
 }
+function redirect(page){
+	var mainView = app.view.main;
+	mainView.router.navigate({ name: page});
+}
+
 //page handler
 $$(document).on('page:init', async function (e, page) {
   var pn = page.name;
@@ -446,15 +462,62 @@ $$(document).on('page:init', async function (e, page) {
 		getBookingDetails();
 	}else if(pn == "payment_history"){
 		getPaymentHistory();
+	}else if(pn == "bookfacility"){
+		getFacility();
 	}else if(pn == "facilities"){
 		set_booking();
 	}
 })
 
+function getFacility(){
+	var bbq = document.getElementById('bbq');
+	var skylounge = document.getElementById('skylounge');
+	var avroom = document.getElementById('avroom');
+	var sauna = document.getElementById('sauna');
+	var gym = document.getElementById('gym');
+	
+	
+	bbq.addEventListener('click', function(e){
+		e.preventDefault();
+		facility_chosen = "BBQ";
+		console.log(facility_chosen);
+		redirect("facilities");
+	})
+	
+	skylounge.addEventListener('click', function(e){
+		e.preventDefault();
+		facility_chosen = "SkyLounge";		
+		console.log(facility_chosen);
+		redirect("facilities");
+	})
+	
+	avroom.addEventListener('click', function(e){
+		e.preventDefault();
+		facility_chosen = "AV_Room";
+		console.log(facility_chosen);
+		redirect("facilities");
+	})
+	
+	sauna.addEventListener('click', function(e){
+		e.preventDefault();
+		facility_chosen = "Sauna";	
+		console.log(facility_chosen);
+		redirect("facilities");
+	})
+	
+	gym.addEventListener('click', function(e){
+		e.preventDefault();
+		facility_chosen = "PingPong";
+		console.log(facility_chosen);		
+		redirect("facilities");
+	})
+	
+
+}
+
 function disableTimeSlots(){
 	//disable time
 	var time_slots = document.getElementsByClassName("time_slot");
-	var facility_chosen = document.getElementById('facility').value;
 	var booked_dates = booking_list[facility_chosen];
 
 	var date_chosen = document.getElementById('calendar-events-disable').value;
@@ -545,16 +608,30 @@ function getBookingDetails(){
 			var duration = doc.data().duration;
 			var status = doc.data().status;
 			var time = doc.data().time;
+			var src = "";
 			
+			if(facility === "AV Room")
+				src = "static/icons/cinema.png";
+			else if(facility === "Sauna")
+				src = "static/icons/sauna.svg";
+			else if(facility === "Sky Lounge")
+				src = "static/icons/lounge.png";
+			else if(facility === "BBQ Pit")
+				src = "static/icons/bbq.png";
+			else if(facility === "Ping-Pong Table")
+				src = "static/icons/ball.png";
 			
-			var elements = `<div class="block block-strong">
-				<img src='static/icons/favicon.png'>
-				<p>${facility}</p>
-				<p>${date}</p>
-				<p>${time}</p>
-				<p>${duration}</p>
-				<p>${status}</p>
-			</div>`;
+			var elements = `<div class="booking-details">
+        <div class="booking-image">
+          <img src="${src}" class="booking-icons">
+        </div>
+        <div class="booking-info">
+          <h3 class="facility-name">${facility}</h3>
+          <h4 class="booking-time">${date}</h4>
+          <h4 class="booking-duration">${duration}</h4>
+          <h4 class="booking-status">${status}</h4>
+        </div>                  
+      </div>`;
 			
 			booking_list.innerHTML += elements;
 	})});
