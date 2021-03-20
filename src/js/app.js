@@ -238,6 +238,99 @@ async function init_script(){
 		},2100);
 	}, false);
 }
+
+//page handler
+$$(document).on('page:init', async function (e, page) {
+  var pn = page.name;
+	console.log(pn+" Entered");
+	
+	if(pn == "login"){
+		set_login();
+	}else if(pn == "news"){
+		getAnnouncement();
+	}else if(pn == "booking_details"){
+		getBookingDetails();
+	}else if(pn == "payment_history"){
+		getPaymentHistory();
+	}else if(pn == "payment_reminder"){
+		getPaymentReminder();
+	}else if(pn == "bookfacility"){
+		getFacility();
+	}else if(pn == "facilities"){
+		set_booking();
+	}else if(pn == "tenant_list"){
+		getTenants();
+	}else if(pn == "edit"){
+		getEditPage();
+	}
+})
+
+function getEditPage(){
+	var user_id = auth.currentUser.uid;
+	var docRef = db.collection("landlord").doc(user_id);
+
+	//fields
+	var edit_username = document.getElementById("edit_username");
+	var edit_email = document.getElementById("edit_email");
+	var edit_pno = document.getElementById("edit_pno");
+	var edit_gender = document.getElementById("edit_gender");
+	var edit_unit = document.getElementById("edit_unit");
+	var edit_image = document.getElementById("edit_image");
+	var change_photo = document.getElementById("change_photo");
+
+	docRef.get().then(function(doc) {
+		var name = doc.data().name;
+		var email = doc.data().email;
+		var pno = doc.data().contact;
+		var gender = doc.data().gender;
+		var units = doc.data().unit;
+		var imageurl = doc.data().imageurl;
+		
+		edit_username.placeholder = name;
+		edit_email.placeholder = email;
+		edit_pno.placeholder = pno;
+		edit_gender.placeholder = gender;
+		edit_unit.placeholder = units;
+		
+		var pathReference = storage.ref(imageurl);
+		pathReference.getDownloadURL().then(function(url) {
+			
+			edit_image.src = url;	
+			
+		}).catch(function(error) {
+			console.log(error);
+		});
+	})
+	
+	change_photo.addEventListener("click",async function(e){
+		console.log("change photo clicked");
+		var myPhotoBrowser = app.photoBrowser({
+		   
+		});
+
+		myPhotoBrowser.open();
+	})
+}
+
+//tenant lists
+async function getTenants(){
+	let querySnapshot = await db.collection("landlord").get();
+	var tenant_list = document.getElementById('tenant_list');
+	var user_id = auth.currentUser.uid;
+	
+	querySnapshot.forEach((doc) => {
+		var type = doc.data().landlords;
+		var name = doc.data().name;
+		
+		if(type == user_id){
+			tenant_list.innerHTML = `<div class="card">
+        <div class="card-content2 card-content-padding">${name}</div>
+      </div>`;
+		}
+	})
+}
+
+//changepassword
 function set_changepassword(){
 	//ChangePassword
 	var change_pass = document.getElementById('changePassword');
@@ -467,25 +560,7 @@ function redirect(page){
 	mainView.router.navigate({ name: page});
 }
 
-//page handler
-$$(document).on('page:init', async function (e, page) {
-  var pn = page.name;
-	console.log(pn+" Entered");
-	
-	if(pn == "login"){
-		set_login();
-	}else if(pn == "news"){
-		getAnnouncement();
-	}else if(pn == "booking_details"){
-		getBookingDetails();
-	}else if(pn == "payment_history"){
-		getPaymentHistory();
-	}else if(pn == "bookfacility"){
-		getFacility();
-	}else if(pn == "facilities"){
-		set_booking();
-	}
-})
+
 
 function getFacility(){
 	var bbq = document.getElementById('bbq');
@@ -574,6 +649,48 @@ function disableTimeSlots(){
 	
 }
 
+//////Payment Reminder
+//Payment History
+function getPaymentReminder(){
+	var user_id = auth.currentUser.uid;
+	var Payment_list = document.getElementById("reminder_list");
+	var elements = "";
+	
+	db.collection("payment").where("user_id", "==", user_id).orderBy("time", "desc").get().then((querySnapshot) => {
+		querySnapshot.forEach((doc) => {
+			if (doc.exists) {				
+				if(status != "Successful"){
+					
+					var time = doc.data().time;
+					var amount = doc.data().amount;
+					var bank = doc.data().bank;
+					var description = doc.data().description;
+					var status = doc.data().status;
+					var payment_method = doc.data().payment_method;
+					
+					var date = new Date(time);
+					
+					elements = `<ul class="reminder">
+              <li class="item-content">
+                <div class="item-media">
+                  <img src="static/icons/fail.png" width="44" />
+                </div>
+                <div class="item-inner">
+                  <div class="item-title-row">
+                    <div class="item-title">${monthNames[date.getMonth()]}</div>
+                  </div>
+                  <div class="item-price">RM ${amount.toFixed(2)}</div>
+                </div>
+              </li>
+			</ul>`;
+					
+				}	
+			}
+			
+			Payment_list.innerHTML += elements;
+	})});
+}
+
 //Payment History
 function getPaymentHistory(){
 	var user_id = auth.currentUser.uid;
@@ -590,15 +707,29 @@ function getPaymentHistory(){
 				var status = doc.data().status;
 				var payment_method = doc.data().payment_method;
 				
+				var date = new Date(time);
 				
-				elements = `<div class="block block-strong">
-					<p>Time: ${time}</p>
-					<p>Amount: ${amount}</p>
-					<p>Bank: ${bank}</p>
-					<p>Description: ${description}</p>
-					<p>Status: ${status}</p>
-					<p>Payment Method: ${payment_method}</p>
-				</div>`;
+				var url = "";
+				if(status == "Successful"){
+					url = "static/icons/success.png";
+				}else{
+					url = "static/icons/fail.png";
+				}
+				
+				elements = `<ul>
+          <li>
+            <a href="#" class="item-link item-content">
+              <div class="item-media"><img src="${url}"/></div>
+              <div class="item-inner">
+                <div class="item-title-row">
+                  <div class="item-title">Fee</div>
+                  <div class="item-after">RM${amount.toFixed(2)}</div>
+                </div>
+                
+                <div class="item-text">${date}</div>
+              </div>
+            </a></li>
+		</ul>`;
 				
 				
 			}else{
