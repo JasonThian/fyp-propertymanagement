@@ -685,7 +685,7 @@ function createQrCode(){
 	var seconds = 0;
 	var string = "";
 	
-	QRCode.toCanvas(canvas, 'sample text', {width: 500}, function (error) {
+	QRCode.toCanvas(canvas, 'sample text', {width: 320}, function (error) {
 		if (error) console.error(error)
 		console.log('success!');
 	});
