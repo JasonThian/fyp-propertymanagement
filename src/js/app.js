@@ -237,7 +237,7 @@ $$(document).on('page:init', async function (e, page) {
 		getEditPage();
 	}
 })
-
+///////////// HOME SETUP
 function homesetup(){
 	var uid = auth.currentUser.uid;
 	//fields
@@ -266,7 +266,7 @@ function homesetup(){
 		});
 	})
 }
-
+//////// EDIT PAGE
 function getEditPage(){
 	var user_id = auth.currentUser.uid;
 	var docRef = db.collection("landlord").doc(user_id);
@@ -439,6 +439,7 @@ var booking_list = {
 	"SkyLounge": {} 
 	};
  var calendarEvents = "";
+ var DEFAULT_LIMIT = 3;
  const monthNames = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"];
 //initialize calendar
@@ -464,9 +465,38 @@ function calendar_init(){
 		time_slots[0].disabled = false;
 	}
 	//disable dates
+	
 	for(var date in booked_dates){
-		console.log(booked_dates[date]);
-		if(booked_dates[date].length >= 8){
+		var disable = true;
+		
+		for(var timeslots in booked_dates[date]){
+			var restricted = booked_dates[date]['restriction'];
+			if(timeslots != "restriction"){
+				var restricted_limit = restricted['limit'];
+				var restricted_list = restricted['restricted_time'];
+				var restriction = false;
+				
+				for(var index = 0; index < restricted_list.length; index++){
+					//if exist in restricted time, compare with limit
+					if(restricted_list[index] === timeslots){
+						restriction = true;
+						if(booked_dates[date][timeslots] < restricted_limit){
+							disable = false;
+						}
+						
+					}
+				}
+				
+				// else, compare with default limit (3)
+				if(!restriction && booked_dates[date][timeslots] < DEFAULT_LIMIT){
+					disable = false;
+				}
+				
+				
+			}
+		}
+		//disable still true, add into array
+		if(disable){
 			disabledDates.push(date);
 		}
 	}
@@ -491,11 +521,69 @@ function calendar_init(){
 	
 }
 
+function disableTimeSlots(){
+	//disable time
+	
+	var time_slots = document.getElementsByClassName("time_slot");
+	var indexes = {
+		'08:00': time_slots[0],
+		'10:00': time_slots[1],
+		'12:00': time_slots[2],
+		'14:00': time_slots[3],
+		'16:00': time_slots[4],
+		'18:00': time_slots[5],
+		'20:00': time_slots[6],
+		'22:00': time_slots[7]
+	}
+	
+	var booked_dates = booking_list[facility_chosen];
+
+	var date_chosen = document.getElementById('calendar-events-disable').value;
+	
+	console.log(booked_dates);
+	console.log(date_chosen);
+	
+	if(date_chosen.trim() != ""){
+		var date = new Date(date_chosen);
+		console.log(date);
+		if(booked_dates[date] != undefined){
+			
+			for(var timeslots in booked_dates[date]){
+				var restricted = booked_dates[date]['restriction'];
+				if(timeslots != "restriction"){
+					var restricted_limit = restricted['limit'];
+					var restricted_list = restricted['restricted_time'];
+					var restriction = false;
+					
+					for(var index = 0; index < restricted_list.length; index++){
+						//if exist in restricted time, compare with limit
+						if(restricted_list[index] === timeslots){
+							restriction = true;
+							if(booked_dates[date][timeslots] >= restricted_limit){
+								indexes[timeslots].disabled = true;
+							}
+							
+						}
+					}
+					
+					// else, compare with default limit (3)
+					if(!restriction && booked_dates[date][timeslots] >= DEFAULT_LIMIT){
+						indexes[timeslots].disabled = true;
+					}
+				}
+			}
+		}
+	}
+}
+
 async function set_booking(){
 	//get today
 	var now = new Date();
 	var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 	
+	
+	
+	//booking collection
 	let querySnapshot = await db.collection("booking").get();
 	//reset booking list
 	booking_list = {
@@ -506,8 +594,72 @@ async function set_booking(){
 	"SkyLounge": {} 
 	};
 	
+	
+	
 	querySnapshot.forEach((doc) => {
-		var booked_date = new Date(doc.data().date);
+		var status = doc.data().status;
+		if(status != "rejected"){
+			var booked_date = new Date(doc.data().date);
+			var facility_type = doc.data().facility;
+			
+			var bookings = "";
+			//filter booked facilities
+			if(facility_type === "AV Room")
+				bookings = booking_list.AV_Room;
+			else if(facility_type === "Sauna")
+				bookings = booking_list.Sauna;
+			else if(facility_type === "Sky Lounge")
+				bookings = booking_list.SkyLounge;
+			else if(facility_type === "BBQ Pit")
+				bookings = booking_list.BBQ;
+			else if(facility_type === "Ping-Pong Table")
+				bookings = booking_list.PingPong;
+			
+			//if date is in the future or today
+			if(booked_date >= today){
+				
+				var booking_time = doc.data().time;
+				
+				var facility_bookings = bookings[booked_date];
+				//console.log(facility_bookings);
+
+				//create object with date as key and initialize time slots
+				if(facility_bookings == null){
+					bookings[booked_date] = {};
+					bookings[booked_date]['08:00'] = 0;
+					bookings[booked_date]['10:00'] = 0;
+					bookings[booked_date]['12:00'] = 0;
+					bookings[booked_date]['14:00'] = 0;
+					bookings[booked_date]['16:00'] = 0;
+					bookings[booked_date]['18:00'] = 0;
+					bookings[booked_date]['20:00'] = 0;
+					bookings[booked_date]['22:00'] = 0;
+					
+					bookings[booked_date]['restriction'] = {};
+			
+					bookings[booked_date]['restriction']['restricted_time'] = [];
+					bookings[booked_date]['restriction']['limit'] = 3;
+				}
+				
+				//increment time slot booking counter
+				if(bookings[booked_date][booking_time] == null){
+					bookings[booked_date][booking_time] = 1;
+				}else{
+					//append time to the booked date
+					bookings[booked_date][booking_time] += 1;
+				}
+					
+			}
+		}
+	});
+	
+	//disable dates collection
+	let disable_dates = await db.collection("disabled_dates").get();
+	disable_dates.forEach((doc) => {
+		//console.log(doc.data());
+		var restricted_date = new Date(doc.data().date);
+		var restricted_time = doc.data().disabled_time;
+		var limit = doc.data().limit;
 		var facility_type = doc.data().facility;
 		var bookings = "";
 		
@@ -523,27 +675,31 @@ async function set_booking(){
 		else if(facility_type === "Ping-Pong Table")
 			bookings = booking_list.PingPong;
 		
-		//if date is in the future or today
-		if(booked_date >= today){
+		if(bookings[restricted_date] == null){
+			bookings[restricted_date] = {};
+			bookings[restricted_date]['08:00'] = 0;
+			bookings[restricted_date]['10:00'] = 0;
+			bookings[restricted_date]['12:00'] = 0;
+			bookings[restricted_date]['14:00'] = 0;
+			bookings[restricted_date]['16:00'] = 0;
+			bookings[restricted_date]['18:00'] = 0;
+			bookings[restricted_date]['20:00'] = 0;
+			bookings[restricted_date]['22:00'] = 0;
 			
-			var booking_time = doc.data().time;
+			bookings[restricted_date]['restriction'] = {};
 			
-			var facility_bookings = bookings[booked_date];
-			//console.log(facility_bookings);
-			//create object with date as key
-			if(facility_bookings == null){
-				var time_list = [];
-			
-				time_list.push(booking_time);
-				
-				bookings[booked_date] = time_list;
-			}else{
-				//append time to the booked date
-				bookings[booked_date].push(booking_time);
-			}
+			bookings[restricted_date]['restriction']['restricted_time'] = [];
+			bookings[restricted_date]['restriction']['limit'] = 3;
 		}
+		
+		bookings[restricted_date]['restriction'] = {};
+			
+		bookings[restricted_date]['restriction']['restricted_time'] = restricted_time;
+		bookings[restricted_date]['restriction']['limit'] = limit;
+		
 	});
 	
+	console.log(booking_list);
 	//initialize calendar
 	calendar_init();
 		
@@ -648,50 +804,9 @@ function getFacility(){
 		console.log(facility_chosen);		
 		redirect("facilities");
 	})
-	
-
 }
 
-function disableTimeSlots(){
-	//disable time
-	var time_slots = document.getElementsByClassName("time_slot");
-	var booked_dates = booking_list[facility_chosen];
 
-	var date_chosen = document.getElementById('calendar-events-disable').value;
-	
-	console.log(booked_dates);
-	console.log(date_chosen);
-	
-	if(date_chosen.trim() != ""){
-		var date = new Date(date_chosen);
-		console.log(date);
-		if(booked_dates[date] != undefined){
-			
-			for(var i =0; i<booked_dates[date].length; i++){
-				console.log(booked_dates[date]);
-				if(booked_dates[date][i] == "08:00"){
-					time_slots[0].disabled = true;
-				}else if(booked_dates[date][i] == "10:00"){
-					time_slots[1].disabled = true;
-				}else if(booked_dates[date][i] == "12:00"){
-					time_slots[2].disabled = true;
-				}else if(booked_dates[date][i] == "14:00"){
-					time_slots[3].disabled = true;
-				}else if(booked_dates[date][i] == "16:00"){
-					time_slots[4].disabled = true;
-				}else if(booked_dates[date][i] == "18:00"){
-					time_slots[5].disabled = true;
-				}else if(booked_dates[date][i] == "20:00"){
-					time_slots[6].disabled = true;
-				}else if(booked_dates[date][i] == "22:00"){
-					time_slots[7].disabled = true;
-				}
-			}
-		}
-		
-	}
-	
-}
 
 //////Payment Reminder
 //Payment History
