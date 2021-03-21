@@ -17,7 +17,9 @@
           <div class="edit-profile">
             <div>
               <img class="user-icon" id="edit_image" src="static/icons/favicon.png">
-            <a href="#" id="change_photo">Change Profile Picture</a>  
+				<p>
+				  <a class="button popup-open" href="#" data-popup=".popup-about">Change Profile Image</a>
+				</p>
             </div>
 
             <div class="profile-inputs">
@@ -39,6 +41,17 @@
           </div>    
         </div>
       </div>
+	  <div class="popup popup-about">
+		<div class="block">
+			<p><a class="link popup-close" id="close_img_popup" href="#">Cancel</a></p>
+			<form id="update_photo">
+				<input type='file' id="imgInp" style="display: none;"/>
+				<input type="button" value="Select Image" onclick="document.getElementById('imgInp').click();" />
+				<img id="blah" src="static/icons/favicon.png" alt="your image" width="50" height="50"/>
+				<input type="submit" value="Change Photo">
+			</form>
+		</div>
+	  </div>
 </div>
 </template>
 <script>

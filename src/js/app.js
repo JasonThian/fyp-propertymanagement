@@ -184,36 +184,7 @@ async function init_script(){
 			
 			console.log("user logged in");
 			mainView.router.navigate({ name: 'home'});
-			//fields
-			var username = document.getElementById("username");
-			var user_pic = document.getElementById("user_pic");
-			var user_icon = document.getElementById("user_icon");
-			console.log(user_icon);
-			db.collection('landlord').doc(uid).get().then(function(doc) {
-				
-				var name = doc.data().name;
-				var imageurl = doc.data().imageurl;
-				
-				username.innerHTML = name;
-					
-				var pathReference = storage.ref(imageurl);
-					
-				pathReference.getDownloadURL().then(function(url) {
-					console.log(url);
-					user_icon.src = url;
-					user_pic.src = url;
-					
-					
-				}).catch(function(error) {
-					console.log(error);
-				});
-				
-				
-			}).catch(function(error) {
-				console.log("Error getting document:", error);
-			});
-			
-			
+			homesetup()
 		}else{
 			mainView.router.navigate({ name: 'login'});
 		}
@@ -246,6 +217,8 @@ $$(document).on('page:init', async function (e, page) {
 	
 	if(pn == "login"){
 		set_login();
+	}else if(pn == "home"){
+		homesetup();
 	}else if(pn == "news"){
 		getAnnouncement();
 	}else if(pn == "booking_details"){
@@ -265,10 +238,42 @@ $$(document).on('page:init', async function (e, page) {
 	}
 })
 
+function homesetup(){
+	var uid = auth.currentUser.uid;
+	//fields
+	var username = document.getElementById("username");
+	var user_pic = document.getElementById("user_pic");
+	var user_icon = document.getElementById("user_icon");
+	console.log(user_icon);
+
+	db.collection('landlord').doc(uid).onSnapshot((doc) => {
+				
+		var name = doc.data().name;
+		var imageurl = doc.data().imageurl;
+			
+		username.innerHTML = name;
+				
+		var pathReference = storage.ref(imageurl);
+					
+		pathReference.getDownloadURL().then(function(url) {
+			console.log(url);
+			user_icon.src = url;
+			user_pic.src = url;
+					
+					
+		}).catch(function(error) {
+			console.log(error);
+		});
+	})
+}
+
 function getEditPage(){
 	var user_id = auth.currentUser.uid;
 	var docRef = db.collection("landlord").doc(user_id);
-
+	
+	//image url
+	var blob = "";
+	
 	//fields
 	var edit_username = document.getElementById("edit_username");
 	var edit_email = document.getElementById("edit_email");
@@ -277,7 +282,9 @@ function getEditPage(){
 	var edit_unit = document.getElementById("edit_unit");
 	var edit_image = document.getElementById("edit_image");
 	var change_photo = document.getElementById("change_photo");
-
+	var update_photo = document.getElementById("update_photo");
+	var close_img_popup = document.getElementById("close_img_popup");
+	
 	docRef.get().then(function(doc) {
 		var name = doc.data().name;
 		var email = doc.data().email;
@@ -301,15 +308,52 @@ function getEditPage(){
 			console.log(error);
 		});
 	})
-	
-	change_photo.addEventListener("click",async function(e){
-		console.log("change photo clicked");
-		var myPhotoBrowser = app.photoBrowser({
-		   
-		});
 
-		myPhotoBrowser.open();
+	$("#imgInp").change(function() {
+		blob = readURL(this);
+		//console.log(blob);
+	});
+	
+	
+	update_photo.addEventListener('submit', function(e){
+		e.preventDefault();
+		var announceref = storage.ref().child(user_id+".png");
+			
+		announceref.put(blob).then(function(snapshot) {
+			console.log('Updated user image');
+			close_img_popup.click();
+			redirect("home");
+			toast("successfully updated photo");
+		}).catch(err => {
+			console.log('err: '+err);
+			toast("failed to update photo");
+		});
+			
 	})
+}
+
+function toast(msg){
+	var toastWithButton = app.toast.create({
+        text: msg,
+        closeButton: true,
+    });
+	
+	toastWithButton.open();
+}
+
+function readURL(input) {
+	if (input.files && input.files[0]) {
+		var reader = new FileReader();
+		
+		var blob = input.files[0];
+		reader.onload = function(e) {
+			$('#blah').attr('src', e.target.result);
+		}
+	
+		reader.readAsDataURL(input.files[0]); // convert to base64 string
+	}
+	
+	return blob;
 }
 
 //tenant lists
