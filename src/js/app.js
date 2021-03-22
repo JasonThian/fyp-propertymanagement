@@ -163,6 +163,13 @@ async function init_script(){
 	document.head.appendChild(stripe_payment);
 	console.log(auth);
 	
+	/* SSL Pinning */
+	cordovaHTTP.enableSSLPinning(true, function() {
+		console.log('success!');
+	}, function() {
+		console.log('error :(');
+	});
+	
 	/* Get Dashboard Announcement */
 	let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(2).get();
 	var annc_img = document.getElementsByClassName('announcement-img');
