@@ -40,6 +40,7 @@ var routes = [
     component: BookFacilityPage,
   },
   {
+	name: "facilities",
     path: '/facilities/',
     component: FacilitiesPage,
   },

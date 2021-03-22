@@ -1,7 +1,7 @@
 @body-width: 480px;
 @body-height: 853px;
-// @body-height: 50em;
-// @body-width: 22.5em;
+//@body-height: 50em;
+//@body-width: 22.5em;
 @announcement-width: @body-width * 0.8;
 @announcement-height: @announcement-width * (9/16);
 @card-view-width: @body-width * 0.8;
@@ -37,25 +37,29 @@
 .top-margin-block{
 	margin: 25px 0 0 0;
 }
-
 .block-strong{
 	background-color: transparent;
 }
-
 .block-strong:before, .block-strong:after,.list .item-inner:after{
 	background-color:transparent;
 }
 
 .list .item-inner{
 	justify-content: unset;
+	
 }
 
 .list .item-inner label{
-	margin-left: 50px;
+	margin-left: 70px;
+	font-size:25px;
+	text-align:center;
+	
+	
 }
 
 .list .item-inner label img{
 	margin-left: 20px;
+	
 }
 
 // body{
@@ -67,6 +71,7 @@
 
 //dashboard
 .page{
+	
 	background: rgb(200,224,255);
 	background: linear-gradient(180deg, rgba(200,224,255,1) 0%, rgba(252,252,252,1) 100%);
 }
@@ -89,7 +94,7 @@
 }
 
 // .title{
-// 	margin-top: 8%;
+// 	margin-top: ;
 // }
 
 .card-margin-middle{
@@ -101,9 +106,10 @@
 }
 
 .card-inline-blocks{
-	// margin: 2%;
+	
 	width: @card-width;
 	display: inline-block; 
+	
 	border-radius: 7%;
 }
 
@@ -133,7 +139,6 @@
 
 .announcement-img{
 	width: @announcement-width;
-	// margin-top: 2%;
 }
 
 .card-views{
@@ -145,13 +150,12 @@
 //Right Panel List
 .list-buttons{
 	width: 100%;
-    font-size: 20px;
+	font-size: 20px;
     text-align: center;
     font-weight: 500;
     text-transform: capitalize;
-    /* margin: auto; */
-    height: 55px;
-    // background-color: #C8E0FF;
+	
+	 height: 55px;
 	background-color: transparent;
 }
 
@@ -168,9 +172,9 @@
 
 
 .list ul, .navbar-bg{
-	background-color: transparent;
-	
+	background-color: #C8E0FF;
 }
+
 
 .user-icon{
 	// width: 13vw;
@@ -201,6 +205,7 @@
 	font-style: oblique;
 }
 
+
 //announcement
 .announcement-small-icon{
 	max-width: 20vw;
@@ -220,7 +225,9 @@
 }
 
 .announcement-list{
+
 	margin-top: 55px;
+
 }
 
 .announcement-list-row{
@@ -243,7 +250,15 @@ p#annc_desc {
 #qrcode-canvas{
 	padding: 0;
     margin: 0 auto;
-    display: block;
+}
+.qr{
+	margin-top:60px;
+	font-size:25px;
+	text-align:center;
+}
+.qr_button
+{
+	margin-top:20px;
 }
 
 //payment
@@ -255,8 +270,50 @@ p#annc_desc {
 .amount-large{
 	text-align:center;
 	font-size:28px;
+	margin-top:70px;
+}
+.page-content1{
+	overflow-x: hidden;
+	overflow-y: scroll;
+	padding: 10% 0%;
+	background-color:white;
+}
+//payment history
+.item-link{
+	background-color:white;
+	margin-top:10px;
+}
+//payment method 
+.title_payment{
+	font-size:25px;
+	margin-left:20px;
+	font-weight: bold;
+	margin-top:40px;
+	
+}
+.description{
+	font-size:20px;
+	margin-left:20px;
+	margin-top:10px;
+}
+.list .payment_method
+{
+	background-color:transparent;
 }
 
+//tenant_list
+.list .tenant_list
+{
+	background-color:white;
+}
+.card .card-content1
+{
+	margin-top:10px;
+}
+.card .card-content2
+{
+	margin-top:55px;
+}
 //edit profile
 .edit-profile{
 	width: 100%;
@@ -268,14 +325,11 @@ p#annc_desc {
 	font-size: 3vw;
 }
 
-
-
 .profile-inputs > p{
 	font-weight: bold;
 	color: #7278B9;
 	font-size: 4vw;
 }
-
 .profile-inputs > input{
 	width: 100%;
 	border-bottom: 1px solid grey;
@@ -283,16 +337,11 @@ p#annc_desc {
 	padding: 1%;
 	font-size: 3vw;
 }
-
 //Booking Details
 .booking-details{
 	border: 1px solid rgba(255,255,255,1);
 	border-radius: 8px;
-	background: linear-gradient(
-		to right bottom, 
-		rgba(255, 255, 255, 0.8), 
-	rgba(255, 255, 255, 0.3)
-	);
+	background: linear-gradient(to right bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
 	backdrop-filter: blur(2rem);
 	padding: 20px;
 	margin: 5px;
@@ -393,8 +442,9 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 	width: 50%;
 	margin: 0 auto;
 }
-// .booking-success-img{
-// 	display: inline-block;
-// 	flex-direction: column;
-// }
-
+//payment_reminder
+.list .reminder
+{
+	background-color:white;
+	
+}

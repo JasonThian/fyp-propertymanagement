@@ -1,5 +1,5 @@
 <template>
-<div class="page" data-name="payment">
+<div class="page" data-name="payment-credit">
 <script>
 	var data = app.data.credit_payment();
 </script>
@@ -15,21 +15,7 @@
       <div class="title">Payment</div>
     </div>
   </div>
-  <div class="page-content">
-    <div class="block block-strong">
-      <form id="payment-form">
-      <div id="card-element"><!--Stripe.js injects the Card Element--></div>
-      <button id="submit">
-        <div class="spinner hidden" id="spinner"></div>
-        <span id="button-text">Pay</span>
-      </button>
-      <p id="card-error" role="alert"></p>
-      <p class="result-message hidden">
-        Payment succeeded, see the result in your
-        <a href="" target="_blank">Stripe dashboard.</a> Refresh the page to pay again.
-      </p>
-    </form>
-    </div>
+  <div class="page-content no-margin no-padding" id="payment-credit-redirect-page">
   </div>
 </div>
 </template>
