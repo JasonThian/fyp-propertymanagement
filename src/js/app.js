@@ -196,6 +196,26 @@ async function init_script(){
 		}
 	});
 	
+	/* Get Stripe PaymentIntent */
+	try{
+		let paymentIntent = parseURLParams(window.location.href);
+		if(paymentIntent != undefined){
+			console.log("PaymentIntent",paymentIntent);
+			if(paymentIntent.redirect_status[0] == "succeeded"){
+				/* Display Payment Success Page */
+				timed_toast("Payment Succeesful!","center");
+			}
+			else{
+				/* Disply Payment Failed Page */
+				
+			}
+		}
+		else
+			console.log("Should be undefined",paymentIntent);
+	}catch(err){
+		console.log(err);
+	}
+	
 	/* Customize Android/iOS hardware back button */
 	/* Not Functioning */
 	var count = 0;
@@ -215,6 +235,27 @@ async function init_script(){
 			count = 0;
 		},2100);
 	}, false);
+}
+
+/* Get data from URL - GET Method - All data in Array */
+function parseURLParams(url) {
+    var queryStart = url.indexOf("?") + 1,
+        queryEnd   = url.indexOf("#") + 1 || url.length + 1,
+        query = url.slice(queryStart, queryEnd - 1),
+        pairs = query.replace(/\+/g, " ").split("&"),
+        parms = {}, i, n, v, nv;
+
+    if (query === url || query === "") return;
+
+    for (i = 0; i < pairs.length; i++) {
+        nv = pairs[i].split("=", 2);
+        n = decodeURIComponent(nv[0]);
+        v = decodeURIComponent(nv[1]);
+
+        if (!parms.hasOwnProperty(n)) parms[n] = [];
+        parms[n].push(nv.length === 2 ? v : null);
+    }
+    return parms;
 }
 
 //page handler
@@ -339,6 +380,7 @@ function getEditPage(){
 	})
 }
 
+/* Toast with Close Button */
 function toast(msg){
 	var toastWithButton = app.toast.create({
         text: msg,
@@ -346,6 +388,17 @@ function toast(msg){
     });
 	
 	toastWithButton.open();
+}
+
+/* Toast without Close Button - pos: top, center, bottom */
+function timed_toast(msg,pos){
+	var normal_toast = app.toast.create({
+        text: msg,
+		closeTimeout: 2000,
+		position: pos,
+    });
+	
+	normal_toast.open();
 }
 
 function readURL(input) {
