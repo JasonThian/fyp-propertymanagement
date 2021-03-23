@@ -151,16 +151,34 @@ function set_logout(){
 	})
 }
 
-//import scripts
+/* Initialize */
 async function init_script(){
-	//jquery
+	/*import jquery and Stripe js */
 	var jquery = document.createElement('script');
+	var stripe_payment = document.createElement('script');
 	set_logout();
 	
 	jquery.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
 	document.head.appendChild(jquery);
 	
+	stripe_payment.src = "https://js.stripe.com/v3/";
+	document.head.appendChild(stripe_payment);
+	
+	/* SSL Pinning */
+	try{
+		cordovaHTTP.enableSSLPinning(true, function() {
+			console.log('success!');
+		}, function() {
+			console.log('error :(');
+		});
+	}catch(err){
+		console.log(err);
+	}
+	
+	
+	/* Check User Login */
 	auth.onAuthStateChanged(async user => {
+
 		var mainView = app.view.main;
 		console.log("user logged in");
 		if (user) {
@@ -260,9 +278,30 @@ async function init_script(){
 		}
 	});
 	
+	/* Get Stripe PaymentIntent */
+	try{
+		let paymentIntent = parseURLParams(window.location.href);
+		if(paymentIntent != undefined){
+			console.log("PaymentIntent",paymentIntent);
+			if(paymentIntent.redirect_status[0] == "succeeded"){
+				/* Display Payment Success Page */
+				timed_toast("Payment Succeesful!","center");
+			}
+			else{
+				/* Disply Payment Failed Page */
+				
+			}
+		}
+		else
+			console.log("Should be undefined",paymentIntent);
+	}catch(err){
+		console.log(err);
+	}
 	
+	/* Customize Android/iOS hardware back button */
+	/* Not Functioning */
+
 	var count = 0;
-	//customize android back button
 	document.addEventListener("backbutton", function(e){
 		e.preventDefault();
 		count++;
@@ -279,6 +318,27 @@ async function init_script(){
 			count = 0;
 		},2100);
 	}, false);
+}
+
+/* Get data from URL - GET Method - All data in Array */
+function parseURLParams(url) {
+    var queryStart = url.indexOf("?") + 1,
+        queryEnd   = url.indexOf("#") + 1 || url.length + 1,
+        query = url.slice(queryStart, queryEnd - 1),
+        pairs = query.replace(/\+/g, " ").split("&"),
+        parms = {}, i, n, v, nv;
+
+    if (query === url || query === "") return;
+
+    for (i = 0; i < pairs.length; i++) {
+        nv = pairs[i].split("=", 2);
+        n = decodeURIComponent(nv[0]);
+        v = decodeURIComponent(nv[1]);
+
+        if (!parms.hasOwnProperty(n)) parms[n] = [];
+        parms[n].push(nv.length === 2 ? v : null);
+    }
+    return parms;
 }
 
 //page handler
@@ -422,6 +482,7 @@ function getEditPage(){
 	})
 }
 
+/* Toast with Close Button */
 function toast(msg){
 	var toastWithButton = app.toast.create({
         text: msg,
@@ -429,6 +490,17 @@ function toast(msg){
     });
 	
 	toastWithButton.open();
+}
+
+/* Toast without Close Button - pos: top, center, bottom */
+function timed_toast(msg,pos){
+	var normal_toast = app.toast.create({
+        text: msg,
+		closeTimeout: 2000,
+		position: pos,
+    });
+	
+	normal_toast.open();
 }
 
 function readURL(input) {
@@ -532,6 +604,7 @@ var booking_list = {
  var DEFAULT_LIMIT = 3;
  const monthNames = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"];
+
 //initialize calendar
 function calendar_init(){
 	if(calendarEvents != ""){
@@ -667,6 +740,7 @@ function disableTimeSlots(){
 }
 
 async function set_booking(){
+	
 	//get today
 	var now = new Date();
 	var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -684,8 +758,6 @@ async function set_booking(){
 	"BBQ": {},
 	"SkyLounge": {} 
 	};
-	
-	
 	
 	querySnapshot.forEach((doc) => {
 		var status = doc.data().status;
@@ -847,12 +919,11 @@ async function set_booking(){
 		
 	})
 }
+
 function redirect(page){
 	var mainView = app.view.main;
 	mainView.router.navigate({ name: page});
 }
-
-
 
 function getFacility(){
 	var bbq = document.getElementById('bbq');
@@ -1117,6 +1188,7 @@ function getAnnouncement(){
 	});*/
 }
 
+/* Set Announcement List */
 async function setURL(url,url_list,d,imgset){
 	var pathReference = storage.ref("announcement/"+url_list[d]);
 	pathReference.getDownloadURL().then(function(url) {
@@ -1133,6 +1205,7 @@ async function setURL(url,url_list,d,imgset){
 	});
 }
 
+/* Create QR Code */
 function createQrCode(){
 	function count_time(){
 		string = "";
@@ -1187,11 +1260,13 @@ perm
 localStorage.getItem('label')
 localStorage.setItem('label', 'value')*/
 
+/* Payment Method Page */
 function getUserBillingPaymentMethod(){
 	document.getElementById("amount").innerHTML = amountString;
 	document.getElementById("payment-description").innerHTML = paymentDescrip;
 }
 
+/* Payment Page */
 function getUserBilling(){
 	var user_id = auth.currentUser.uid;
 	db.collection("billing").where("user_id", "==", user_id).orderBy("date", "desc").limit(1).get().then((querySnapshot) => {
@@ -1219,18 +1294,214 @@ function getUserBilling(){
 	})});
 }
 
+/* Online Payment */
 function online_payment_function(){
-	app.on('pageInit', function (page) {  
-		if (page.name === 'payment-online'){
-			$('#payment-online-redirect-page').html('<iframe style="background:white;padding:0;margin:0;height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/online_payment.php"></iframe>'); 
+	var stripe = Stripe('pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ');
+	var jsonString = { "amount": 8000 };
+	var clientSecret = "";
+	console.log(JSON.stringify(jsonString));
+	var form = document.getElementById('payment-form');
+	var online = firebase.functions().httpsCallable('Online');
+	var elements = stripe.elements();
+	var fpxButton = document.getElementById('fpx-button');
+	var style = {
+		base: {
+			padding: '10px 12px',
+			color: '#32325d',
+			fontSize: '16px',
+		},
+	};
+
+	var fpxBank = elements.create(
+		'fpxBank',
+		{
+			style: style,
+			accountHolderType: 'individual',
 		}
+	);
+	
+	fpxBank.mount('#fpx-bank-element');
+	
+	/*try{
+		let stripe_data = sessionStorage.getItem('stripe_client_secret');
+		
+		try{
+			stripe.retrievePaymentIntent(stripe_data).then(function(result) {
+				// Handle result.error or result.paymentIntent
+				console.log("Result",result);
+				console.log("Error",result.error);
+				console.log("PaymentIntent",result.paymentIntent);
+				sessionStorage.clear();
+			});
+		}catch(err){
+			console.log(err);
+		}
+	}catch(err){
+		console.log(err);*/
+		online(JSON.stringify(jsonString)).then((result) => {
+			// Read result of the Cloud Function.
+			clientSecret = result.data;
+			fpxButton.disabled = false;
+			fpxButton.setAttribute("data-secret",clientSecret);
+			sessionStorage.setItem('stripe_client_secret', clientSecret);
+		}).catch((error) => {
+			// Getting the Error details.
+			var code = error.code;
+			var message = error.message;
+			var details = error.details;
+			// ...
+		});
+	//}
+	
+	$("#online-payment-cancel-button").click(()=>{
+		window.location.href = "home";
+	});
+
+	form.addEventListener('submit', function(event) {
+	  event.preventDefault();
+	  
+	  stripe.confirmFpxPayment(clientSecret, {
+		payment_method: {
+		  fpx: fpxBank,
+		},
+		return_url: `${window.location.href}`,
+	  }).then((result) => {
+		if (result.error) {
+		  //var errorElement = document.getElementById('error-message');
+		  //errorElement.textContent = result.error.message;
+		  alert(result.error.message);
+		}
+	  });
 	});
 }
 
+/* Credit Payment */
 function credit_payment_function(){
+	var stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
+	
+	var jsonString = {
+	  data: {
+		  currency: "myr",
+		  amount: 1000
+	  }
+	};
+	
+	fetch("https://us-central1-propertymanagement-88d03.cloudfunctions.net/Credit", {
+	  method: "POST",
+	  headers: {
+		"Content-Type": "application/json"
+	  },
+	  body: JSON.stringify(jsonString)
+	})
+	  .then((result) => {
+		return result.json();
+	  })
+	  .then(function(data) {
+		var elements = stripe.elements();
+
+		var style = {
+		  base: {
+			color: "#32325d",
+			fontFamily: 'Arial, sans-serif',
+			fontSmoothing: "antialiased",
+			fontSize: "16px",
+			"::placeholder": {
+			  color: "#32325d"
+			}
+		  },
+		  invalid: {
+			fontFamily: 'Arial, sans-serif',
+			color: "#fa755a",
+			iconColor: "#fa755a"
+		  }
+		};
+
+		var card = elements.create("card", { style: style });
+		card.mount("#card-element");
+
+		card.on("change", function (event) {
+		  document.querySelector("button").disabled = event.empty;
+		  document.querySelector("#card-error").textContent = event.error ? event.error.message : "";
+		});
+
+		var form = document.getElementById("payment-form");
+		form.addEventListener("submit", function(event) {
+		  event.preventDefault();
+		  payWithCard(stripe, card, data.data);
+		});
+	  });
+
+	var payWithCard = function(stripe, card, clientSecret) {
+	  loading(true);
+	  
+	  stripe
+		.confirmCardPayment(clientSecret, {
+		  payment_method: {
+			card: card
+		  }
+		})
+		.then(function(result) {
+		  if (result.error) {
+			showError(result.error.message);
+		  } else {
+			  alert("Complete");
+			orderComplete(result.paymentIntent.id);
+		  }
+		});
+	};
+
+	var orderComplete = function(paymentIntentId) {
+	  loading(false);
+	  document
+		.querySelector(".result-message a")
+		.setAttribute(
+		  "href",
+		  "https://dashboard.stripe.com/test/payments/" + paymentIntentId
+		);
+	  document.querySelector(".result-message").classList.remove("hidden");
+	  document.querySelector("button").disabled = true;
+	};
+
+	var showError = function(errorMsgText) {
+	  loading(false);
+	  var errorMsg = document.querySelector("#card-error");
+	  errorMsg.textContent = errorMsgText;
+	  setTimeout(function() {
+		errorMsg.textContent = "";
+	  }, 4000);
+	};
+
+	var loading = function(isLoading) {
+	  if (isLoading) {
+		document.querySelector("button").disabled = true;
+		document.querySelector("#spinner").classList.remove("hidden");
+		document.querySelector("#button-text").classList.add("hidden");
+	  } else {
+		document.querySelector("button").disabled = false;
+		document.querySelector("#spinner").classList.add("hidden");
+		document.querySelector("#button-text").classList.remove("hidden");
+	  }
+	};
+	
+	$("#credit-payment-cancel-button").click(()=>{
+		window.location.href = "home";
+	});
+}
+
+/* Not using */
+
+/*function credit_payment_function(){
 	app.on('pageInit', function (page) {  
 		if (page.name === 'payment-credit'){
 			$('#payment-credit-redirect-page').html('<iframe style="background:white;padding:0;margin:0;height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/credit_payment.php"></iframe>'); 
 		}
 	});
-}
+}*/
+
+/*function online_payment_function(){
+	app.on('pageInit', function (page) {  
+		if (page.name === 'payment-online'){
+			$('#payment-online-redirect-page').html('<iframe style="background:white;padding:0;margin:0;height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/online_payment.php"></iframe>'); 
+		}
+	});
+}*/
