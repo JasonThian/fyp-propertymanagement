@@ -27,6 +27,7 @@ import "firebase/auth";
 import "firebase/firestore";
 import "firebase/functions";
 import "firebase/storage";
+import "firebase/messaging";
 
 //Add Firebase configs
 //import fb from './firebase.js'
@@ -55,7 +56,8 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const functions = firebase.functions();
 const storage = firebase.storage();
-		
+const messaging = firebase.messaging();
+
 //console.log("Initializing auth script");
 //f7 variables
 
@@ -157,38 +159,107 @@ async function init_script(){
 	
 	jquery.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
 	document.head.appendChild(jquery);
-	console.log(auth);
 	
-	let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(2).get();
-	var annc_img = document.getElementsByClassName('announcement-img');
-	var annc = 0; 
-	querySnapshot.forEach(async (doc) => {
-		var imageurl = doc.data().imageurl;
-		
-		var pathReference = storage.ref("announcement/"+imageurl);
-		
-		console.log(imageurl);
-		let url = await pathReference.getDownloadURL();
-
-		annc_img[annc].src = url;
-		
-		annc++; 
-	});
-	
-	auth.onAuthStateChanged(user => {
+	auth.onAuthStateChanged(async user => {
 		var mainView = app.view.main;
-
+		console.log("user logged in");
 		if (user) {
 			var uid = user.uid;
 			set_changepassword();
 			
-			console.log("user logged in");
+			
+			//set announcements
+			let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(2).get();
+			var annc_img = document.getElementsByClassName('announcement-img');
+			var annc = 0; 
+			querySnapshot.forEach(async (doc) => {
+				var imageurl = doc.data().imageurl;
+				
+				var pathReference = storage.ref("announcement/"+imageurl);
+				
+				console.log(imageurl);
+				let url = await pathReference.getDownloadURL();
+
+				annc_img[annc].src = url;
+				
+				annc++; 
+			});
+			
+			
 			mainView.router.navigate({ name: 'home'});
-			homesetup()
+			homesetup();
+			Notification.requestPermission().then(function(permission) { 
+				console.log(permission);
+			});
+			//get token
+			
+			messaging.getToken({ vapidKey: 'BIOcuB5h9-_aOFb1i_FqNCqGwh_560dTG0YkCv9sbqWnPwDm5N8-Hu-LeJlhbii-gy4LitSj9KRbMCFmqChDug4' }).then(async (currentToken) => {
+				if (currentToken) {
+					// Send the token to your server and update the UI if necessary
+					// ...
+					console.log(currentToken);
+					
+					let user_doc = await db.collection("landlord").doc(uid).get();
+					console.log(user_doc.data());
+					var newToken = false;
+					var tokens = [];
+					
+					if(user_doc.data().fmc_token != null){
+						var tokens = user_doc.data().fmc_token;
+						
+						for(var i =0; i<tokens.length;i++){
+							if(tokens[i] == currentToken){
+								newToken = true;
+							}
+						}
+					}
+					
+					if(newToken == false){
+						tokens.push(currentToken); 
+						
+						db.collection("landlord").doc(uid).update({
+							fmc_token: tokens
+						});
+					}
+					
+					
+				} else {
+					// Show permission request UI
+					
+					console.log('No registration token available. Request permission to generate one.');
+					// ...
+				}
+			}).catch((err) => {
+			  console.log('An error occurred while retrieving token. ', err);
+			  // ...
+			});
+			
+			messaging.onMessage((payload) => {
+				console.log('Message received. ', payload);
+				var data = payload.notification;
+
+				var type = payload.data['gcm.notification.type'];
+				
+				
+				
+				if(type == "announcement"){
+					console.log(data.title);
+					var notificationFull = app.notification.create({
+						icon: '<img src='+data.image+'></img>',
+						title: '<b>'+data.title.toUpperCase()+'</b>',
+						text: data.body,
+						closeTimeout: 3000,
+					});
+					notificationFull.open();
+				}
+			});
+	
+			
 		}else{
 			mainView.router.navigate({ name: 'login'});
 		}
 	});
+	
 	
 	var count = 0;
 	//customize android back button
@@ -237,6 +308,25 @@ $$(document).on('page:init', async function (e, page) {
 		getEditPage();
 	}
 })
+
+
+//subscribe to topic
+function subscribe(token,topic){
+	
+	$.ajax('https://iid.googleapis.com/iid/v1/'+token+'/rel/topics/'+topic, {
+		method: 'POST',
+		headers: new Headers({
+		'Authorization': 'key='+fcm_server_key
+		})
+	}).then(response => {
+		if (response.status < 200 || response.status >= 400) {
+			throw 'Error subscribing to topic: '+response.status + ' - ' + response.text();
+		}
+		console.log('Subscribed to "'+topic+'"');
+	}).catch(error => {
+		console.error(error);
+	})
+}
 ///////////// HOME SETUP
 function homesetup(){
 	var uid = auth.currentUser.uid;
@@ -256,7 +346,7 @@ function homesetup(){
 		var pathReference = storage.ref(imageurl);
 					
 		pathReference.getDownloadURL().then(function(url) {
-			console.log(url);
+			//console.log(url);
 			user_icon.src = url;
 			user_pic.src = url;
 					
@@ -581,7 +671,8 @@ async function set_booking(){
 	var now = new Date();
 	var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 	
-	
+	var book_button = document.getElementById("book-button");
+	book_button.disabled = true;
 	
 	//booking collection
 	let querySnapshot = await db.collection("booking").get();
@@ -709,11 +800,12 @@ async function set_booking(){
 	var date_chosen = document.getElementById('calendar-events-disable');
 	date_chosen.addEventListener('change', function(e){
 		time_select.disabled = false;
+		book_button.disabled = false;
 		disableTimeSlots()
 	})
 		
 	//submit button clicked
-	var book_button = document.getElementById("book-button");
+	
 	book_button.addEventListener('click', function(e){
 		var user_id = auth.currentUser.uid;
 		//var facility_chosen = document.getElementById('facility').value;
