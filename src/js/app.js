@@ -164,11 +164,16 @@ async function init_script(){
 	console.log(auth);
 	
 	/* SSL Pinning */
-	cordovaHTTP.enableSSLPinning(true, function() {
-		console.log('success!');
-	}, function() {
-		console.log('error :(');
-	});
+	try{
+		var cordovaHTTP = cordova.plugin.http;
+		cordovaHTTP.enableSSLPinning(true, function() {
+			console.log('success!');
+		}, function() {
+			console.log('error :(');
+		});
+	}catch(err){
+		throw err;
+	}
 	
 	/* Get Dashboard Announcement */
 	let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(2).get();
