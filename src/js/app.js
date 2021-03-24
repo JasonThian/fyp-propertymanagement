@@ -9,6 +9,7 @@ import '../css/icons.css';
 import '../css/app.less';
 // Import Cordova APIs
 import cordovaApp from './cordova-app.js';
+//import FCMPluginNG from 'cordova-plugin-fcm-ng';
 // Import Routes
 import routes from './routes.js';
 
@@ -214,62 +215,15 @@ async function init_script(){
 			
 			mainView.router.navigate({ name: 'home'});
 			homesetup();
-			/*Notification.requestPermission().then(function(permission) { 
-				console.log(permission);
-			});*/
-			//get token
-			
-			/*messaging.getToken({ vapidKey: 'BIOcuB5h9-_aOFb1i_FqNCqGwh_560dTG0YkCv9sbqWnPwDm5N8-Hu-LeJlhbii-gy4LitSj9KRbMCFmqChDug4' }).then(async (currentToken) => {
-				if (currentToken) {
-					// Send the token to your server and update the UI if necessary
-					// ...
-					console.log(currentToken);
-					
-					let user_doc = await db.collection("landlord").doc(uid).get();
-					console.log(user_doc.data());
-					var newToken = false;
-					var tokens = [];
-					
-					if(user_doc.data().fmc_token != null){
-						var tokens = user_doc.data().fmc_token;
-						
-						for(var i =0; i<tokens.length;i++){
-							if(tokens[i] == currentToken){
-								newToken = true;
-							}
-						}
-					}
-					
-					if(newToken == false){
-						tokens.push(currentToken); 
-						
-						db.collection("landlord").doc(uid).update({
-							fmc_token: tokens
-						});
-					}
-					
-					
-				} else {
-					// Show permission request UI
-					
-					console.log('No registration token available. Request permission to generate one.');
-					// ...
-				}
-			}).catch((err) => {
-			  console.log('An error occurred while retrieving token. ', err);
-			  // ...
-			});*/
-			
-			/*messaging.onMessage((payload) => {
-				console.log('Message received. ', payload);
-				var data = payload.notification;
 
-				var type = payload.data['gcm.notification.type'];
+			try{
+				FCMPlugin.getToken(function(token){
+					console.log(token);
+				});
+				FCMPlugin.subscribeToTopic('announcement');
 				
-				
-				
-				if(type == "announcement"){
-					console.log(data.title);
+				FCMPlugin.onNotification(function(data){
+					
 					var notificationFull = app.notification.create({
 						icon: '<img src='+data.image+'></img>',
 						title: '<b>'+data.title.toUpperCase()+'</b>',
@@ -277,8 +231,23 @@ async function init_script(){
 						closeTimeout: 3000,
 					});
 					notificationFull.open();
-				}
-			});*/
+					
+					
+					if(data.wasTapped){
+						//Notification was received on device tray and tapped by the user.
+						console.log( JSON.stringify(data) );
+						console.log( "Background notification" );
+					}else{
+						//Notification was received in foreground. Maybe the user needs to be notified.
+						console.log( JSON.stringify(data) );
+						console.log( "Foreground notification" );
+					}
+				});
+				
+			}catch(err){
+				console.log(err);
+			}
+			
 	
 			
 		}else{

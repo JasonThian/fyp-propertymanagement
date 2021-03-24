@@ -3,6 +3,7 @@ var cordovaApp = {
   /*
   This method hides splashscreen after 2 seconds
   */
+  
   handleSplashscreen: function() {
     var f7 = cordovaApp.f7;
     if (!window.navigator.splashscreen || f7.device.electron) return;
@@ -137,7 +138,6 @@ var cordovaApp = {
   init: function (f7) {
     // Save f7 instance
     cordovaApp.f7 = f7;
-
     // Handle Android back button
     cordovaApp.handleAndroidBackButton();
 
