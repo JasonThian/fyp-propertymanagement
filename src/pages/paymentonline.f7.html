@@ -1,5 +1,5 @@
 <template>
-<div class="page" data-name="paymentonline">
+<div class="page" data-name="payment-online">
 <script>
 	var data = app.data.online_payment();
 </script>
@@ -15,28 +15,7 @@
       <div class="title">Payment</div>
     </div>
   </div>
-  <div class="page-content">
-    <div class="block block-strong">
-      <form id="payment-form">
-  <div class="form-row">
-    <div>
-      <label for="fpx-bank-element">
-        FPX Bank
-      </label>
-      <div id="fpx-bank-element">
-        <!-- A Stripe Element will be inserted here. -->
-      </div>
-    </div>
-  </div>
-
-  <button id="fpx-button" data-secret="<%= @intent.client_secret %>">
-    Submit Payment
-  </button>
-
-  <!-- Used to display form errors. -->
-  <div id="error-message" role="alert"></div>
-</form>
-    </div>
+  <div class="page-content no-margin no-padding" id="payment-online-redirect-page">
   </div>
 </div>
 </template>

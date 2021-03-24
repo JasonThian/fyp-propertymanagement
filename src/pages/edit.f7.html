@@ -1,5 +1,5 @@
 <template>
-<div class="page">
+<div class="page" data-name="edit">
   <div class="navbar">
     <div class="navbar-bg"></div>
     <div class="navbar-inner sliding">
@@ -16,29 +16,42 @@
         <div class="block block-strong">
           <div class="edit-profile">
             <div class="change-prof-pic">
-              <img class="user-icon" src="static/icons/favicon.png">
-              <a href="#">Change Profile Picture</a>  
+              <img class="user-icon" id="edit_image" src="static/icons/favicon.png">
+              <p>
+                <a class="button popup-open" href="#" data-popup=".popup-about">Change Profile Image</a>
+              </p>
             </div>
 
             <div class="profile-inputs">
               <p>Name</p>
-              <input type="text" name="username" placeholder="John" disabled>
+              <input type="text" id="edit_username" name="username" placeholder="Your Name" disabled>
       
               <p>Email</p>
-              <input type="text" name="email" placeholder="john@gmail.com" disabled>
+              <input type="text" id="edit_email" name="email" placeholder="Your Email" disabled>
       
               <p>Phone Number</p>
-              <input type="number" name="phone" placeholder="0123456789" disabled>
+              <input type="number" id="edit_pno" name="phone" placeholder="Your Phone Number" disabled>
       
               <p>Gender</p>
-              <input type="text" name="gender" placeholder="Male" disabled>
+              <input type="text" id="edit_gender" name="gender" placeholder="Your Gender" disabled>
       
               <p>Unit Number</p>
-              <input type="text" name="unit" placeholder="A1" disabled>
+              <input type="text" id="edit_unit" name="unit" placeholder="Your Unit numbers" disabled>
             </div>
           </div>    
         </div>
       </div>
+	  <div class="popup popup-about">
+		<div class="block">
+			<p><a class="link popup-close" id="close_img_popup" href="#">Cancel</a></p>
+			<form id="update_photo">
+				<input type='file' id="imgInp" style="display: none;"/>
+				<input type="button" value="Select Image" onclick="document.getElementById('imgInp').click();" />
+				<img id="blah" src="static/icons/favicon.png" alt="your image" width="50" height="50"/>
+				<input type="submit" value="Change Photo">
+			</form>
+		</div>
+	  </div>
 </div>
 </template>
 <script>

@@ -134,59 +134,7 @@ window.app = new Framework7({
   },
 });
 
-//booking variables
-var booking_list = {
-	"AV_Room": {},
-	"Sauna": {},
-	"PingPong": {},
-	"BBQ": {},
-	"SkyLounge": {} 
-	};
- var calendarEvents = "";
- const monthNames = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"];
-//initialize calendar
-function calendar_init(){
-	//get today
-	var now = new Date();
-    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-	
-	//initialize var for checking disabled dates
-	var disabledDates = [];
-	var facility_chosen = document.getElementById('facility').value;
-	var booked_dates = booking_list[facility_chosen];
-	console.log(booked_dates);
-	
-	//initialize var for time slots
-	var time_slots = document.getElementsByClassName("time_slot");
-	for(var t = 0; t<time_slots.length;t++){
-		time_slots[0].disabled = false;
-	}
-	//disable dates
-	for(var date in booked_dates){
-		if(booked_dates[date].length == 8){
-			disabledDates.push(date);
-		}
-	}
-	
-	calendarEvents = app.calendar.create({
-		disabled: disabledDates,
-		minDate: new Date(),
-        inputEl: '#calendar-events-disable',
-        dateFormat: 'dd M yyyy',
-        events: [
-          //- more events this day
-          {
-            date: today,
-            color: '#ff0000'
-          },
-          {
-            date: today,
-            color: '#00ff00'
-          },
-        ]
-    });
-}
+
 
 function set_logout(){
 	var logout = document.getElementById('logout');
@@ -203,15 +151,15 @@ function set_logout(){
 
 //import scripts
 async function init_script(){
-	//stripe
-	var stripe = document.createElement('script');
+	//jquery
+	var jquery = document.createElement('script');
 	set_logout();
 	
-	stripe.src = "https://js.stripe.com/v3/";
-	document.head.appendChild(stripe);
+	jquery.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
+	document.head.appendChild(jquery);
 	console.log(auth);
 	
-	let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(4).get();
+	let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(2).get();
 	var annc_img = document.getElementsByClassName('announcement-img');
 	var annc = 0; 
 	querySnapshot.forEach(async (doc) => {
@@ -222,7 +170,7 @@ async function init_script(){
 		console.log(imageurl);
 		let url = await pathReference.getDownloadURL();
 
-		//annc_img[annc].src = url;
+		annc_img[annc].src = url;
 		
 		annc++; 
 	});
@@ -236,41 +184,197 @@ async function init_script(){
 			
 			console.log("user logged in");
 			mainView.router.navigate({ name: 'home'});
-			//fields
-			var username = document.getElementById("username");
-			var user_pic = document.getElementById("user_pic");
-			var user_icon = document.getElementById("user_icon");
-			
-			db.collection('landlord').doc(uid).get().then(function(doc) {
-				
-				var name = doc.data().name;
-				var imageurl = doc.data().imageurl;
-				
-				username.innerHTML = name;
-					
-				var pathReference = storage.ref(imageurl);
-					
-				pathReference.getDownloadURL().then(function(url) {
-
-					user_pic.src = url;
-					user_icon.src = url;
-					
-				}).catch(function(error) {
-					console.log(error);
-				});
-				
-				
-			}).catch(function(error) {
-				console.log("Error getting document:", error);
-			});
-			
-			
+			homesetup()
 		}else{
 			mainView.router.navigate({ name: 'login'});
 		}
-	})
+	});
 	
+	var count = 0;
+	//customize android back button
+	document.addEventListener("backbutton", function(e){
+		e.preventDefault();
+		count++;
+		var toast = app.toast.create({
+			text: 'Click back button again to exit',
+			closeTimeout: 2000,
+			position: "center"
+		});
+		toast.open();
+		if(count == 2){
+			window.navigator.app.exitApp();
+		}
+		setTimeout(()=>{
+			count = 0;
+		},2100);
+	}, false);
 }
+
+//page handler
+$$(document).on('page:init', async function (e, page) {
+  var pn = page.name;
+	console.log(pn+" Entered");
+	
+	if(pn == "login"){
+		set_login();
+	}else if(pn == "home"){
+		homesetup();
+	}else if(pn == "news"){
+		getAnnouncement();
+	}else if(pn == "booking_details"){
+		getBookingDetails();
+	}else if(pn == "payment_history"){
+		getPaymentHistory();
+	}else if(pn == "payment_reminder"){
+		getPaymentReminder();
+	}else if(pn == "bookfacility"){
+		getFacility();
+	}else if(pn == "facilities"){
+		set_booking();
+	}else if(pn == "tenant_list"){
+		getTenants();
+	}else if(pn == "edit"){
+		getEditPage();
+	}
+})
+///////////// HOME SETUP
+function homesetup(){
+	var uid = auth.currentUser.uid;
+	//fields
+	var username = document.getElementById("username");
+	var user_pic = document.getElementById("user_pic");
+	var user_icon = document.getElementById("user_icon");
+	console.log(user_icon);
+
+	db.collection('landlord').doc(uid).onSnapshot((doc) => {
+				
+		var name = doc.data().name;
+		var imageurl = doc.data().imageurl;
+			
+		username.innerHTML = name;
+				
+		var pathReference = storage.ref(imageurl);
+					
+		pathReference.getDownloadURL().then(function(url) {
+			console.log(url);
+			user_icon.src = url;
+			user_pic.src = url;
+					
+					
+		}).catch(function(error) {
+			console.log(error);
+		});
+	})
+}
+//////// EDIT PAGE
+function getEditPage(){
+	var user_id = auth.currentUser.uid;
+	var docRef = db.collection("landlord").doc(user_id);
+	
+	//image url
+	var blob = "";
+	
+	//fields
+	var edit_username = document.getElementById("edit_username");
+	var edit_email = document.getElementById("edit_email");
+	var edit_pno = document.getElementById("edit_pno");
+	var edit_gender = document.getElementById("edit_gender");
+	var edit_unit = document.getElementById("edit_unit");
+	var edit_image = document.getElementById("edit_image");
+	var change_photo = document.getElementById("change_photo");
+	var update_photo = document.getElementById("update_photo");
+	var close_img_popup = document.getElementById("close_img_popup");
+	
+	docRef.get().then(function(doc) {
+		var name = doc.data().name;
+		var email = doc.data().email;
+		var pno = doc.data().contact;
+		var gender = doc.data().gender;
+		var units = doc.data().unit;
+		var imageurl = doc.data().imageurl;
+		
+		edit_username.placeholder = name;
+		edit_email.placeholder = email;
+		edit_pno.placeholder = pno;
+		edit_gender.placeholder = gender;
+		edit_unit.placeholder = units;
+		
+		var pathReference = storage.ref(imageurl);
+		pathReference.getDownloadURL().then(function(url) {
+			
+			edit_image.src = url;	
+			
+		}).catch(function(error) {
+			console.log(error);
+		});
+	})
+
+	$("#imgInp").change(function() {
+		blob = readURL(this);
+		//console.log(blob);
+	});
+	
+	
+	update_photo.addEventListener('submit', function(e){
+		e.preventDefault();
+		var announceref = storage.ref().child(user_id+".png");
+			
+		announceref.put(blob).then(function(snapshot) {
+			console.log('Updated user image');
+			close_img_popup.click();
+			redirect("home");
+			toast("successfully updated photo");
+		}).catch(err => {
+			console.log('err: '+err);
+			toast("failed to update photo");
+		});
+			
+	})
+}
+
+function toast(msg){
+	var toastWithButton = app.toast.create({
+        text: msg,
+        closeButton: true,
+    });
+	
+	toastWithButton.open();
+}
+
+function readURL(input) {
+	if (input.files && input.files[0]) {
+		var reader = new FileReader();
+		
+		var blob = input.files[0];
+		reader.onload = function(e) {
+			$('#blah').attr('src', e.target.result);
+		}
+	
+		reader.readAsDataURL(input.files[0]); // convert to base64 string
+	}
+	
+	return blob;
+}
+
+//tenant lists
+async function getTenants(){
+	let querySnapshot = await db.collection("landlord").get();
+	var tenant_list = document.getElementById('tenant_list');
+	var user_id = auth.currentUser.uid;
+	
+	querySnapshot.forEach((doc) => {
+		var type = doc.data().landlords;
+		var name = doc.data().name;
+		
+		if(type == user_id){
+			tenant_list.innerHTML = `<div class="card">
+        <div class="card-content2 card-content-padding">${name}</div>
+      </div>`;
+		}
+	})
+}
+
+//changepassword
 function set_changepassword(){
 	//ChangePassword
 	var change_pass = document.getElementById('changePassword');
@@ -324,16 +428,238 @@ function set_login(){
 	});
 }
 
-//booking
+//////////////BOOKING FEATURE
+var facility_chosen = ""
+//booking variables
+var booking_list = {
+	"AV_Room": {},
+	"Sauna": {},
+	"PingPong": {},
+	"BBQ": {},
+	"SkyLounge": {} 
+	};
+ var calendarEvents = "";
+ var DEFAULT_LIMIT = 3;
+ const monthNames = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+//initialize calendar
+function calendar_init(){
+	if(calendarEvents != ""){
+		console.log("calendar destroyed");
+		calendarEvents.destroy();
+	}
+	
+	//get today
+	var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+	
+	//initialize var for checking disabled dates
+	var disabledDates = [];
+	console.log(facility_chosen);
+	var booked_dates = booking_list[facility_chosen];
+	console.log(booked_dates);
+	
+	//initialize var for time slots
+	var time_slots = document.getElementsByClassName("time_slot");
+	for(var t = 0; t<time_slots.length;t++){
+		time_slots[0].disabled = false;
+	}
+	//disable dates
+	
+	for(var date in booked_dates){
+		var disable = true;
+		
+		for(var timeslots in booked_dates[date]){
+			var restricted = booked_dates[date]['restriction'];
+			if(timeslots != "restriction"){
+				var restricted_limit = restricted['limit'];
+				var restricted_list = restricted['restricted_time'];
+				var restriction = false;
+				
+				for(var index = 0; index < restricted_list.length; index++){
+					//if exist in restricted time, compare with limit
+					if(restricted_list[index] === timeslots){
+						restriction = true;
+						if(booked_dates[date][timeslots] < restricted_limit){
+							disable = false;
+						}
+						
+					}
+				}
+				
+				// else, compare with default limit (3)
+				if(!restriction && booked_dates[date][timeslots] < DEFAULT_LIMIT){
+					disable = false;
+				}
+				
+				
+			}
+		}
+		//disable still true, add into array
+		if(disable){
+			disabledDates.push(date);
+		}
+	}
+	console.log(disabledDates);
+	calendarEvents = app.calendar.create({
+		disabled: disabledDates,
+		minDate: new Date(),
+        inputEl: '#calendar-events-disable',
+        dateFormat: 'dd M yyyy',
+        events: [
+          //- more events this day
+          {
+            date: today,
+            color: '#ff0000'
+          },
+          {
+            date: today,
+            color: '#00ff00'
+          },
+        ]
+    });
+	
+}
+
+function disableTimeSlots(){
+	//disable time
+	
+	var time_slots = document.getElementsByClassName("time_slot");
+	var indexes = {
+		'08:00': time_slots[0],
+		'10:00': time_slots[1],
+		'12:00': time_slots[2],
+		'14:00': time_slots[3],
+		'16:00': time_slots[4],
+		'18:00': time_slots[5],
+		'20:00': time_slots[6],
+		'22:00': time_slots[7]
+	}
+	
+	var booked_dates = booking_list[facility_chosen];
+
+	var date_chosen = document.getElementById('calendar-events-disable').value;
+	
+	console.log(booked_dates);
+	console.log(date_chosen);
+	
+	if(date_chosen.trim() != ""){
+		var date = new Date(date_chosen);
+		console.log(date);
+		if(booked_dates[date] != undefined){
+			
+			for(var timeslots in booked_dates[date]){
+				var restricted = booked_dates[date]['restriction'];
+				if(timeslots != "restriction"){
+					var restricted_limit = restricted['limit'];
+					var restricted_list = restricted['restricted_time'];
+					var restriction = false;
+					
+					for(var index = 0; index < restricted_list.length; index++){
+						//if exist in restricted time, compare with limit
+						if(restricted_list[index] === timeslots){
+							restriction = true;
+							if(booked_dates[date][timeslots] >= restricted_limit){
+								indexes[timeslots].disabled = true;
+							}
+							
+						}
+					}
+					
+					// else, compare with default limit (3)
+					if(!restriction && booked_dates[date][timeslots] >= DEFAULT_LIMIT){
+						indexes[timeslots].disabled = true;
+					}
+				}
+			}
+		}
+	}
+}
+
 async function set_booking(){
 	//get today
 	var now = new Date();
 	var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-		
+	
+	
+	
+	//booking collection
 	let querySnapshot = await db.collection("booking").get();
-		
+	//reset booking list
+	booking_list = {
+	"AV_Room": {},
+	"Sauna": {},
+	"PingPong": {},
+	"BBQ": {},
+	"SkyLounge": {} 
+	};
+	
+	
+	
 	querySnapshot.forEach((doc) => {
-		var booked_date = new Date(doc.data().date);
+		var status = doc.data().status;
+		if(status != "rejected"){
+			var booked_date = new Date(doc.data().date);
+			var facility_type = doc.data().facility;
+			
+			var bookings = "";
+			//filter booked facilities
+			if(facility_type === "AV Room")
+				bookings = booking_list.AV_Room;
+			else if(facility_type === "Sauna")
+				bookings = booking_list.Sauna;
+			else if(facility_type === "Sky Lounge")
+				bookings = booking_list.SkyLounge;
+			else if(facility_type === "BBQ Pit")
+				bookings = booking_list.BBQ;
+			else if(facility_type === "Ping-Pong Table")
+				bookings = booking_list.PingPong;
+			
+			//if date is in the future or today
+			if(booked_date >= today){
+				
+				var booking_time = doc.data().time;
+				
+				var facility_bookings = bookings[booked_date];
+				//console.log(facility_bookings);
+
+				//create object with date as key and initialize time slots
+				if(facility_bookings == null){
+					bookings[booked_date] = {};
+					bookings[booked_date]['08:00'] = 0;
+					bookings[booked_date]['10:00'] = 0;
+					bookings[booked_date]['12:00'] = 0;
+					bookings[booked_date]['14:00'] = 0;
+					bookings[booked_date]['16:00'] = 0;
+					bookings[booked_date]['18:00'] = 0;
+					bookings[booked_date]['20:00'] = 0;
+					bookings[booked_date]['22:00'] = 0;
+					
+					bookings[booked_date]['restriction'] = {};
+			
+					bookings[booked_date]['restriction']['restricted_time'] = [];
+					bookings[booked_date]['restriction']['limit'] = 3;
+				}
+				
+				//increment time slot booking counter
+				if(bookings[booked_date][booking_time] == null){
+					bookings[booked_date][booking_time] = 1;
+				}else{
+					//append time to the booked date
+					bookings[booked_date][booking_time] += 1;
+				}
+					
+			}
+		}
+	});
+	
+	//disable dates collection
+	let disable_dates = await db.collection("disabled_dates").get();
+	disable_dates.forEach((doc) => {
+		//console.log(doc.data());
+		var restricted_date = new Date(doc.data().date);
+		var restricted_time = doc.data().disabled_time;
+		var limit = doc.data().limit;
 		var facility_type = doc.data().facility;
 		var bookings = "";
 		
@@ -349,26 +675,31 @@ async function set_booking(){
 		else if(facility_type === "Ping-Pong Table")
 			bookings = booking_list.PingPong;
 		
-		//if date is in the future or today
-		if(booked_date >= today){
+		if(bookings[restricted_date] == null){
+			bookings[restricted_date] = {};
+			bookings[restricted_date]['08:00'] = 0;
+			bookings[restricted_date]['10:00'] = 0;
+			bookings[restricted_date]['12:00'] = 0;
+			bookings[restricted_date]['14:00'] = 0;
+			bookings[restricted_date]['16:00'] = 0;
+			bookings[restricted_date]['18:00'] = 0;
+			bookings[restricted_date]['20:00'] = 0;
+			bookings[restricted_date]['22:00'] = 0;
 			
-			var booking_time = doc.data().time;
+			bookings[restricted_date]['restriction'] = {};
 			
-			var facility_bookings = bookings[booked_date];
-			//console.log(facility_bookings);
-			//create object with date as key
-			if(facility_bookings == null){
-				var time_list = [];
-			
-				time_list.push(booking_time);
-				
-				bookings[booked_date] = time_list;
-			}else{
-				//append time to the booked date
-				bookings[booked_date].push(booking_time);
-			}
+			bookings[restricted_date]['restriction']['restricted_time'] = [];
+			bookings[restricted_date]['restriction']['limit'] = 3;
 		}
+		
+		bookings[restricted_date]['restriction'] = {};
+			
+		bookings[restricted_date]['restriction']['restricted_time'] = restricted_time;
+		bookings[restricted_date]['restriction']['limit'] = limit;
+		
 	});
+	
+	console.log(booking_list);
 	//initialize calendar
 	calendar_init();
 		
@@ -381,20 +712,11 @@ async function set_booking(){
 		disableTimeSlots()
 	})
 		
-	//update calendar and available dates on change
-	var facility_button = document.getElementById("facility");
-	facility_button.addEventListener('change', function(e){
-		//update calendar
-		calendarEvents.destroy();
-		calendar_init();
-		disableTimeSlots()
-	})
-		
 	//submit button clicked
 	var book_button = document.getElementById("book-button");
 	book_button.addEventListener('click', function(e){
 		var user_id = auth.currentUser.uid;
-		var facility_chosen = document.getElementById('facility').value;
+		//var facility_chosen = document.getElementById('facility').value;
 		var time_chosen = document.getElementById('time_select').value;
 		var date_chosen = document.getElementById('calendar-events-disable').value;
 		
@@ -433,64 +755,99 @@ async function set_booking(){
 		
 	})
 }
-//page handler
-$$(document).on('page:init', async function (e, page) {
-  var pn = page.name;
-	console.log(pn+" Entered");
-	
-	if(pn == "login"){
-		set_login();
-	}else if(pn == "news"){
-		getAnnouncement();
-	}else if(pn == "booking_details"){
-		getBookingDetails();
-	}else if(pn == "payment_history"){
-		getPaymentHistory();
-	}else if(pn == "facilities"){
-		set_booking();
-	}
-})
+function redirect(page){
+	var mainView = app.view.main;
+	mainView.router.navigate({ name: page});
+}
 
-function disableTimeSlots(){
-	//disable time
-	var time_slots = document.getElementsByClassName("time_slot");
-	var facility_chosen = document.getElementById('facility').value;
-	var booked_dates = booking_list[facility_chosen];
 
-	var date_chosen = document.getElementById('calendar-events-disable').value;
+
+function getFacility(){
+	var bbq = document.getElementById('bbq');
+	var skylounge = document.getElementById('skylounge');
+	var avroom = document.getElementById('avroom');
+	var sauna = document.getElementById('sauna');
+	var gym = document.getElementById('gym');
 	
-	console.log(booked_dates);
-	console.log(date_chosen);
 	
-	if(date_chosen.trim() != ""){
-		var date = new Date(date_chosen);
-		console.log(date);
-		if(booked_dates[date] != undefined){
-			
-			for(var i =0; i<booked_dates[date].length; i++){
-				console.log(booked_dates[date]);
-				if(booked_dates[date][i] == "08:00"){
-					time_slots[0].disabled = true;
-				}else if(booked_dates[date][i] == "10:00"){
-					time_slots[1].disabled = true;
-				}else if(booked_dates[date][i] == "12:00"){
-					time_slots[2].disabled = true;
-				}else if(booked_dates[date][i] == "14:00"){
-					time_slots[3].disabled = true;
-				}else if(booked_dates[date][i] == "16:00"){
-					time_slots[4].disabled = true;
-				}else if(booked_dates[date][i] == "18:00"){
-					time_slots[5].disabled = true;
-				}else if(booked_dates[date][i] == "20:00"){
-					time_slots[6].disabled = true;
-				}else if(booked_dates[date][i] == "22:00"){
-					time_slots[7].disabled = true;
-				}
+	bbq.addEventListener('click', function(e){
+		e.preventDefault();
+		facility_chosen = "BBQ";
+		console.log(facility_chosen);
+		redirect("facilities");
+	})
+	
+	skylounge.addEventListener('click', function(e){
+		e.preventDefault();
+		facility_chosen = "SkyLounge";		
+		console.log(facility_chosen);
+		redirect("facilities");
+	})
+	
+	avroom.addEventListener('click', function(e){
+		e.preventDefault();
+		facility_chosen = "AV_Room";
+		console.log(facility_chosen);
+		redirect("facilities");
+	})
+	
+	sauna.addEventListener('click', function(e){
+		e.preventDefault();
+		facility_chosen = "Sauna";	
+		console.log(facility_chosen);
+		redirect("facilities");
+	})
+	
+	gym.addEventListener('click', function(e){
+		e.preventDefault();
+		facility_chosen = "PingPong";
+		console.log(facility_chosen);		
+		redirect("facilities");
+	})
+}
+
+
+
+//////Payment Reminder
+//Payment History
+function getPaymentReminder(){
+	var user_id = auth.currentUser.uid;
+	var Payment_list = document.getElementById("reminder_list");
+	var elements = "";
+	
+	db.collection("payment").where("user_id", "==", user_id).orderBy("time", "desc").get().then((querySnapshot) => {
+		querySnapshot.forEach((doc) => {
+			if (doc.exists) {				
+				if(status != "Successful"){
+					
+					var time = doc.data().time;
+					var amount = doc.data().amount;
+					var bank = doc.data().bank;
+					var description = doc.data().description;
+					var status = doc.data().status;
+					var payment_method = doc.data().payment_method;
+					
+					var date = new Date(time);
+					
+					elements = `<ul class="reminder">
+              <li class="item-content">
+                <div class="item-media">
+                  <img src="static/icons/fail.png" width="44" />
+                </div>
+                <div class="item-inner">
+                  <div class="item-title-row">
+                    <div class="item-title">${monthNames[date.getMonth()]}</div>
+                  </div>
+                  <div class="item-price">RM ${amount.toFixed(2)}</div>
+                </div>
+              </li>
+			</ul>`;
+					
+				}	
 			}
-		}
-		
-	}
-	
+			
+			Payment_list.innerHTML += elements;
+	})});
 }
 
 //Payment History
@@ -509,15 +866,29 @@ function getPaymentHistory(){
 				var status = doc.data().status;
 				var payment_method = doc.data().payment_method;
 				
+				var date = new Date(time);
 				
-				elements = `<div class="block block-strong">
-					<p>Time: ${time}</p>
-					<p>Amount: ${amount}</p>
-					<p>Bank: ${bank}</p>
-					<p>Description: ${description}</p>
-					<p>Status: ${status}</p>
-					<p>Payment Method: ${payment_method}</p>
-				</div>`;
+				var url = "";
+				if(status == "Successful"){
+					url = "static/icons/success.png";
+				}else{
+					url = "static/icons/fail.png";
+				}
+				
+				elements = `<ul>
+          <li>
+            <a href="#" class="item-link item-content">
+              <div class="item-media"><img src="${url}"/></div>
+              <div class="item-inner">
+                <div class="item-title-row">
+                  <div class="item-title">Fee</div>
+                  <div class="item-after">RM${amount.toFixed(2)}</div>
+                </div>
+                
+                <div class="item-text">${date}</div>
+              </div>
+            </a></li>
+		</ul>`;
 				
 				
 			}else{
@@ -545,16 +916,30 @@ function getBookingDetails(){
 			var duration = doc.data().duration;
 			var status = doc.data().status;
 			var time = doc.data().time;
+			var src = "";
 			
+			if(facility === "AV Room")
+				src = "static/icons/cinema.png";
+			else if(facility === "Sauna")
+				src = "static/icons/sauna.svg";
+			else if(facility === "Sky Lounge")
+				src = "static/icons/lounge.png";
+			else if(facility === "BBQ Pit")
+				src = "static/icons/bbq.png";
+			else if(facility === "Ping-Pong Table")
+				src = "static/icons/ball.png";
 			
-			var elements = `<div class="block block-strong">
-				<img src='static/icons/favicon.png'>
-				<p>${facility}</p>
-				<p>${date}</p>
-				<p>${time}</p>
-				<p>${duration}</p>
-				<p>${status}</p>
-			</div>`;
+			var elements = `<div class="booking-details">
+        <div class="booking-image">
+          <img src="${src}" class="booking-icons">
+        </div>
+        <div class="booking-info">
+          <h3 class="facility-name">${facility}</h3>
+          <h4 class="booking-time">${date}</h4>
+          <h4 class="booking-duration">${duration}</h4>
+          <h4 class="booking-status">${status}</h4>
+        </div>                  
+      </div>`;
 			
 			booking_list.innerHTML += elements;
 	})});
@@ -579,7 +964,7 @@ function SelectAnnc(id){
 		pathReference.getDownloadURL().then(function(url) {
 
 			var annc = document.getElementById("annc");
-			annc.innerHTML = `<img id="annc_pic" src="${url}"/>
+			annc.innerHTML = `<img id="annc_pic" width="100%" src="${url}"/>
 							<p id="annc_title">${title}</p>
 							<p id="annc_desc">${desc}</p>`;
 					
@@ -600,7 +985,7 @@ function getAnnouncement(){
 	var list_ele = "";
 	var url_list = [];
 	  
-	db.collection("announcement").orderBy("date","desc").get().then((querySnapshot) => {
+	/*db.collection("announcement").orderBy("date","desc").get().then((querySnapshot) => {
 		querySnapshot.forEach((doc) => {
 			
 			var title = doc.data().title;
@@ -637,7 +1022,7 @@ function getAnnouncement(){
 		var d = 0;
 
 		setURL(url_list[d],url_list,d,imgset);
-	});
+	});*/
 }
 
 async function setURL(url,url_list,d,imgset){
@@ -743,163 +1128,17 @@ function getUserBilling(){
 }
 
 function online_payment_function(){
-	var jsonString = { "amount": 8000 };
-	console.log(JSON.stringify(jsonString));
-	var online = firebase.functions().httpsCallable('Online');
-online(JSON.stringify(jsonString))
-  .then((result) => {
-    // Read result of the Cloud Function.
-    var sanitizedMessage = result.data.text;
-	console.log(sanitizedMessage);
-  })
-  .catch((error) => {
-    // Getting the Error details.
-    var code = error.code;
-    var message = error.message;
-    var details = error.details;
-    // ...
-  });
-	var stripe = Stripe('pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ');
-	var elements = stripe.elements();
-	var style = {
-	  base: {
-		padding: '10px 12px',
-		color: '#32325d',
-		fontSize: '16px',
-	  },
-	};
-
-	var fpxBank = elements.create(
-	  'fpxBank',
-	  {
-		style: style,
-		accountHolderType: 'individual',
-	  }
-	);
-
-	fpxBank.mount('#fpx-bank-element');
-	var form = document.getElementById('payment-form');
-
-	form.addEventListener('submit', function(event) {
-	  event.preventDefault();
-
-	  var fpxButton = document.getElementById('fpx-button');
-	  var clientSecret = fpxButton.dataset.secret;
-	  stripe.confirmFpxPayment(clientSecret, {
-		payment_method: {
-		  fpx: fpxBank,
-		},
-		return_url: `${window.location.href}`,
-	  }).then((result) => {
-		if (result.error) {
-		  var errorElement = document.getElementById('error-message');
-		  errorElement.textContent = result.error.message;
+	app.on('pageInit', function (page) {  
+		if (page.name === 'payment-online'){
+			$('#payment-online-redirect-page').html('<iframe style="background:white;padding:0;margin:0;height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/online_payment.php"></iframe>'); 
 		}
-	  });
 	});
 }
 
 function credit_payment_function(){
-	var stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
-
-	var purchase = {
-	  "amount":"8000",
-	  "currency":"myr"
-	};
-
-	document.querySelector("button").disabled = true;
-	fetch("/create-payment-intent", {
-	  method: "POST",
-	  headers: {
-		"Content-Type": "application/json"
-	  },
-	  body: JSON.stringify(purchase)
-	})
-	  .then(function(result) {
-		return result.json();
-	  })
-	  .then(function(data) {
-		var elements = stripe.elements();
-
-		var style = {
-		  base: {
-			color: "#32325d",
-			fontFamily: 'Arial, sans-serif',
-			fontSmoothing: "antialiased",
-			fontSize: "16px",
-			"::placeholder": {
-			  color: "#32325d"
-			}
-		  },
-		  invalid: {
-			fontFamily: 'Arial, sans-serif',
-			color: "#fa755a",
-			iconColor: "#fa755a"
-		  }
-		};
-
-		var card = elements.create("card", { style: style });
-		card.mount("#card-element");
-
-		card.on("change", function (event) {
-		  document.querySelector("button").disabled = event.empty;
-		  document.querySelector("#card-error").textContent = event.error ? event.error.message : "";
-		});
-
-		var form = document.getElementById("payment-form");
-		form.addEventListener("submit", function(event) {
-		  event.preventDefault();
-		  payWithCard(stripe, card, data.clientSecret);
-		});
-	  });
-
-	var payWithCard = function(stripe, card, clientSecret) {
-	  loading(true);
-	  stripe
-		.confirmCardPayment(clientSecret, {
-		  payment_method: {
-			card: card
-		  }
-		})
-		.then(function(result) {
-		  if (result.error) {
-			showError(result.error.message);
-		  } else {
-			orderComplete(result.paymentIntent.id);
-		  }
-		});
-	};
-
-	var orderComplete = function(paymentIntentId) {
-	  loading(false);
-	  document
-		.querySelector(".result-message a")
-		.setAttribute(
-		  "href",
-		  "https://dashboard.stripe.com/test/payments/" + paymentIntentId
-		);
-	  document.querySelector(".result-message").classList.remove("hidden");
-	  document.querySelector("button").disabled = true;
-	};
-
-	var showError = function(errorMsgText) {
-	  loading(false);
-	  var errorMsg = document.querySelector("#card-error");
-	  errorMsg.textContent = errorMsgText;
-	  setTimeout(function() {
-		errorMsg.textContent = "";
-	  }, 4000);
-	};
-
-	var loading = function(isLoading) {
-	  if (isLoading) {
-		document.querySelector("button").disabled = true;
-		document.querySelector("#spinner").classList.remove("hidden");
-		document.querySelector("#button-text").classList.add("hidden");
-	  } else {
-		document.querySelector("button").disabled = false;
-		document.querySelector("#spinner").classList.add("hidden");
-		document.querySelector("#button-text").classList.remove("hidden");
-	  }
-	};
+	app.on('pageInit', function (page) {  
+		if (page.name === 'payment-credit'){
+			$('#payment-credit-redirect-page').html('<iframe style="background:white;padding:0;margin:0;height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/credit_payment.php"></iframe>'); 
+		}
+	});
 }

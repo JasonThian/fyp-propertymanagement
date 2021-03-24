@@ -21,7 +21,7 @@
 	</script>
   <div class="navbar">
     <div class="navbar-bg"></div>
-    <div class="navbar-inner sliding">
+    <div class="navbar-inner">
       <div class="left">
         <a href="#" class="link back">
           <i class="icon icon-back"></i>
@@ -32,36 +32,36 @@
     </div>
   </div>
   <div class="page-content">
-  <div class="block block-strong">
+  <div class="">
     <div>
-      <div class="block-title">Total Amount</div>
-		<div class="block">RM <span id="amount">0.00</span></div>
+      <div class="title_payment">Total Amount</div>
+		<div class="description">RM <span id="amount">0.00</span></div>
     </div>
 	<div>
-      <div class="block-title">Payment Details</div>
-		<div class="block" id="payment-description">Bill</div>
+      <div class="title_payment">Payment Details</div>
+		<div class="description" id="payment-description">Bill</div>
     </div>
 	</div>
-	<div class="block block-strong">
-      <div class="block-title text-center">Choose Payment Method</div>
-		<div class="block list no-hairlines-md">
-		  <ul>
+	<div>
+      <div class="title_payment text-center">Choose Payment Method</div>
+		<div class="block list">
+		  <ul class="payment_method">
 			<li>
 				<div class="item-inner">
 					<input type="radio" name="pMethod" onclick="payment_selection('/paymentonline/')" id="online">
-					<label for="online">Online Transfer<img src="#"></label>
+					<label for="online">Online Transfer<img src="static/icons/online.png" ></label>
 				</div>
 			</li>
 			<li>
 				<div class="item-inner">
 					<input type="radio" name="pMethod" onclick="payment_selection('/paymentcredit/')" id="credit">
-					<label for="credit">Credit Card<img src="#"></label>
+					<label for="credit">Credit Card<img src="static/icons/creditcard.png" ></label>
 				</div>
 			</li>
 		  </ul>
 		</div>
     </div>
-	<div class="block block-strong no-margin-block">
+	<div class="block ">
 		<a class="button button-raised button-fill button-large" id="payment-selection">Next</a>
 	</div>
   </div>
