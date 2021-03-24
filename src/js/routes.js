@@ -24,7 +24,7 @@ import NotFoundPage from '../pages/404.f7.html';
 var routes = [
   {
 	name: "home",
-    path: '/',
+    path: '/home/',
     component: HomePage,
   },
   {

@@ -36,8 +36,6 @@
         "PAGE_LINK_DOMAIN": "dryxpropertymanagement.page.link"
       }
     },
-    "platforms": [
-      "android"
-    ]
+    "platforms": []
   }
 }

@@ -151,6 +151,12 @@ function set_logout(){
 	})
 }
 
+/* Show Preloader */
+//app.preloader.show();
+
+/* Hide Preloader */
+//app.preloader.hide();
+
 /* Initialize */
 async function init_script(){
 	/*import jquery and Stripe js */
@@ -165,7 +171,7 @@ async function init_script(){
 	document.head.appendChild(stripe_payment);
 	
 	/* SSL Pinning */
-	/*try{
+	try{
 		var cordovaHTTP = cordova.plugin.http;
 		cordovaHTTP.enableSSLPinning(true, function() {
 			console.log('success!');
@@ -173,8 +179,8 @@ async function init_script(){
 			console.log('error :(');
 		});
 	}catch(err){
-		throw err;
-	}*/
+		console.log(err);
+	}
 	
 	
 	/* Check User Login */
@@ -300,8 +306,6 @@ async function init_script(){
 	}
 	
 	/* Customize Android/iOS hardware back button */
-	/* Not Functioning */
-
 	var count = 0;
 	document.addEventListener("backbutton", function(e){
 		e.preventDefault();
@@ -1353,10 +1357,6 @@ function online_payment_function(){
 			// ...
 		});
 	//}
-	
-	$("#online-payment-cancel-button").click(()=>{
-		window.location.href = "home";
-	});
 
 	form.addEventListener('submit', function(event) {
 	  event.preventDefault();
@@ -1484,9 +1484,6 @@ function credit_payment_function(){
 	  }
 	};
 	
-	$("#credit-payment-cancel-button").click(()=>{
-		window.location.href = "home";
-	});
 }
 
 /* Not using */
