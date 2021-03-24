@@ -5,7 +5,7 @@
 @announcement-width: @body-width * 0.8;
 @announcement-height: @announcement-width * (9/16);
 @card-view-width: @body-width * 0.8;
-@card-width: @card-view-width * 0.3;
+@card-width: @card-view-width * 0.37;
 
 /* iOS Cordova Tweak */
 .device-cordova.device-ios {
@@ -75,7 +75,7 @@
 	overflow-x: hidden;
 	overflow-y: scroll;
 	padding: 5px;
-	top: 10px;
+	top: 3px;
 }
 
 .left{
@@ -88,12 +88,8 @@
 	// margin-left: 2vw;
 }
 
-// .title{
-// 	margin-top: 8%;
-// }
-
 .card-margin-middle{
-	margin: auto;
+	margin: 0 auto;
 	vertical-align: middle;
 	padding: 16% 15%;
 	text-align: center;
@@ -101,7 +97,7 @@
 }
 
 .card-inline-blocks{
-	// margin: 2%;
+	margin: 2%;
 	width: @card-width;
 	display: inline-block; 
 	border-radius: 7%;
@@ -115,14 +111,20 @@
 
 .navbar-bg{
 	// visibility:hidden;
-	padding: 2px;
+	padding: 30px;
 	background-color: transparent;
 }
 
-// .swiper-slide{
-// 	text-align: center;
-// 	margin-top: 5%;
-// }
+.card-views{
+	// width: @card-view-width;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.swiper-slide{
+	text-align: center;
+	margin-top: 5%;
+}
 
 
 .demo-swiper .swiper-slide {
@@ -132,15 +134,12 @@
 }
 
 .announcement-img{
-	width: @announcement-width;
+	// width: @announcement-width;
+	max-width: @body-width * 50%;
 	// margin-top: 2%;
 }
 
-.card-views{
-	// width: @card-view-width;
-	margin: auto;
-	text-align: center;
-}
+
 
 //Right Panel List
 .list-buttons{
@@ -170,16 +169,6 @@
 .list ul, .navbar-bg{
 	background-color: transparent;
 	
-}
-
-.user-icon{
-	// width: 13vw;
-	// height: 13vw;
-	width: 3rem;
-	height: 3rem;
-	// margin: 5% 4%;
-	border-radius: 100px;
-	// border: 3px solid #CCA679;
 }
 
 #user_icon{
@@ -260,28 +249,46 @@ p#annc_desc {
 //edit profile
 .edit-profile{
 	width: 100%;
-	text-align: center;
+	margin: 0 auto;
 	background: transparent;
 }
 
-.edit-profile > a{
-	font-size: 3vw;
+.change-prof-pic{
+	font-size: 16px;
+	text-align: center;
+	margin: 10px;
+	display: flex;
+	justify-content: space-evenly;
+	flex-direction: column;
 }
 
+.change-prof-pic > a{
+	margin-top: 10px;
+}
 
+.user-icon{
+	display: block;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 100px;
+	margin: 0 auto;	
+}
+
+.profile-inputs{
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+}
 
 .profile-inputs > p{
 	font-weight: bold;
 	color: #7278B9;
-	font-size: 4vw;
+	font-size: 18px;	
 }
 
 .profile-inputs > input{
-	width: 100%;
 	border-bottom: 1px solid grey;
-	margin: 0 auto;
-	padding: 1%;
-	font-size: 3vw;
+	font-size: 16px;
 }
 
 //Booking Details
@@ -398,3 +405,10 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 // 	flex-direction: column;
 // }
 
+::-webkit-scrollbar{
+	width: 1.8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #CCA679;
+}
