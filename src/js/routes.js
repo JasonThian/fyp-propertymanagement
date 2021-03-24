@@ -9,6 +9,8 @@ import PaymentPage from '../pages/payment.f7.html';
 import PaymentMethodPage from '../pages/paymentmethod.f7.html';
 import PaymentOnlinePage from '../pages/paymentonline.f7.html';
 import PaymentCreditPage from '../pages/paymentcredit.f7.html';
+import PaymentFailPage from '../pages/paymentfail.f7.html';
+import PaymentSuccessPage from '../pages/paymentsuccess.f7.html';
 import EditPage from '../pages/edit.f7.html';
 import BookingSuccessPage from '../pages/bookingsuccess.f7.html';
 import BookingDetailPage from '../pages/bookingdetail.f7.html';
@@ -24,7 +26,7 @@ import NotFoundPage from '../pages/404.f7.html';
 var routes = [
   {
 	name: "home",
-    path: '/home/',
+    path: '/',
     component: HomePage,
   },
   {
@@ -76,6 +78,16 @@ var routes = [
   {
     path: '/paymentcredit/',
     component: PaymentCreditPage,
+  },
+  {
+	name: "payment-success",
+    path: '/paymentfail/',
+    component: PaymentFailPage,
+  },
+  {
+	name: "payment-fail",
+    path: '/paymentsuccess/',
+    component: PaymentSuccessPage,
   },
   {
 	name: "login",

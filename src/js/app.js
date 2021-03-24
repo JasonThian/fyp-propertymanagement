@@ -136,8 +136,9 @@ window.app = new Framework7({
   },
 });
 
+app.preloader.show();
 
-
+/* Logout */
 function set_logout(){
 	var logout = document.getElementById('logout');
 	logout.addEventListener("click", function(e){
@@ -156,6 +157,9 @@ function set_logout(){
 
 /* Hide Preloader */
 //app.preloader.hide();
+
+/* Go to page */
+//app.views.main.router.navigate("/");
 
 /* Initialize */
 async function init_script(){
@@ -182,7 +186,6 @@ async function init_script(){
 		console.log(err);
 	}
 	
-	
 	/* Check User Login */
 	auth.onAuthStateChanged(async user => {
 
@@ -191,7 +194,6 @@ async function init_script(){
 		if (user) {
 			var uid = user.uid;
 			set_changepassword();
-			
 			
 			//set announcements
 			let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(2).get();
@@ -209,7 +211,6 @@ async function init_script(){
 				
 				annc++; 
 			});
-			
 			
 			mainView.router.navigate({ name: 'home'});
 			homesetup();
@@ -286,29 +287,51 @@ async function init_script(){
 	});
 	
 	/* Get Stripe PaymentIntent */
-	try{
-		let paymentIntent = parseURLParams(window.location.href);
-		if(paymentIntent != undefined){
-			console.log("PaymentIntent",paymentIntent);
-			if(paymentIntent.redirect_status[0] == "succeeded"){
-				/* Display Payment Success Page */
-				timed_toast("Payment Succeesful!","center");
-			}
-			else{
-				/* Disply Payment Failed Page */
+	setTimeout(()=>{
+		app.preloader.hide();
+		try{
+			let paymentIntent = parseURLParams(window.location.href);
+			if(paymentIntent != undefined){
 				
+				var stored_payment_intent = "";
+				
+				/* Get payment intent id */
+				try{
+					localStorage.getItem("payment_intent");
+				}catch(err){
+					console.log(err);
+				}
+				
+				if(paymentIntent.payment_intent[0] != stored_payment_intent){
+					/* Save payment intent id */
+					localStorage.set("payment_intent",paymentIntent.payment_intent[0]);
+					
+					if(paymentIntent.redirect_status[0] == "succeeded"){
+						/* Display Payment Success Page */
+						app.views.main.router.navigate("/paymentsuccess/");
+					}
+					else{
+						/* Disply Payment Failed Page */
+						app.views.main.router.navigate("/paymentfail/");
+					}
+				}
 			}
+		}catch(err){
+			console.log(err);
 		}
-		else
-			console.log("Should be undefined",paymentIntent);
-	}catch(err){
-		console.log(err);
-	}
+	},2000);
 	
 	/* Customize Android/iOS hardware back button */
 	var count = 0;
-	document.addEventListener("backbutton", function(e){
+	document.addEventListener("backbutton", function(e, page){
 		e.preventDefault();
+		try{
+			console.log(e);
+			console.log(page);
+			console.log(page.name);
+		}catch(err){
+			console.log(err);
+		}
 		count++;
 		var toast = app.toast.create({
 			text: 'Click back button again to exit',
@@ -1301,6 +1324,7 @@ function getUserBilling(){
 
 /* Online Payment */
 function online_payment_function(){
+	app.preloader.show();
 	var stripe = Stripe('pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ');
 	var jsonString = { "amount": 8000 };
 	var clientSecret = "";
@@ -1327,36 +1351,21 @@ function online_payment_function(){
 	
 	fpxBank.mount('#fpx-bank-element');
 	
-	/*try{
-		let stripe_data = sessionStorage.getItem('stripe_client_secret');
-		
-		try{
-			stripe.retrievePaymentIntent(stripe_data).then(function(result) {
-				// Handle result.error or result.paymentIntent
-				console.log("Result",result);
-				console.log("Error",result.error);
-				console.log("PaymentIntent",result.paymentIntent);
-				sessionStorage.clear();
-			});
-		}catch(err){
-			console.log(err);
-		}
-	}catch(err){
-		console.log(err);*/
-		online(JSON.stringify(jsonString)).then((result) => {
-			// Read result of the Cloud Function.
-			clientSecret = result.data;
-			fpxButton.disabled = false;
-			fpxButton.setAttribute("data-secret",clientSecret);
-			sessionStorage.setItem('stripe_client_secret', clientSecret);
-		}).catch((error) => {
-			// Getting the Error details.
-			var code = error.code;
-			var message = error.message;
-			var details = error.details;
-			// ...
-		});
-	//}
+	online(JSON.stringify(jsonString)).then((result) => {
+		// Read result of the Cloud Function.
+		clientSecret = result.data;
+		fpxButton.disabled = false;
+		fpxButton.setAttribute("data-secret",clientSecret);
+		sessionStorage.setItem('stripe_client_secret', clientSecret);
+		app.preloader.hide();
+	}).catch((error) => {
+		// Getting the Error details.
+		var code = error.code;
+		var message = error.message;
+		var details = error.details;
+		// ...
+		app.preloader.hide();
+	});
 
 	form.addEventListener('submit', function(event) {
 	  event.preventDefault();
@@ -1378,6 +1387,7 @@ function online_payment_function(){
 
 /* Credit Payment */
 function credit_payment_function(){
+	app.preloader.show();
 	var stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
 	
 	var jsonString = {
@@ -1430,6 +1440,7 @@ function credit_payment_function(){
 		  event.preventDefault();
 		  payWithCard(stripe, card, data.data);
 		});
+		app.preloader.hide();
 	  });
 
 	var payWithCard = function(stripe, card, clientSecret) {
@@ -1444,9 +1455,11 @@ function credit_payment_function(){
 		.then(function(result) {
 		  if (result.error) {
 			showError(result.error.message);
+			app.views.main.router.navigate("/paymentfail/");
 		  } else {
-			  alert("Complete");
+			alert("Complete");
 			orderComplete(result.paymentIntent.id);
+			app.views.main.router.navigate("/paymentsuccess/");
 		  }
 		});
 	};
