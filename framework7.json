@@ -5,7 +5,7 @@
     "pwa",
     "cordova"
   ],
-  "name": "d'Ryx Residence",
+  "name": "dRyx Residence",
   "pkg": "app.framework7.propertymanagement",
   "framework": "core",
   "template": "single-view",
