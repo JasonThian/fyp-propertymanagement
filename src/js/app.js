@@ -27,7 +27,7 @@ import "firebase/auth";
 import "firebase/firestore";
 import "firebase/functions";
 import "firebase/storage";
-import "firebase/messaging";
+//import "firebase/messaging";
 
 //Add Firebase configs
 //import fb from './firebase.js'
@@ -56,7 +56,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const functions = firebase.functions();
 const storage = firebase.storage();
-const messaging = firebase.messaging();
+//const messaging = firebase.messaging();
 
 //console.log("Initializing auth script");
 //f7 variables
@@ -165,7 +165,7 @@ async function init_script(){
 	document.head.appendChild(stripe_payment);
 	
 	/* SSL Pinning */
-	try{
+	/*try{
 		var cordovaHTTP = cordova.plugin.http;
 		cordovaHTTP.enableSSLPinning(true, function() {
 			console.log('success!');
@@ -174,7 +174,7 @@ async function init_script(){
 		});
 	}catch(err){
 		throw err;
-	}
+	}*/
 	
 	
 	/* Check User Login */
@@ -207,12 +207,12 @@ async function init_script(){
 			
 			mainView.router.navigate({ name: 'home'});
 			homesetup();
-			Notification.requestPermission().then(function(permission) { 
+			/*Notification.requestPermission().then(function(permission) { 
 				console.log(permission);
-			});
+			});*/
 			//get token
 			
-			messaging.getToken({ vapidKey: 'BIOcuB5h9-_aOFb1i_FqNCqGwh_560dTG0YkCv9sbqWnPwDm5N8-Hu-LeJlhbii-gy4LitSj9KRbMCFmqChDug4' }).then(async (currentToken) => {
+			/*messaging.getToken({ vapidKey: 'BIOcuB5h9-_aOFb1i_FqNCqGwh_560dTG0YkCv9sbqWnPwDm5N8-Hu-LeJlhbii-gy4LitSj9KRbMCFmqChDug4' }).then(async (currentToken) => {
 				if (currentToken) {
 					// Send the token to your server and update the UI if necessary
 					// ...
@@ -251,9 +251,9 @@ async function init_script(){
 			}).catch((err) => {
 			  console.log('An error occurred while retrieving token. ', err);
 			  // ...
-			});
+			});*/
 			
-			messaging.onMessage((payload) => {
+			/*messaging.onMessage((payload) => {
 				console.log('Message received. ', payload);
 				var data = payload.notification;
 
@@ -271,7 +271,7 @@ async function init_script(){
 					});
 					notificationFull.open();
 				}
-			});
+			});*/
 	
 			
 		}else{
