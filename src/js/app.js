@@ -9,6 +9,7 @@ import '../css/icons.css';
 import '../css/app.less';
 // Import Cordova APIs
 import cordovaApp from './cordova-app.js';
+//import FCMPluginNG from 'cordova-plugin-fcm-ng';
 // Import Routes
 import routes from './routes.js';
 
@@ -27,6 +28,7 @@ import "firebase/auth";
 import "firebase/firestore";
 import "firebase/functions";
 import "firebase/storage";
+//import "firebase/messaging";
 
 //Add Firebase configs
 //import fb from './firebase.js'
@@ -55,7 +57,8 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const functions = firebase.functions();
 const storage = firebase.storage();
-		
+//const messaging = firebase.messaging();
+
 //console.log("Initializing auth script");
 //f7 variables
 
@@ -134,8 +137,9 @@ window.app = new Framework7({
   },
 });
 
+app.preloader.show();
 
-
+/* Logout */
 function set_logout(){
 	var logout = document.getElementById('logout');
 	logout.addEventListener("click", function(e){
@@ -149,51 +153,154 @@ function set_logout(){
 	})
 }
 
-//import scripts
+/* Show Preloader */
+//app.preloader.show();
+
+/* Hide Preloader */
+//app.preloader.hide();
+
+/* Go to page */
+//app.views.main.router.navigate("/");
+
+/* Initialize */
 async function init_script(){
-	//jquery
+	/*import jquery and Stripe js */
 	var jquery = document.createElement('script');
+	var stripe_payment = document.createElement('script');
 	set_logout();
 	
 	jquery.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js";
 	document.head.appendChild(jquery);
-	console.log(auth);
 	
-	let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(2).get();
-	var annc_img = document.getElementsByClassName('announcement-img');
-	var annc = 0; 
-	querySnapshot.forEach(async (doc) => {
-		var imageurl = doc.data().imageurl;
-		
-		var pathReference = storage.ref("announcement/"+imageurl);
-		
-		console.log(imageurl);
-		let url = await pathReference.getDownloadURL();
+	stripe_payment.src = "https://js.stripe.com/v3/";
+	document.head.appendChild(stripe_payment);
+	
+	/* SSL Pinning */
+	try{
+		var cordovaHTTP = cordova.plugin.http;
+		cordovaHTTP.enableSSLPinning(true, function() {
+			console.log('success!');
+		}, function() {
+			console.log('error :(');
+		});
+	}catch(err){
+		console.log(err);
+	}
+	
+	/* Check User Login */
+	auth.onAuthStateChanged(async user => {
 
-		annc_img[annc].src = url;
-		
-		annc++; 
-	});
-	
-	auth.onAuthStateChanged(user => {
 		var mainView = app.view.main;
-
+		console.log("user logged in");
 		if (user) {
 			var uid = user.uid;
 			set_changepassword();
 			
-			console.log("user logged in");
+			//set announcements
+			let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(2).get();
+			var annc_img = document.getElementsByClassName('announcement-img');
+			var annc = 0; 
+			querySnapshot.forEach(async (doc) => {
+				var imageurl = doc.data().imageurl;
+				
+				var pathReference = storage.ref("announcement/"+imageurl);
+				
+				console.log(imageurl);
+				let url = await pathReference.getDownloadURL();
+
+				annc_img[annc].src = url;
+				
+				annc++; 
+			});
+			
 			mainView.router.navigate({ name: 'home'});
-			homesetup()
+			homesetup();
+
+			try{
+				FCMPlugin.getToken(function(token){
+					console.log(token);
+				});
+				FCMPlugin.subscribeToTopic('announcement');
+				
+				FCMPlugin.onNotification(function(data){
+					
+					var notificationFull = app.notification.create({
+						icon: '<img src='+data.image+'></img>',
+						title: '<b>'+data.title.toUpperCase()+'</b>',
+						text: data.body,
+						closeTimeout: 3000,
+					});
+					notificationFull.open();
+					
+					
+					if(data.wasTapped){
+						//Notification was received on device tray and tapped by the user.
+						console.log( JSON.stringify(data) );
+						console.log( "Background notification" );
+					}else{
+						//Notification was received in foreground. Maybe the user needs to be notified.
+						console.log( JSON.stringify(data) );
+						console.log( "Foreground notification" );
+					}
+				});
+				
+			}catch(err){
+				console.log(err);
+			}
+			
+	
+			
 		}else{
 			mainView.router.navigate({ name: 'login'});
 		}
 	});
 	
+	/* Get Stripe PaymentIntent */
+	setTimeout(()=>{
+		app.preloader.hide();
+		try{
+			let paymentIntent = parseURLParams(window.location.href);
+			if(paymentIntent != undefined){
+				
+				var stored_payment_intent = "";
+				
+				/* Get payment intent id */
+				try{
+					localStorage.getItem("payment_intent");
+				}catch(err){
+					console.log(err);
+				}
+				
+				if(paymentIntent.payment_intent[0] != stored_payment_intent){
+					/* Save payment intent id */
+					localStorage.set("payment_intent",paymentIntent.payment_intent[0]);
+					
+					if(paymentIntent.redirect_status[0] == "succeeded"){
+						/* Display Payment Success Page */
+						app.views.main.router.navigate("/paymentsuccess/");
+					}
+					else{
+						/* Disply Payment Failed Page */
+						app.views.main.router.navigate("/paymentfail/");
+					}
+				}
+			}
+		}catch(err){
+			console.log(err);
+		}
+	},2000);
+	
+	/* Customize Android/iOS hardware back button */
 	var count = 0;
-	//customize android back button
-	document.addEventListener("backbutton", function(e){
+	document.addEventListener("backbutton", function(e, page){
 		e.preventDefault();
+		try{
+			console.log(e);
+			console.log(page);
+			console.log(page.name);
+		}catch(err){
+			console.log(err);
+		}
 		count++;
 		var toast = app.toast.create({
 			text: 'Click back button again to exit',
@@ -208,6 +315,27 @@ async function init_script(){
 			count = 0;
 		},2100);
 	}, false);
+}
+
+/* Get data from URL - GET Method - All data in Array */
+function parseURLParams(url) {
+    var queryStart = url.indexOf("?") + 1,
+        queryEnd   = url.indexOf("#") + 1 || url.length + 1,
+        query = url.slice(queryStart, queryEnd - 1),
+        pairs = query.replace(/\+/g, " ").split("&"),
+        parms = {}, i, n, v, nv;
+
+    if (query === url || query === "") return;
+
+    for (i = 0; i < pairs.length; i++) {
+        nv = pairs[i].split("=", 2);
+        n = decodeURIComponent(nv[0]);
+        v = decodeURIComponent(nv[1]);
+
+        if (!parms.hasOwnProperty(n)) parms[n] = [];
+        parms[n].push(nv.length === 2 ? v : null);
+    }
+    return parms;
 }
 
 //page handler
@@ -237,6 +365,25 @@ $$(document).on('page:init', async function (e, page) {
 		getEditPage();
 	}
 })
+
+
+//subscribe to topic
+function subscribe(token,topic){
+	
+	$.ajax('https://iid.googleapis.com/iid/v1/'+token+'/rel/topics/'+topic, {
+		method: 'POST',
+		headers: new Headers({
+		'Authorization': 'key='+fcm_server_key
+		})
+	}).then(response => {
+		if (response.status < 200 || response.status >= 400) {
+			throw 'Error subscribing to topic: '+response.status + ' - ' + response.text();
+		}
+		console.log('Subscribed to "'+topic+'"');
+	}).catch(error => {
+		console.error(error);
+	})
+}
 ///////////// HOME SETUP
 function homesetup(){
 	var uid = auth.currentUser.uid;
@@ -256,7 +403,7 @@ function homesetup(){
 		var pathReference = storage.ref(imageurl);
 					
 		pathReference.getDownloadURL().then(function(url) {
-			console.log(url);
+			//console.log(url);
 			user_icon.src = url;
 			user_pic.src = url;
 					
@@ -332,6 +479,7 @@ function getEditPage(){
 	})
 }
 
+/* Toast with Close Button */
 function toast(msg){
 	var toastWithButton = app.toast.create({
         text: msg,
@@ -339,6 +487,17 @@ function toast(msg){
     });
 	
 	toastWithButton.open();
+}
+
+/* Toast without Close Button - pos: top, center, bottom */
+function timed_toast(msg,pos){
+	var normal_toast = app.toast.create({
+        text: msg,
+		closeTimeout: 2000,
+		position: pos,
+    });
+	
+	normal_toast.open();
 }
 
 function readURL(input) {
@@ -442,6 +601,7 @@ var booking_list = {
  var DEFAULT_LIMIT = 3;
  const monthNames = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"];
+
 //initialize calendar
 function calendar_init(){
 	if(calendarEvents != ""){
@@ -577,11 +737,13 @@ function disableTimeSlots(){
 }
 
 async function set_booking(){
+	
 	//get today
 	var now = new Date();
 	var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 	
-	
+	var book_button = document.getElementById("book-button");
+	book_button.disabled = true;
 	
 	//booking collection
 	let querySnapshot = await db.collection("booking").get();
@@ -593,8 +755,6 @@ async function set_booking(){
 	"BBQ": {},
 	"SkyLounge": {} 
 	};
-	
-	
 	
 	querySnapshot.forEach((doc) => {
 		var status = doc.data().status;
@@ -709,11 +869,12 @@ async function set_booking(){
 	var date_chosen = document.getElementById('calendar-events-disable');
 	date_chosen.addEventListener('change', function(e){
 		time_select.disabled = false;
+		book_button.disabled = false;
 		disableTimeSlots()
 	})
 		
 	//submit button clicked
-	var book_button = document.getElementById("book-button");
+	
 	book_button.addEventListener('click', function(e){
 		var user_id = auth.currentUser.uid;
 		//var facility_chosen = document.getElementById('facility').value;
@@ -755,12 +916,11 @@ async function set_booking(){
 		
 	})
 }
+
 function redirect(page){
 	var mainView = app.view.main;
 	mainView.router.navigate({ name: page});
 }
-
-
 
 function getFacility(){
 	var bbq = document.getElementById('bbq');
@@ -1025,6 +1185,7 @@ function getAnnouncement(){
 	});*/
 }
 
+/* Set Announcement List */
 async function setURL(url,url_list,d,imgset){
 	var pathReference = storage.ref("announcement/"+url_list[d]);
 	pathReference.getDownloadURL().then(function(url) {
@@ -1041,6 +1202,7 @@ async function setURL(url,url_list,d,imgset){
 	});
 }
 
+/* Create QR Code */
 function createQrCode(){
 	function count_time(){
 		string = "";
@@ -1095,11 +1257,13 @@ perm
 localStorage.getItem('label')
 localStorage.setItem('label', 'value')*/
 
+/* Payment Method Page */
 function getUserBillingPaymentMethod(){
 	document.getElementById("amount").innerHTML = amountString;
 	document.getElementById("payment-description").innerHTML = paymentDescrip;
 }
 
+/* Payment Page */
 function getUserBilling(){
 	var user_id = auth.currentUser.uid;
 	db.collection("billing").where("user_id", "==", user_id).orderBy("date", "desc").limit(1).get().then((querySnapshot) => {
@@ -1127,18 +1291,197 @@ function getUserBilling(){
 	})});
 }
 
+/* Online Payment */
 function online_payment_function(){
-	app.on('pageInit', function (page) {  
-		if (page.name === 'payment-online'){
-			$('#payment-online-redirect-page').html('<iframe style="background:white;padding:0;margin:0;height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/online_payment.php"></iframe>'); 
+	app.preloader.show();
+	var stripe = Stripe('pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ');
+	var jsonString = { "amount": 8000 };
+	var clientSecret = "";
+	console.log(JSON.stringify(jsonString));
+	var form = document.getElementById('payment-form');
+	var online = firebase.functions().httpsCallable('Online');
+	var elements = stripe.elements();
+	var fpxButton = document.getElementById('fpx-button');
+	var style = {
+		base: {
+			padding: '10px 12px',
+			color: '#32325d',
+			fontSize: '16px',
+		},
+	};
+
+	var fpxBank = elements.create(
+		'fpxBank',
+		{
+			style: style,
+			accountHolderType: 'individual',
 		}
+	);
+	
+	fpxBank.mount('#fpx-bank-element');
+	
+	online(JSON.stringify(jsonString)).then((result) => {
+		// Read result of the Cloud Function.
+		clientSecret = result.data;
+		fpxButton.disabled = false;
+		fpxButton.setAttribute("data-secret",clientSecret);
+		sessionStorage.setItem('stripe_client_secret', clientSecret);
+		app.preloader.hide();
+	}).catch((error) => {
+		// Getting the Error details.
+		var code = error.code;
+		var message = error.message;
+		var details = error.details;
+		// ...
+		app.preloader.hide();
+	});
+
+	form.addEventListener('submit', function(event) {
+	  event.preventDefault();
+	  
+	  stripe.confirmFpxPayment(clientSecret, {
+		payment_method: {
+		  fpx: fpxBank,
+		},
+		return_url: `${window.location.href}`,
+	  }).then((result) => {
+		if (result.error) {
+		  //var errorElement = document.getElementById('error-message');
+		  //errorElement.textContent = result.error.message;
+		  alert(result.error.message);
+		}
+	  });
 	});
 }
 
+/* Credit Payment */
 function credit_payment_function(){
+	app.preloader.show();
+	var stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
+	
+	var jsonString = {
+	  data: {
+		  currency: "myr",
+		  amount: 1000
+	  }
+	};
+	
+	fetch("https://us-central1-propertymanagement-88d03.cloudfunctions.net/Credit", {
+	  method: "POST",
+	  headers: {
+		"Content-Type": "application/json"
+	  },
+	  body: JSON.stringify(jsonString)
+	})
+	  .then((result) => {
+		return result.json();
+	  })
+	  .then(function(data) {
+		var elements = stripe.elements();
+
+		var style = {
+		  base: {
+			color: "#32325d",
+			fontFamily: 'Arial, sans-serif',
+			fontSmoothing: "antialiased",
+			fontSize: "16px",
+			"::placeholder": {
+			  color: "#32325d"
+			}
+		  },
+		  invalid: {
+			fontFamily: 'Arial, sans-serif',
+			color: "#fa755a",
+			iconColor: "#fa755a"
+		  }
+		};
+
+		var card = elements.create("card", { style: style });
+		card.mount("#card-element");
+
+		card.on("change", function (event) {
+		  document.querySelector("button").disabled = event.empty;
+		  document.querySelector("#card-error").textContent = event.error ? event.error.message : "";
+		});
+
+		var form = document.getElementById("payment-form");
+		form.addEventListener("submit", function(event) {
+		  event.preventDefault();
+		  payWithCard(stripe, card, data.data);
+		});
+		app.preloader.hide();
+	  });
+
+	var payWithCard = function(stripe, card, clientSecret) {
+	  loading(true);
+	  
+	  stripe
+		.confirmCardPayment(clientSecret, {
+		  payment_method: {
+			card: card
+		  }
+		})
+		.then(function(result) {
+		  if (result.error) {
+			showError(result.error.message);
+			app.views.main.router.navigate("/paymentfail/");
+		  } else {
+			alert("Complete");
+			orderComplete(result.paymentIntent.id);
+			app.views.main.router.navigate("/paymentsuccess/");
+		  }
+		});
+	};
+
+	var orderComplete = function(paymentIntentId) {
+	  loading(false);
+	  document
+		.querySelector(".result-message a")
+		.setAttribute(
+		  "href",
+		  "https://dashboard.stripe.com/test/payments/" + paymentIntentId
+		);
+	  document.querySelector(".result-message").classList.remove("hidden");
+	  document.querySelector("button").disabled = true;
+	};
+
+	var showError = function(errorMsgText) {
+	  loading(false);
+	  var errorMsg = document.querySelector("#card-error");
+	  errorMsg.textContent = errorMsgText;
+	  setTimeout(function() {
+		errorMsg.textContent = "";
+	  }, 4000);
+	};
+
+	var loading = function(isLoading) {
+	  if (isLoading) {
+		document.querySelector("button").disabled = true;
+		document.querySelector("#spinner").classList.remove("hidden");
+		document.querySelector("#button-text").classList.add("hidden");
+	  } else {
+		document.querySelector("button").disabled = false;
+		document.querySelector("#spinner").classList.add("hidden");
+		document.querySelector("#button-text").classList.remove("hidden");
+	  }
+	};
+	
+}
+
+/* Not using */
+
+/*function credit_payment_function(){
 	app.on('pageInit', function (page) {  
 		if (page.name === 'payment-credit'){
 			$('#payment-credit-redirect-page').html('<iframe style="background:white;padding:0;margin:0;height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/credit_payment.php"></iframe>'); 
 		}
 	});
-}
+}*/
+
+/*function online_payment_function(){
+	app.on('pageInit', function (page) {  
+		if (page.name === 'payment-online'){
+			$('#payment-online-redirect-page').html('<iframe style="background:white;padding:0;margin:0;height:100%;width:100%;" src="http://rjproperty.site/client_side/payment/online_payment.php"></iframe>'); 
+		}
+	});
+}*/

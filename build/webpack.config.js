@@ -217,6 +217,11 @@ module.exports = {
           from: resolvePath('src/manifest.json'),
           to: resolvePath('www/manifest.json'),
         },
+		{
+          noErrorOnMissing: true,
+          from: resolvePath('src/firebase-messaging-sw.js'),
+          to: resolvePath('www/firebase-messaging-sw.js'),
+        },
       ],
     }),
     ...(!isCordova ? [

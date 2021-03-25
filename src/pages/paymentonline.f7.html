@@ -7,7 +7,7 @@
     <div class="navbar-bg"></div>
     <div class="navbar-inner sliding">
       <div class="left">
-        <a href="#" class="link back">
+        <a href="/">
           <i class="icon icon-back"></i>
           <span class="if-not-md">Back</span>
         </a>
@@ -15,7 +15,28 @@
       <div class="title">Payment</div>
     </div>
   </div>
-  <div class="page-content no-margin no-padding" id="payment-online-redirect-page">
+  <div class="page-content no-margin no-padding" id="stripe-payment-page">
+	  <form id="payment-form">
+	  <div class="form-row">
+		<div>
+		  <label for="fpx-bank-element">
+			FPX Bank
+		  </label>
+		  <div id="fpx-bank-element">
+			<!-- A Stripe Element will be inserted here. -->
+		  </div>
+		</div>
+	  </div>
+
+	  <button id="fpx-button">
+		Submit Payment
+	  </button>
+	  <button id="online-payment-cancel-button" style="margin-top:10px;background:#990000;">
+		<a href="/">Cancel</a>
+	  </button>
+	  <!-- Used to display form errors. -->
+	  <div id="error-message" role="alert"></div>
+	  </form>
   </div>
 </div>
 </template>

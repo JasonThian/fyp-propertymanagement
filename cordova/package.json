@@ -1,6 +1,6 @@
 {
   "name": "app.framework7.propertymanagement",
-  "displayName": "d'Ryx Residence",
+  "displayName": "dRyx Residence",
   "version": "1.0.0",
   "description": "A sample Apache Cordova application that responds to the deviceready event.",
   "main": "index.js",
@@ -14,7 +14,10 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "cordova-android": "^9.0.0",
-    "cordova-ios": "^6.1.1",
+    "cordova-ios": "^6.2.0",
+    "cordova-plugin-advanced-http-2": "^1.6.1",
+    "cordova-plugin-fcm-ng": "^8.3.0",
+    "cordova-plugin-file": "^6.0.2",
     "cordova-plugin-keyboard": "^1.2.0",
     "cordova-plugin-splashscreen": "^6.0.0",
     "cordova-plugin-statusbar": "^2.4.3",
@@ -27,11 +30,15 @@
       "cordova-plugin-statusbar": {},
       "cordova-plugin-keyboard": {},
       "cordova-plugin-splashscreen": {},
-      "cordova-plugin-tabrisjs-qrgen": {}
+      "cordova-plugin-tabrisjs-qrgen": {},
+      "cordova-plugin-advanced-http2": {},
+      "cordova-plugin-fcm-ng": {
+        "PAGE_LINK_DOMAIN": "dryxpropertymanagement.page.link"
+      }
     },
     "platforms": [
-      "ios",
-      "android"
+      "android",
+      "ios"
     ]
   }
 }
