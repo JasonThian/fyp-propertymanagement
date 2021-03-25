@@ -41,7 +41,7 @@
 	background-color: transparent;
 }
 .block-strong:before, .block-strong:after,.list .item-inner:after{
-	background-color:transparent;
+	background-color: transparent;
 }
 
 .list .item-inner{
@@ -106,22 +106,22 @@
 }
 
 .card-inline-blocks{
-	margin: 2%;
+	
 	width: @card-width;
 	display: inline-block; 
+	
 	border-radius: 7%;
 }
 
 .navbar-inner{
 	// background-color: #c8e0ff;
 	background-color: transparent;
+	backdrop-filter: blur(2rem);
 	
 }
 
-
 .navbar-bg{
 	// visibility:hidden;
-	padding: 4px;
 	background-color: transparent;
 }
 
@@ -130,7 +130,6 @@
 	margin: 0 auto;
 	text-align: center;
 }
-
 .swiper-slide{
 	text-align: center;
 }
@@ -149,7 +148,6 @@
 
 .announcement-img{
 	width: @announcement-width * 0.7;
-	margin-top: 8px;
 }
 
 
@@ -191,13 +189,9 @@
 }
 
 .user-icon{
-	// width: 13vw;
-	// height: 13vw;
 	width: 3rem;
 	height: 3rem;
-	// margin: 5% 4%;
 	border-radius: 100px;
-	// border: 3px solid #CCA679;
 	image-rendering: -webkit-optimize-contrast;
 }
 
@@ -222,45 +216,26 @@
 
 
 // announcement
-.announcements{
-	position: relative;
-	display: flex;
-}
-
-// .date-list{
-// 	// flex: 1;
-// 	display: flex;
-// 	justify-content: flex-start;
-// 	flex-direction: column;
-// 	margin: 0;
-// }
-
-.test{
-	display: flex;
-	justify-content: flex-start;
-	flex-direction: row;
+.date{
+	margin: 2%;
 }
 
 .announcement-icon-block{
-	flex: 2;
-	display: flex;	
-	flex-direction: column;
+	float: left;
+	padding: 15px;
 }
 
 .announcement-text-block{
-	flex: 2;
-	display: flex;	
-	flex-direction: column;
+	clear: right;
+	padding: 15px;
 }
-
 
 .announcement-small-icon{
 	width: 50px;
 	height: 50px;
 	border-radius: 50%;
-	// background-size: cover;
-	// background-position: 50% 50%;
-	// clip-path: circle();
+	background-size: cover;
+	background-position: center;
 	// image-rendering: pixelated;
 	image-rendering: -webkit-optimize-contrast;
 	border: 1px solid #7278B9;
@@ -307,10 +282,9 @@ p#annc_desc {
 	flex-direction: column;
 	margin: 0 auto;
 }
-
 .qr_button
 {
-	margin-top:20px;	
+	margin-top:20px;
 }
 
 //payment
@@ -417,6 +391,7 @@ p#annc_desc {
 	text-align:left;
 }
 .profile-inputs > input{
+	width: 100%;
 	border-bottom: 1px solid grey;
 	margin: 0 auto;
 
@@ -476,7 +451,7 @@ p#annc_desc {
 	background-size: cover;
 	display: flex;
 	padding: 5px;
-	margin-bottom: 20px;
+	margin: 20px 10px 10px 20px;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.652);
 	min-height: 120px;
 	border-radius: 8px;
@@ -542,12 +517,6 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 	width: 50%;
 	margin: 0 auto;
 }
-
-// .booking-success-img{
-// 	display: inline-block;
-// 	flex-direction: column;
-// }
-
 ::-webkit-scrollbar{
 	width: 1.8px;
 }
@@ -555,11 +524,11 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 ::-webkit-scrollbar-thumb {
     background: #CCA679;
 }
+
 //payment_reminder
 .list .reminder
 {
 	background-color:white;
-	
 }
 
 /* Stripe Payment css */
