@@ -2,6 +2,7 @@ import LoginPage from '../pages/login.f7.html';
 import HomePage from '../pages/home.f7.html';
 import FormPage from '../pages/form.f7.html';
 import NewsPage from '../pages/news.f7.html';
+import ChatPage from '../pages/chatbox.f7.html';
 import AnnouncementPage from '../pages/announcement.f7.html';
 import FacilitiesPage from '../pages/facilities.f7.html';
 import QRCodePage from '../pages/qrcode.f7.html';
@@ -36,6 +37,10 @@ var routes = [
   {
     path: '/news/',
     component: NewsPage,
+  },
+  {
+    path: '/chatbox/',
+    component: ChatPage,
   },
   {
     path: '/bookfacility/',
