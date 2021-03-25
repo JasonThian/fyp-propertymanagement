@@ -164,6 +164,7 @@ function set_logout(){
 
 /* Initialize */
 async function init_script(){
+	app.preloader.show();
 	/*import jquery and Stripe js */
 	var jquery = document.createElement('script');
 	var stripe_payment = document.createElement('script');
@@ -266,14 +267,14 @@ async function init_script(){
 				
 				/* Get payment intent id */
 				try{
-					localStorage.getItem("payment_intent");
+					stored_payment_intent = localStorage.getItem("latest-payment-intent");
 				}catch(err){
 					console.log(err);
 				}
 				
 				if(paymentIntent.payment_intent[0] != stored_payment_intent){
 					/* Save payment intent id */
-					localStorage.set("payment_intent",paymentIntent.payment_intent[0]);
+					localStorage.set("latest-payment-intent",paymentIntent.payment_intent[0]);
 					
 					if(paymentIntent.redirect_status[0] == "succeeded"){
 						/* Display Payment Success Page */
@@ -291,30 +292,38 @@ async function init_script(){
 	},2000);
 	
 	/* Customize Android/iOS hardware back button */
-	var count = 0;
-	document.addEventListener("backbutton", function(e, page){
-		e.preventDefault();
-		try{
+	try{
+		var count = 0;
+		document.addEventListener("backbutton", function(e, page){
+			e.preventDefault();
+			
 			console.log(e);
 			console.log(page);
 			console.log(page.name);
-		}catch(err){
-			console.log(err);
-		}
-		count++;
-		var toast = app.toast.create({
-			text: 'Click back button again to exit',
-			closeTimeout: 2000,
-			position: "center"
-		});
-		toast.open();
-		if(count == 2){
-			window.navigator.app.exitApp();
-		}
-		setTimeout(()=>{
-			count = 0;
-		},2100);
-	}, false);
+			
+			var pn = page.name;
+			
+			if(pn == "home" || pn == "login"){
+				count++;
+				var toast = app.toast.create({
+					text: 'Click back button again to exit',
+					closeTimeout: 2000,
+					position: "center"
+				});
+				toast.open();
+				if(count == 2){
+					window.navigator.app.exitApp();
+				}
+				setTimeout(()=>{
+					count = 0;
+				},2100);
+			}else if(pn == "payment-success" || pn == "payment-fail"){
+				app.views.main.router.navigate("/");
+			}
+		}, false);
+	}catch(err){
+		console.log(err);
+	}
 }
 
 /* Get data from URL - GET Method - All data in Array */
@@ -363,6 +372,8 @@ $$(document).on('page:init', async function (e, page) {
 		getTenants();
 	}else if(pn == "edit"){
 		getEditPage();
+	}else if(pn == "payment-success"){
+		savePaymentDetails();
 	}
 })
 
@@ -1244,9 +1255,7 @@ function createQrCode(){
 	}, 1000);
 }
 //payments
-var amount = '';
-var amountString = '';
-var paymentDescrip = '';
+
 
 /*
 temp
@@ -1259,43 +1268,68 @@ localStorage.setItem('label', 'value')*/
 
 /* Payment Method Page */
 function getUserBillingPaymentMethod(){
-	document.getElementById("amount").innerHTML = amountString;
-	document.getElementById("payment-description").innerHTML = paymentDescrip;
+	document.getElementById("amount").innerHTML = localStorage.getItem('latest-payment-amount-string');
+	document.getElementById("payment-description").innerHTML = localStorage.getItem('latest-payment-descrip');
 }
 
 /* Payment Page */
 function getUserBilling(){
 	var user_id = auth.currentUser.uid;
+	var payNowButton = document.getElementById("pay-now-button");
+	
+	app.preloader.show();
+	payNowButton.disabled = true;
+	
 	db.collection("billing").where("user_id", "==", user_id).orderBy("date", "desc").limit(1).get().then((querySnapshot) => {
 		querySnapshot.forEach((doc) => {
-		if(doc.data().status != "paid"){
-			var time = new Date();
-			time.setTime(doc.data().date.seconds * 1000);
-			amountString = (doc.data().amount/100).toFixed(2);
-			paymentDescrip = doc.data().description;
-			document.getElementById("amount-data").innerHTML = amountString;
-			document.getElementById("pay-by").value = time.toLocaleDateString("en-US");
-			document.getElementById("payment-details").value = paymentDescrip;
-			document.getElementById("order-number").value = doc.id;
-		}
-		else{
-			var payNowButton = document.getElementById("pay-now-button");
-			payNowButton.disabled = true;
-			payNowButton.onclick = function(){
-					var toastBottom = app.toast.create({
-					text: 'This is default bottom positioned toast',
-					closeTimeout: 2000,
-				});
+			
+			if(doc.data().status != "paid"){
+				var time = new Date();
+				var amount = '';
+				var amountString = '';
+				var paymentDescrip = '';
+				
+				/* parse data */
+				time.setTime(doc.data().date.seconds * 1000);
+				amount = doc.data().amount;
+				amountString = (doc.data().amount/100).toFixed(2);
+				paymentDescrip = doc.data().description;
+				
+				/* set data */
+				document.getElementById("amount-data").innerHTML = amountString;
+				document.getElementById("pay-by").value = time.toLocaleDateString("en-US");
+				document.getElementById("payment-details").value = paymentDescrip;
+				document.getElementById("order-number").value = doc.id;
+				
+				/* save into storage */
+				localStorage.setItem("latest-payment-id",doc.id);
+				localStorage.setItem("latest-payment-amount",amount);
+				localStorage.setItem("latest-payment-amount-string",amountString);
+				localStorage.setItem("latest-payment-descrip",paymentDescrip);
+				
 			}
-		}
-	})});
+			else{
+				payNowButton.onclick = function(){
+						var toastBottom = app.toast.create({
+						text: 'This is default bottom positioned toast',
+						closeTimeout: 2000,
+					});
+				}
+			}
+		})
+	}).then(() => {
+		app.preloader.hide();
+	}).catch((err) => {
+		timed_toast(err,"center");
+		app.preloader.hide();
+	});
 }
 
 /* Online Payment */
 function online_payment_function(){
 	app.preloader.show();
 	var stripe = Stripe('pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ');
-	var jsonString = { "amount": 8000 };
+	var jsonString = { "amount": localStorage.getItem('latest-payment-amount') };
 	var clientSecret = "";
 	console.log(JSON.stringify(jsonString));
 	var form = document.getElementById('payment-form');
@@ -1325,13 +1359,16 @@ function online_payment_function(){
 		clientSecret = result.data;
 		fpxButton.disabled = false;
 		fpxButton.setAttribute("data-secret",clientSecret);
-		sessionStorage.setItem('stripe_client_secret', clientSecret);
+		localStorage.setItem('stripe_client_secret', clientSecret);
 		app.preloader.hide();
 	}).catch((error) => {
 		// Getting the Error details.
 		var code = error.code;
 		var message = error.message;
 		var details = error.details;
+		
+		timed_toast("An error has occured","center");
+		fpxButton.disabled = true;
 		// ...
 		app.preloader.hide();
 	});
@@ -1362,7 +1399,7 @@ function credit_payment_function(){
 	var jsonString = {
 	  data: {
 		  currency: "myr",
-		  amount: 1000
+		  amount: localStorage.getItem('latest-payment-amount')
 	  }
 	};
 	
@@ -1466,6 +1503,14 @@ function credit_payment_function(){
 	  }
 	};
 	
+}
+
+function savePaymentDetails(){
+	/*db.collection("billing").doc(localStorage.getItem("latest-payment-id")).update({}).then(() => {
+
+	}).catch((err) => {
+		
+	});*/
 }
 
 /* Not using */
