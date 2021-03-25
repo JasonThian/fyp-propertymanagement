@@ -643,27 +643,26 @@ function calendar_init(){
 		for(var timeslots in booked_dates[date]){
 			var restricted = booked_dates[date]['restriction'];
 			if(timeslots != "restriction"){
-				var restricted_limit = restricted['limit'];
-				var restricted_list = restricted['restricted_time'];
-				var restriction = false;
-				
-				for(var index = 0; index < restricted_list.length; index++){
-					//if exist in restricted time, compare with limit
-					if(restricted_list[index] === timeslots){
-						restriction = true;
-						if(booked_dates[date][timeslots] < restricted_limit){
-							disable = false;
+				for(var restricted_limit in restricted){
+					var restricted_list = restricted[restricted_limit];
+					var restriction = false;
+					
+					for(var index = 0; index < restricted_list.length; index++){
+						//if exist in restricted time, compare with limit
+						if(restricted_list[index] === timeslots){
+							restriction = true;
+							if(booked_dates[date][timeslots] < restricted_limit){
+								disable = false;
+							}
+							
 						}
-						
+					}
+					
+					// else, compare with default limit (3)
+					if(!restriction && booked_dates[date][timeslots] < DEFAULT_LIMIT){
+						disable = false;
 					}
 				}
-				
-				// else, compare with default limit (3)
-				if(!restriction && booked_dates[date][timeslots] < DEFAULT_LIMIT){
-					disable = false;
-				}
-				
-				
 			}
 		}
 		//disable still true, add into array
@@ -722,25 +721,28 @@ function disableTimeSlots(){
 			for(var timeslots in booked_dates[date]){
 				var restricted = booked_dates[date]['restriction'];
 				if(timeslots != "restriction"){
-					var restricted_limit = restricted['limit'];
-					var restricted_list = restricted['restricted_time'];
-					var restriction = false;
-					
-					for(var index = 0; index < restricted_list.length; index++){
-						//if exist in restricted time, compare with limit
-						if(restricted_list[index] === timeslots){
-							restriction = true;
-							if(booked_dates[date][timeslots] >= restricted_limit){
-								indexes[timeslots].disabled = true;
+					for(var restricted_limit in restricted){
+						var restricted_list = restricted[restricted_limit];
+						var restriction = false;
+						
+						for(var index = 0; index < restricted_list.length; index++){
+							//if exist in restricted time, compare with limit
+							if(restricted_list[index] === timeslots){
+								restriction = true;
+								if(booked_dates[date][timeslots] >= restricted_limit){
+									indexes[timeslots].disabled = true;
+								}
+								
 							}
-							
+						}
+						
+						// else, compare with default limit (3)
+						if(!restriction && booked_dates[date][timeslots] >= DEFAULT_LIMIT){
+							console.log(indexes[timeslots]);
+							indexes[timeslots].disabled = true;
 						}
 					}
 					
-					// else, compare with default limit (3)
-					if(!restriction && booked_dates[date][timeslots] >= DEFAULT_LIMIT){
-						indexes[timeslots].disabled = true;
-					}
 				}
 			}
 		}
@@ -808,8 +810,7 @@ async function set_booking(){
 					
 					bookings[booked_date]['restriction'] = {};
 			
-					bookings[booked_date]['restriction']['restricted_time'] = [];
-					bookings[booked_date]['restriction']['limit'] = 3;
+					bookings[booked_date]['restriction'][3] = [];
 				}
 				
 				//increment time slot booking counter
@@ -858,15 +859,11 @@ async function set_booking(){
 			bookings[restricted_date]['22:00'] = 0;
 			
 			bookings[restricted_date]['restriction'] = {};
-			
-			bookings[restricted_date]['restriction']['restricted_time'] = [];
-			bookings[restricted_date]['restriction']['limit'] = 3;
 		}
 		
-		bookings[restricted_date]['restriction'] = {};
-			
-		bookings[restricted_date]['restriction']['restricted_time'] = restricted_time;
-		bookings[restricted_date]['restriction']['limit'] = limit;
+		
+		bookings[restricted_date]['restriction'][limit] = [];
+		bookings[restricted_date]['restriction'][limit] = restricted_time.concat(bookings[restricted_date]['restriction'][limit]);
 		
 	});
 	
@@ -887,6 +884,8 @@ async function set_booking(){
 	//submit button clicked
 	
 	book_button.addEventListener('click', function(e){
+		e.preventDefault();
+		
 		var user_id = auth.currentUser.uid;
 		//var facility_chosen = document.getElementById('facility').value;
 		var time_chosen = document.getElementById('time_select').value;
@@ -911,6 +910,7 @@ async function set_booking(){
 		var day = String(dateObj.getDate()).padStart(2, '0');
 		var year = dateObj.getFullYear();
 		var date = day  + '-'+ month  + '-' + year;
+		
 		if(facility_chosen != "" && time_chosen != "" && date_chosen != ""){
 			db.collection("booking").add({
 				date: date,
@@ -920,9 +920,21 @@ async function set_booking(){
 				time: time_chosen,
 				user_id: user_id
 			}).then(()=>{
-				var mainView = app.view.main;
-				mainView.router.navigate({ name: 'bookingsuccess'});
+				var toast = app.toast.create({
+					text: 'Booking has been sent for verification',
+					closeTimeout: 2000,
+					position: "center"
+				});
+				toast.open();
+				redirect('bookingsuccess');
 			})
+		}else{
+			var toast = app.toast.create({
+				text: 'Please fill in the details',
+				closeTimeout: 2000,
+				position: "center"
+			});
+			toast.open();
 		}
 		
 	})
