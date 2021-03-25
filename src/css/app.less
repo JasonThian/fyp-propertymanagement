@@ -79,7 +79,7 @@
 .page-content{
 	overflow-x: hidden;
 	overflow-y: scroll;
-	padding: 5px;
+	padding: 3px;
 	top: 10px;
 }
 
@@ -116,12 +116,13 @@
 .navbar-inner{
 	// background-color: #c8e0ff;
 	background-color: transparent;
+	
 }
 
 
 .navbar-bg{
 	// visibility:hidden;
-	padding: 2px;
+	padding: 4px;
 	background-color: transparent;
 }
 
@@ -130,6 +131,11 @@
 // 	margin-top: 5%;
 // }
 
+.swiper-wrapper
+{
+	margin-top:10px;
+
+}
 
 .demo-swiper .swiper-slide {
     display: flex;
@@ -151,7 +157,7 @@
 .list-buttons{
 	width: 100%;
 	font-size: 20px;
-    text-align: center;
+    text-align: left;
     font-weight: 500;
     text-transform: capitalize;
 	
@@ -171,10 +177,17 @@
 }
 
 
-.list ul, .navbar-bg{
-	background-color: #C8E0FF;
+.media-list ul 
+{
+	margin-top:10px;
+	padding: 0px 0;
 }
 
+
+.list ul, .navbar-bg{
+	background-color: transparent;
+	
+}
 
 .user-icon{
 	// width: 13vw;
@@ -278,6 +291,9 @@ p#annc_desc {
 	padding: 10% 0%;
 	background-color:white;
 }
+.list .payment{
+	padding: 5px 0;
+}
 //payment history
 .item-link{
 	background-color:white;
@@ -325,17 +341,39 @@ p#annc_desc {
 	font-size: 3vw;
 }
 
+.edit-profile img{
+	width:70px;
+	height:70px;
+	
+}
+
 .profile-inputs > p{
 	font-weight: bold;
 	color: #7278B9;
-	font-size: 4vw;
+	font-size: 20px;
+	text-align:left;
 }
 .profile-inputs > input{
 	width: 100%;
 	border-bottom: 1px solid grey;
 	margin: 0 auto;
-	padding: 1%;
-	font-size: 3vw;
+
+	font-size: 15px;
+}
+
+
+.popup{
+	
+	background: linear-gradient(180deg, rgba(200,224,255,1) 0%, rgba(252,252,252,1) 100%);
+}
+.popup form
+{
+		text-align:center;
+		margin-top:40px;
+}
+.popup button
+{
+		margin-top:20px;
 }
 //Booking Details
 .booking-details{
