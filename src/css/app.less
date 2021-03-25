@@ -5,7 +5,7 @@
 @announcement-width: @body-width * 0.8;
 @announcement-height: @announcement-width * (9/16);
 @card-view-width: @body-width * 0.8;
-@card-width: @card-view-width * 0.37;
+@card-width: @card-view-width * 0.35;
 
 /* iOS Cordova Tweak */
 .device-cordova.device-ios {
@@ -109,7 +109,6 @@
 	margin: 2%;
 	width: @card-width;
 	display: inline-block; 
-	
 	border-radius: 7%;
 }
 
@@ -121,8 +120,7 @@
 
 .navbar-bg{
 	// visibility:hidden;
-	// padding: 30px;
-	// background-color: transparent;
+	background-color: transparent;
 }
 
 .card-views{
@@ -133,7 +131,6 @@
 
 .swiper-slide{
 	text-align: center;
-	margin-top: 5%;
 }
 
 
@@ -144,9 +141,8 @@
 }
 
 .announcement-img{
-	// width: @announcement-width;
-	max-width: @body-width * 50%;
-	// margin-top: 2%;
+	width: @announcement-width * 0.7;
+	margin-top: 8px;
 }
 
 
@@ -188,12 +184,14 @@
 	// margin: 5% 4%;
 	border-radius: 100px;
 	// border: 3px solid #CCA679;
+	image-rendering: -webkit-optimize-contrast;
 }
 
 #user_icon{
 	display: flex;
 	margin: 0 auto;
 	position: relative;
+	image-rendering: -webkit-optimize-contrast;
 }
 
 #username{
@@ -209,11 +207,49 @@
 }
 
 
-//announcement
-.announcement-small-icon{
-	max-width: 20vw;
-	max-height: 20vw;
+// announcement
+.announcements{
+	position: relative;
+	display: flex;
+}
 
+// .date-list{
+// 	// flex: 1;
+// 	display: flex;
+// 	justify-content: flex-start;
+// 	flex-direction: column;
+// 	margin: 0;
+// }
+
+.test{
+	display: flex;
+	justify-content: flex-start;
+	flex-direction: row;
+}
+
+.announcement-icon-block{
+	flex: 2;
+	display: flex;	
+	flex-direction: column;
+}
+
+.announcement-text-block{
+	flex: 2;
+	display: flex;	
+	flex-direction: column;
+}
+
+
+.announcement-small-icon{
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	// background-size: cover;
+	// background-position: 50% 50%;
+	// clip-path: circle();
+	// image-rendering: pixelated;
+	image-rendering: -webkit-optimize-contrast;
+	border: 1px solid #7278B9;
 }
 
 .announcement-small-title{
@@ -222,13 +258,8 @@
 
 .announcement-small-text{
 	overflow: hidden;
-	// text-overflow: ellipsis;
 	white-space: nowrap;
 	max-width: 700px;
-}
-
-.announcement-list{
-	// margin-top: 55px;
 }
 
 .announcement-list-row{
@@ -249,17 +280,23 @@ p#annc_desc {
 
 //qr code
 #qrcode-canvas{
-	padding: 0;
+	padding: 10px;
     margin: 0 auto;
 }
+
 .qr{
 	margin-top:60px;
 	font-size:25px;
 	text-align:center;
+	display: flex;
+	justify-content: space-evenly;
+	flex-direction: column;
+	margin: 0 auto;
 }
+
 .qr_button
 {
-	margin-top:20px;
+	margin-top:20px;	
 }
 
 //payment
@@ -341,6 +378,7 @@ p#annc_desc {
 	height: 3rem;
 	border-radius: 100px;
 	margin: 0 auto;	
+	image-rendering: -webkit-optimize-contrast;
 }
 
 .profile-inputs{
