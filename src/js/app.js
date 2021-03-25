@@ -75,18 +75,8 @@ window.app = new Framework7({
     calendar: function () {
       
     },
-    start: function () {
-      alert("start");
-    },
 	close_panel: function(){
 		app.panel.close('right');
-	},
-	toast_center: function(el){
-		app.toast.create({
-			text: el,
-			position: center,
-			closeTimeout: 2000,
-		});
 	},
 	online_payment: function(){
 		online_payment_function();
@@ -99,12 +89,6 @@ window.app = new Framework7({
 	},
 	SelectAnnc: function(id){
 		SelectAnnc(id);
-	},
-	getPayment: function(){
-		getUserBilling();
-	},
-	paymentMethodData: function(){
-		getUserBillingPaymentMethod();
 	}
   },
   // App routes
@@ -160,7 +144,7 @@ function set_logout(){
 //app.preloader.hide();
 
 /* Go to page */
-//app.views.main.router.navigate("/");
+//redirect("/");
 
 /* Initialize */
 async function init_script(){
@@ -263,6 +247,8 @@ async function init_script(){
 			let paymentIntent = parseURLParams(window.location.href);
 			if(paymentIntent != undefined){
 				
+				console.log(paymentIntent);
+				console.log(paymentIntent.redirect_status[0]);
 				var stored_payment_intent = "";
 				
 				/* Get payment intent id */
@@ -272,17 +258,18 @@ async function init_script(){
 					console.log(err);
 				}
 				
+				stripe.retrievePaymentIntent(paymentIntent.payment_intent[0]);
 				if(paymentIntent.payment_intent[0] != stored_payment_intent){
 					/* Save payment intent id */
-					localStorage.set("latest-payment-intent",paymentIntent.payment_intent[0]);
+					localStorage.setItem("latest-payment-intent",paymentIntent.payment_intent[0]);
 					
 					if(paymentIntent.redirect_status[0] == "succeeded"){
 						/* Display Payment Success Page */
-						app.views.main.router.navigate("/paymentsuccess/");
+						redirect("payment-success");
 					}
 					else{
 						/* Disply Payment Failed Page */
-						app.views.main.router.navigate("/paymentfail/");
+						redirect("payment-fail");
 					}
 				}
 			}
@@ -318,7 +305,7 @@ async function init_script(){
 					count = 0;
 				},2100);
 			}else if(pn == "payment-success" || pn == "payment-fail"){
-				app.views.main.router.navigate("/");
+				redirect("home");
 			}
 		}, false);
 	}catch(err){
@@ -373,7 +360,11 @@ $$(document).on('page:init', async function (e, page) {
 	}else if(pn == "edit"){
 		getEditPage();
 	}else if(pn == "payment-success"){
-		savePaymentDetails();
+		saveSuccessPaymentDetails();
+	}else if(pn == "payment-method"){
+		getUserBillingPaymentMethod();
+	}else if(pn == "payment"){
+		getUserBilling();
 	}
 })
 
@@ -1282,6 +1273,22 @@ localStorage.setItem('label', 'value')*/
 function getUserBillingPaymentMethod(){
 	document.getElementById("amount").innerHTML = localStorage.getItem('latest-payment-amount-string');
 	document.getElementById("payment-description").innerHTML = localStorage.getItem('latest-payment-descrip');
+	
+	$('#payment-selection').prop('onclick',null).off('click');
+	
+	$('#payment-selection').click(() => {
+		var selection = $("input[type='radio'][name='pMethod']:checked").val();
+		console.log(selection);
+		if(selection == "online"){
+			redirect("payment-online");
+		}
+		else if(selection == "credit"){
+			redirect("payment-credit");
+		}
+		else{
+			alert("Please select a payment type");
+		}
+	});
 }
 
 /* Payment Page */
@@ -1387,7 +1394,8 @@ function online_payment_function(){
 
 	form.addEventListener('submit', function(event) {
 	  event.preventDefault();
-	  
+	  console.log(fpxBank);
+	  localStorage.setItem("latest-payment-bank",fpxBank);
 	  stripe.confirmFpxPayment(clientSecret, {
 		payment_method: {
 		  fpx: fpxBank,
@@ -1400,6 +1408,11 @@ function online_payment_function(){
 		  alert(result.error.message);
 		}
 	  });
+	});
+	
+	$('#online-payment-cancel-button').prop('onclick',null).off('click');
+	$('#online-payment-cancel-button').click(() => {
+		redirect("home");
 	});
 }
 
@@ -1449,7 +1462,7 @@ function credit_payment_function(){
 		card.mount("#card-element");
 
 		card.on("change", function (event) {
-		  document.querySelector("button").disabled = event.empty;
+		  document.getElementById("card-submit").disabled = event.empty;
 		  document.querySelector("#card-error").textContent = event.error ? event.error.message : "";
 		});
 
@@ -1471,13 +1484,14 @@ function credit_payment_function(){
 		  }
 		})
 		.then(function(result) {
+		  localStorage.setItem("latest-payment-bank",null);
 		  if (result.error) {
 			showError(result.error.message);
-			app.views.main.router.navigate("/paymentfail/");
+			redirect("payment-fail");
 		  } else {
 			alert("Complete");
 			orderComplete(result.paymentIntent.id);
-			app.views.main.router.navigate("/paymentsuccess/");
+			redirect("payment-success");
 		  }
 		});
 	};
@@ -1491,7 +1505,7 @@ function credit_payment_function(){
 		  "https://dashboard.stripe.com/test/payments/" + paymentIntentId
 		);
 	  document.querySelector(".result-message").classList.remove("hidden");
-	  document.querySelector("button").disabled = true;
+	  document.getElementById("card-submit").disabled = true;
 	};
 
 	var showError = function(errorMsgText) {
@@ -1505,23 +1519,61 @@ function credit_payment_function(){
 
 	var loading = function(isLoading) {
 	  if (isLoading) {
-		document.querySelector("button").disabled = true;
+		document.getElementById("card-submit").disabled = true;
 		document.querySelector("#spinner").classList.remove("hidden");
 		document.querySelector("#button-text").classList.add("hidden");
 	  } else {
-		document.querySelector("button").disabled = false;
+		document.getElementById("card-submit").disabled = false;
 		document.querySelector("#spinner").classList.add("hidden");
 		document.querySelector("#button-text").classList.remove("hidden");
 	  }
 	};
 	
+	$('#credit-payment-cancel-button').prop('onclick',null).off('click');
+	$('#credit-payment-cancel-button').click(() => {
+		redirect("home");
+	});
 }
 
-function savePaymentDetails(){
-	/*db.collection("billing").doc(localStorage.getItem("latest-payment-id")).update({}).then(() => {
-
+function saveSuccessPaymentDetails(){
+	/*app.preloader.show();
+	var user_id = auth.currentUser.uid;
+	var time = new Date();
+	time = time.getTime();
+	
+	db.collection("billing").doc(localStorage.getItem("latest-payment-id")).update({ status: "paid" }).then(() => {
+		db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).add({
+			status: "Successful",
+			user_id: user_id,
+			description: localStorage.getItem("latest-payment-descrip"),
+			payment_id: localStorage.getItem("latest-payment-id"),
+			amount: localStorage.getItem("latest-payment-amount"),
+			time: time,
+			bank: localStorage.getItem("latest-payment-bank")
+		}).then(() => {
+			app.preloader.hide();
+		});
 	}).catch((err) => {
-		
+		console.log(err);
+	});*/
+}
+
+function saveFailPaymentDetails(){
+	/*app.preloader.show();
+	var user_id = auth.currentUser.uid;
+	var time = new Date();
+	time = time.getTime();
+	
+	db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).add({
+		status: "Failed",
+		user_id: user_id,
+		description: localStorage.getItem("latest-payment-descrip"),
+		payment_id: localStorage.getItem("latest-payment-id"),
+		amount: localStorage.getItem("latest-payment-amount"),
+		time: time,
+		bank: localStorage.getItem("latest-payment-bank")
+	}).then(() => {
+		app.preloader.hide();
 	});*/
 }
 
