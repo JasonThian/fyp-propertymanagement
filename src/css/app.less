@@ -5,7 +5,7 @@
 @announcement-width: @body-width * 0.8;
 @announcement-height: @announcement-width * (9/16);
 @card-view-width: @body-width * 0.8;
-@card-width: @card-view-width * 0.3;
+@card-width: @card-view-width * 0.35;
 
 /* iOS Cordova Tweak */
 .device-cordova.device-ios {
@@ -41,7 +41,7 @@
 	background-color: transparent;
 }
 .block-strong:before, .block-strong:after,.list .item-inner:after{
-	background-color:transparent;
+	background-color: transparent;
 }
 
 .list .item-inner{
@@ -79,7 +79,7 @@
 .page-content{
 	overflow-x: hidden;
 	overflow-y: scroll;
-	padding: 5px;
+	padding: 3px;
 	top: 10px;
 }
 
@@ -98,7 +98,7 @@
 // }
 
 .card-margin-middle{
-	margin: auto;
+	margin: 0 auto;
 	vertical-align: middle;
 	padding: 16% 15%;
 	text-align: center;
@@ -116,20 +116,29 @@
 .navbar-inner{
 	// background-color: #c8e0ff;
 	background-color: transparent;
+	backdrop-filter: blur(2rem);
+	
 }
-
 
 .navbar-bg{
 	// visibility:hidden;
-	padding: 2px;
 	background-color: transparent;
 }
 
-// .swiper-slide{
-// 	text-align: center;
-// 	margin-top: 5%;
-// }
+.card-views{
+	// width: @card-view-width;
+	margin: 0 auto;
+	text-align: center;
+}
+.swiper-slide{
+	text-align: center;
+}
 
+.swiper-wrapper
+{
+	margin-top:10px;
+
+}
 
 .demo-swiper .swiper-slide {
     display: flex;
@@ -138,20 +147,16 @@
 }
 
 .announcement-img{
-	width: @announcement-width;
+	width: @announcement-width * 0.7;
 }
 
-.card-views{
-	// width: @card-view-width;
-	margin: auto;
-	text-align: center;
-}
+
 
 //Right Panel List
 .list-buttons{
 	width: 100%;
 	font-size: 20px;
-    text-align: center;
+    text-align: left;
     font-weight: 500;
     text-transform: capitalize;
 	
@@ -171,26 +176,30 @@
 }
 
 
-.list ul, .navbar-bg{
-	background-color: #C8E0FF;
+.media-list ul 
+{
+	margin-top:10px;
+	padding: 0px 0;
 }
 
 
+.list ul, .navbar-bg{
+	background-color: transparent;
+	
+}
+
 .user-icon{
-	// width: 13vw;
-	// height: 13vw;
 	width: 3rem;
 	height: 3rem;
-	// margin: 5% 4%;
 	border-radius: 100px;
-	// border: 3px solid #CCA679;
+	image-rendering: -webkit-optimize-contrast;
 }
 
 #user_icon{
 	display: flex;
 	margin: 0 auto;
-	padding-top: 8px;
 	position: relative;
+	image-rendering: -webkit-optimize-contrast;
 }
 
 #username{
@@ -206,11 +215,30 @@
 }
 
 
-//announcement
-.announcement-small-icon{
-	max-width: 20vw;
-	max-height: 20vw;
+// announcement
+.date{
+	margin: 2%;
+}
 
+.announcement-icon-block{
+	float: left;
+	padding: 15px;
+}
+
+.announcement-text-block{
+	clear: right;
+	padding: 15px;
+}
+
+.announcement-small-icon{
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	background-size: cover;
+	background-position: center;
+	// image-rendering: pixelated;
+	image-rendering: -webkit-optimize-contrast;
+	border: 1px solid #7278B9;
 }
 
 .announcement-small-title{
@@ -219,15 +247,8 @@
 
 .announcement-small-text{
 	overflow: hidden;
-	// text-overflow: ellipsis;
 	white-space: nowrap;
 	max-width: 700px;
-}
-
-.announcement-list{
-
-	margin-top: 55px;
-
 }
 
 .announcement-list-row{
@@ -248,13 +269,18 @@ p#annc_desc {
 
 //qr code
 #qrcode-canvas{
-	padding: 0;
+	padding: 10px;
     margin: 0 auto;
 }
+
 .qr{
 	margin-top:60px;
 	font-size:25px;
 	text-align:center;
+	display: flex;
+	justify-content: space-evenly;
+	flex-direction: column;
+	margin: 0 auto;
 }
 .qr_button
 {
@@ -277,6 +303,9 @@ p#annc_desc {
 	overflow-y: scroll;
 	padding: 10% 0%;
 	background-color:white;
+}
+.list .payment{
+	padding: 5px 0;
 }
 //payment history
 .item-link{
@@ -317,25 +346,71 @@ p#annc_desc {
 //edit profile
 .edit-profile{
 	width: 100%;
-	text-align: center;
+	margin: 0 auto;
 	background: transparent;
 }
 
-.edit-profile > a{
-	font-size: 3vw;
+.change-prof-pic{
+	font-size: 16px;
+	text-align: center;
+	margin: 10px;
+	display: flex;
+	justify-content: space-evenly;
+	flex-direction: column;
+}
+
+.change-prof-pic > a{
+	margin-top: 10px;
+}
+
+.user-icon{
+	display: block;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 100px;
+	margin: 0 auto;	
+	image-rendering: -webkit-optimize-contrast;
+}
+
+.profile-inputs{
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+}
+
+.edit-profile img{
+	width:70px;
+	height:70px;
+	
 }
 
 .profile-inputs > p{
 	font-weight: bold;
 	color: #7278B9;
-	font-size: 4vw;
+	font-size: 20px;
+	text-align:left;
 }
 .profile-inputs > input{
 	width: 100%;
 	border-bottom: 1px solid grey;
 	margin: 0 auto;
-	padding: 1%;
-	font-size: 3vw;
+
+	font-size: 15px;
+}
+
+
+.popup{
+	
+	background: linear-gradient(180deg, rgba(200,224,255,1) 0%, rgba(252,252,252,1) 100%);
+}
+.popup form
+{
+		text-align:center;
+		margin-top:40px;
+}
+.popup button
+{
+		margin-top:20px;
 }
 //Booking Details
 .booking-details{
@@ -376,7 +451,7 @@ p#annc_desc {
 	background-size: cover;
 	display: flex;
 	padding: 5px;
-	margin-bottom: 20px;
+	margin: 20px 10px 10px 20px;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.652);
 	min-height: 120px;
 	border-radius: 8px;
@@ -442,11 +517,18 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 	width: 50%;
 	margin: 0 auto;
 }
+::-webkit-scrollbar{
+	width: 1.8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #CCA679;
+}
+
 //payment_reminder
 .list .reminder
 {
 	background-color:white;
-	
 }
 
 /* Stripe Payment css */

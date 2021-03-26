@@ -1296,6 +1296,7 @@ function createQrCode(){
 	var user_id = auth.currentUser.uid;
 	var QRCode = require('qrcode');
 	var canvas = document.getElementById("qrcode-canvas");
+<<<<<<< HEAD
 	var time = new Date();
 	time.setHours( time.getHours() + 2 );
 	
@@ -1303,6 +1304,18 @@ function createQrCode(){
 	user_id: user_id,
 	name: "",
 	time: time.getTime()
+=======
+	var timer = document.getElementById("time-left");
+	var time = 7200;
+	var hours = 0;
+	var minutes = 0;
+	var seconds = 0;
+	var string = "";
+	
+	QRCode.toCanvas(canvas, 'sample text', {width: 250}, {height: 250}, function (error) {
+		if (error) console.error(error)
+		console.log('success!');
+>>>>>>> origin/master
 	});
 	
 	localStorage.setItem("latest-qr-code",string);
