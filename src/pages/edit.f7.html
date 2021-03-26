@@ -15,11 +15,11 @@
     <div class="page-content">
         <div class="block block-strong">
           <div class="edit-profile">
-            <div>
+            <div class="change-prof-pic">
               <img class="user-icon" id="edit_image" src="static/icons/favicon.png">
-				<p>
-				  <a class="button popup-open" href="#" data-popup=".popup-about">Change Profile Image</a>
-				</p>
+              <p>
+                <a class="button popup-open" href="#" data-popup=".popup-about">Change Profile Image</a>
+              </p>
             </div>
 
             <div class="profile-inputs">
@@ -45,11 +45,13 @@
 		<div class="block">
 			<p><a class="link popup-close" id="close_img_popup" href="#">Cancel</a></p>
 			<form id="update_photo">
-				<input type='file' id="imgInp" style="display: none;"/>
-				<input type="button" value="Select Image" onclick="document.getElementById('imgInp').click();" />
-				<img id="blah" src="static/icons/favicon.png" alt="your image" width="50" height="50"/>
-				<input type="submit" value="Change Photo">
+				<img id="blah" src="static/icons/favicon.png" alt="your image" width="100" height="100"/>
 			</form>
+			<div class="block block-strong">
+				<input type='file' id="imgInp" style="display: none;"/>
+			  <button value="Select Image" onclick="document.getElementById('imgInp').click();" class="col button button-large button-fill">Select Image</button>
+			  <button value="Change Photo" class="col button button-large button-fill">Change Photo</button>
+			</div>
 		</div>
 	  </div>
 </div>
