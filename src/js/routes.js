@@ -75,6 +75,7 @@ var routes = [
     component: BookingSuccessPage,
   },
   {
+	name: 'announcement',
     path: '/announcement/',
     component: AnnouncementPage,
   },
