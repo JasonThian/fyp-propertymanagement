@@ -426,6 +426,80 @@ function homesetup(){
 		});
 	})
 }
+
+function makeid(length) {
+   var result           = '';
+   var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   var charactersLength = characters.length;
+   for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
+
+//////// Issue Reporting PAGE
+function getEditPage(){
+	var user_id = auth.currentUser.uid;
+	var docRef = db.collection("landlord").doc(user_id);
+	
+	//image url
+	var blob = "";
+	
+	//fields
+	var report_desc = document.getElementById("report_desc").value;
+	var report_block = document.getElementById("report_block").value;
+	var submit_issue = document.getElementById("submit_issue");
+	var date = new Date();
+	
+	docRef.get().then(function(doc) {
+		var user_id = doc.id;
+		var name = doc.data().name;
+		var email = doc.data().email;
+		var pno = doc.data().contact;
+		var gender = doc.data().gender;
+		var units = doc.data().unit;
+		
+		/*submit_issue.addEventListener('click', function(e){
+			if(blob != ""){
+				var img_id = makeid(10);
+				
+				var announceref = storage.ref().child("issues/"+img_id+".png");
+				
+				announceref.put(blob).then(function(snapshot) {
+					var issueRef = db.collection("issues");
+					console.log('creating issue doc');
+					issueRef.add({
+						date: date,
+						desc: report_desc,
+						block: report_block,
+						img: img+".png",
+						reporter: user_id.
+						pno: pno,
+						email: email
+					}).then(function(e) {
+						toast("successfully reported this issue");
+					}).catch(err => {
+						console.log('err: '+err);
+						toast("failed to reported this issue");
+					});
+					
+				}).catch(err => {
+					console.log('err: '+err);
+				});
+			}else{
+				toast("Please Select a image");
+			}
+		})*/
+		
+	})
+	
+	
+	
+	$("#report_img").change(function() {
+		blob = readURL(this);
+		//console.log(blob);
+	});
+}
 //////// EDIT PAGE
 function getEditPage(){
 	var user_id = auth.currentUser.uid;
@@ -442,7 +516,7 @@ function getEditPage(){
 	var edit_unit = document.getElementById("edit_unit");
 	var edit_image = document.getElementById("edit_image");
 	var change_photo = document.getElementById("change_photo");
-	var update_photo = document.getElementById("update_photo");
+	//var update_photo = document.getElementById("update_photo");
 	var close_img_popup = document.getElementById("close_img_popup");
 	
 	docRef.get().then(function(doc) {
@@ -468,28 +542,29 @@ function getEditPage(){
 			console.log(error);
 		});
 	})
-
+	
+	change_photo.addEventListener('click', function(e){
+		if(blob != ""){
+			var announceref = storage.ref().child(user_id+".png");
+			
+			announceref.put(blob).then(function(snapshot) {
+				console.log('Updated user image');
+				close_img_popup.click();
+				redirect("home");
+				toast("successfully updated photo");
+			}).catch(err => {
+				console.log('err: '+err);
+				toast("failed to update photo");
+			});
+		}else{
+			toast("Please Select a image");
+		}
+	})
+	
 	$("#imgInp").change(function() {
 		blob = readURL(this);
 		//console.log(blob);
 	});
-	
-	
-	update_photo.addEventListener('submit', function(e){
-		e.preventDefault();
-		var announceref = storage.ref().child(user_id+".png");
-			
-		announceref.put(blob).then(function(snapshot) {
-			console.log('Updated user image');
-			close_img_popup.click();
-			redirect("home");
-			toast("successfully updated photo");
-		}).catch(err => {
-			console.log('err: '+err);
-			toast("failed to update photo");
-		});
-			
-	})
 }
 
 /* Toast with Close Button */
