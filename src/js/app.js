@@ -1255,9 +1255,11 @@ async function setURL(url,url_list,d,imgset){
 
 /* QR Code Page */
 function getQrCode(){
+	app.preloader.show();
 	var lastQrCode = localStorage.getItem("latest-qr-code");
 	var QRCode = require('qrcode');
 	var canvas = document.getElementById("qrcode-canvas");
+	var shareButton = document.getElementById("share-button");
 	var time = new Date();
 	var QrCodeTime = null;
 	var QrCodeData = null;
@@ -1287,6 +1289,29 @@ function getQrCode(){
 			console.log("currentTime",time.getTime());
 		}
 	}
+	
+	$("#share-button").prop("onclick",null).off("click");
+	$("#share-button").click(() => {
+		
+		lastQrCode = localStorage.getItem("latest-qr-code");
+		
+		try{
+			QrCodeData = JSON.parse(lastQrCode);
+			QrCodeTime = QrCodeData.time;
+		}catch(err){
+			console.log(err);
+		}
+		
+		if(lastQrCode != null && lastQrCode != undefined && lastQrCode != ""){
+			if(QrCodeTime > time.getTime()){
+				shareQrCode();
+			}
+			else
+				timed_toast("The Qr Code expired, please generate a new Qr Code.","center");
+		}
+	});
+	
+	app.preloader.hide();
 }
 
 /* QR Code Set Timer */
@@ -1354,6 +1379,26 @@ function createQrCode(){
 	});
 	
 	count_time(time.getTime());
+}
+
+/* Share Button */
+function shareQrCode(){
+	var options = {
+		files: ['static/icons/img-placeholder.jpg']
+	};
+	 
+	var onSuccess = function(result) {
+		console.log("Share completed? " + result.completed);
+		console.log("Shared to app: " + result.app);
+		timed_toast("Sharing completed", "center");
+	};
+	 
+	var onError = function(msg) {
+		console.log("Sharing failed with message: " + msg);
+		timed_toast("Sharing failed", "center");
+	};
+	 
+	window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
 }
 
 /*
@@ -1587,13 +1632,17 @@ function credit_payment_function(){
 		  }
 		})
 		.then(function(result) {
+		  console.log(result);
 		  localStorage.setItem("latest-payment-bank",null);
+		  localStorage.setItem("latest-payment-secret",clientSecret);
+		  
 		  if (result.error) {
+			localStorage.setItem("latest-payment-intent",result.error.payment_intent.id);
 			showError(result.error.message);
 			redirect("payment-fail");
 		  } else {
 			alert("Complete");
-			localStorage.setItem("latest-payment-secret",clientSecret);
+			localStorage.setItem("latest-payment-intent",result.paymentIntent.id);
 			orderComplete(result.paymentIntent.id);
 			redirect("payment-success");
 		  }
