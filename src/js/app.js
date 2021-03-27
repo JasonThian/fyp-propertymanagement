@@ -1170,26 +1170,43 @@ function getAnnouncement(){
 	var list_ele = "";
 	var url_list = [];
 	  
-	/*db.collection("announcement").orderBy("date","desc").get().then((querySnapshot) => {
+	db.collection("announcement").orderBy("date","desc").get().then((querySnapshot) => {
 		querySnapshot.forEach((doc) => {
 			
 			var title = doc.data().title;
 			var desc = doc.data().description;
 			var imageurl = doc.data().imageurl;
+			var date = doc.data().date.toDate();
 			
-			annc_list.innerHTML += `<tr class="announcement-list-row" onclick="app.data.SelectAnnc('${doc.id}')">
-						<td>
-							<a href="/announcement/">
-								<img class="announcement-small-icon" src="#" id="${doc.id}')"/>
-							</a>
-						</td>
-						<td>
-							<a href="/announcement/">
-								<h2 class="announcement-small-title">${title}</h2>
-								<p class="announcement-small-text">${desc}</p>
-							</a>
-						</td>
-					</tr>`;
+			var month = monthNames[date.getMonth()];
+			var day = String(date.getDate()).padStart(2, '0');
+			var year = date.getFullYear();
+			
+			// Hours part from the timestamp
+			var hours = date.getHours();
+			// Minutes part from the timestamp
+			var minutes = String(date.getMinutes()).padStart(2, '0');
+			// Seconds part from the timestamp
+			var seconds = String(date.getSeconds()).padStart(2, '0');
+			
+			date = year+"-"+month+"-"+day+" "+hours+":"+minutes+":"+seconds;
+			
+			annc_list.innerHTML += `<a href="#" id="${doc.id}" class="announcement-link">
+			<div class="block block-strong">
+				<div class="announcements">
+					<div class="date">
+						<p class="date-list">${date}</p>
+					</div>					
+					<div class="announcement-icon-block">
+						<img class="announcement-small-icon" src="static/icons/1.png" id="${doc.id}"/>
+					</div>
+					<div class="announcement-text-block">
+						<h2 class="announcement-small-title">${title}</h2>
+						<p class="announcement-small-text">${desc}</p>
+					</div>			
+				</div>	
+			</div>
+		</a>`;
 					
 					
 			url_list.push(imageurl);
@@ -1207,7 +1224,16 @@ function getAnnouncement(){
 		var d = 0;
 
 		setURL(url_list[d],url_list,d,imgset);
-	});*/
+		
+		var announcement_link = document.getElementsByClassName('announcement-link');
+		for(var i=0; i< announcement_link.length;i++){
+			announcement_link[i].addEventListener("click",function(e){
+				e.preventDefault();
+				redirect("announcement");
+				SelectAnnc(this.id)
+			})
+		}
+	});
 }
 
 /* Set Announcement List */
