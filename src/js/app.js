@@ -1463,7 +1463,7 @@ function getUserBilling(){
 				
 				/* save into storage */
 				localStorage.setItem("latest-payment-id",doc.id);
-				localStorage.setItem("latest-payment-amount",amount);
+				localStorage.setItem("latest-payment-amount",parseFloat(amount).toFixed(0));
 				localStorage.setItem("latest-payment-amount-string",amountString);
 				localStorage.setItem("latest-payment-descrip",paymentDescrip);
 				
