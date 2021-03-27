@@ -243,6 +243,7 @@ async function init_script(){
 	/* Get Stripe PaymentIntent */
 	setTimeout(()=>{
 		app.preloader.hide();
+		const stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
 		try{
 			let paymentIntent = parseURLParams(window.location.href);
 			if(paymentIntent != undefined){
@@ -258,7 +259,15 @@ async function init_script(){
 					console.log(err);
 				}
 				
-				stripe.retrievePaymentIntent(paymentIntent.payment_intent[0]);
+				try{
+					stripe.retrievePaymentIntent(localStorage.getItem("latest-payment-secret")).then(function(result) {
+						// Handle result.error or result.paymentIntent
+						console.log(result);
+					});;
+				}catch(err){
+					console.log(err);
+				}
+				
 				if(paymentIntent.payment_intent[0] != stored_payment_intent){
 					/* Save payment intent id */
 					localStorage.setItem("latest-payment-intent",paymentIntent.payment_intent[0]);
@@ -365,6 +374,8 @@ $$(document).on('page:init', async function (e, page) {
 		getUserBillingPaymentMethod();
 	}else if(pn == "payment"){
 		getUserBilling();
+	}else if(pn == "qrcode"){
+		getQrCode();
 	}
 })
 
@@ -1242,49 +1253,95 @@ async function setURL(url,url_list,d,imgset){
 	});
 }
 
-/* Create QR Code */
-function createQrCode(){
-	function count_time(){
-		string = "";
-		hours = time/3600;
-		minutes = (time/60) % 60;
-		seconds = time % 60;
-		string = string + ("0" + Math.floor(hours)).slice(-2) + ":" + ("0" + Math.floor(minutes)).slice(-2) + ":" + ("0" + seconds).slice(-2);
-		timer.innerHTML = string;
-		time--;
-	}
-	
-	//auth.signInWithEmailAndPassword("master2@gmail.com", "master2pass").then((cred) => {
-	//	console.log("user logged in");
-	//	//location.replace("residents.html");
-	//	//err.innerHTML = '';
-  	//}).catch(err => {
-	//	console.log(err.message);
-	//	//err.innerHTML = 'password incorrect or user does not exist';
-  	//});
-	
+/* QR Code Page */
+function getQrCode(){
+	var lastQrCode = localStorage.getItem("latest-qr-code");
 	var QRCode = require('qrcode');
 	var canvas = document.getElementById("qrcode-canvas");
-	var timer = document.getElementById("time-left");
-	var time = 7200;
-	var hours = 0;
-	var minutes = 0;
-	var seconds = 0;
-	var string = "";
+	var time = new Date();
+	var QrCodeTime = null;
 	
-	QRCode.toCanvas(canvas, 'sample text', {width: 250}, {height: 250}, function (error) {
-		if (error) console.error(error)
-		console.log('success!');
-	});
+	try{
+		lastQrCode = JSON.parse(lastQrCode);
+		QrCodeTime = lastQrCode.time;
+	}catch(err){
+		console.log(err);
+	}
 	
-	count_time();
+	console.log("latest-qr-code",lastQrCode);
 	
-	setInterval(function(){
-		count_time();
+	if(lastQrCode != null && lastQrCode != undefined && lastQrCode != ""){
+		if(QrCodeTime > time.getTime()){
+			QRCode.toCanvas(canvas, lastQrCode, {width: 320}, function (error) {
+				if (error)
+					console.error(error);
+				else
+					console.log('success!');
+			});
+			
+			count_time(time.getTime());
+		}
+	}
+}
+
+/* QR Code Set Timer */
+function count_time(QRCodeTime){
+	var loop;
+	try{
+		clearInterval(loop);
+	}catch(err){
+		console.log(err);
+	}
+	loop = setInterval(function(){
+		var currentTime = new Date();
+		if(QRCodeTime >= currentTime.getTime())
+			loop_time(QRCodeTime);
+		else
+			clearInterval(loop);
 	}, 1000);
 }
-//payments
 
+/* QR Code Timer Loop */
+function loop_time(QRCodeTime){
+	var timer = document.getElementById("time-left");
+	var currentTime = new Date();
+	var time = parseInt(QRCodeTime/1000) - parseInt(currentTime.getTime()/1000);
+	console.log(QRCodeTime);
+	console.log(currentTime.getTime());
+	console.log(time);
+	var hours = time/3600;
+	var minutes = (time/60) % 60;
+	var seconds = time % 60;
+	var string = ("0" + Math.floor(hours)).slice(-2) + ":" + ("0" + Math.floor(minutes)).slice(-2) + ":" + ("0" + seconds).slice(-2);
+	timer.innerHTML = string;
+}
+
+/* Create QR Code */
+function createQrCode(){
+
+	var user_id = auth.currentUser.uid;
+	var QRCode = require('qrcode');
+	var canvas = document.getElementById("qrcode-canvas");
+	var time = new Date();
+	time.setHours( time.getHours() + 2 );
+	
+	var string = JSON.stringify({ 
+	user_id: user_id,
+	name: "",
+	time: time.getTime()
+	});
+	
+	localStorage.setItem("latest-qr-code",string);
+	
+	QRCode.toCanvas(canvas, string, {width: 250}, {height: 250}, function (error) {
+		if (error)
+			console.error(error);
+		else
+			console.log('success!');
+	});
+	
+	count_time(time.getTime());
+}
 
 /*
 temp
@@ -1327,7 +1384,7 @@ function getUserBilling(){
 	
 	db.collection("billing").where("user_id", "==", user_id).orderBy("date", "desc").limit(1).get().then((querySnapshot) => {
 		querySnapshot.forEach((doc) => {
-			
+			$("#pay-now-button").prop("onclick",null).off("click");
 			if(doc.data().status != "paid"){
 				var time = new Date();
 				var amount = '';
@@ -1352,17 +1409,23 @@ function getUserBilling(){
 				localStorage.setItem("latest-payment-amount-string",amountString);
 				localStorage.setItem("latest-payment-descrip",paymentDescrip);
 				
+				console.log("latest-payment-id",doc.id);
+				console.log("latest-payment-amount",amount);
+				console.log("latest-payment-amount-string",amountString);
+				console.log("latest-payment-descrip",paymentDescrip);
+
+				$("#pay-now-button").click(() => {
+					navigate("payment-method");
+				});
 			}
 			else{
-				payNowButton.onclick = function(){
-						var toastBottom = app.toast.create({
-						text: 'This is default bottom positioned toast',
-						closeTimeout: 2000,
-					});
-				}
+				$("#pay-now-button").click(() => {
+					timed_toast("There is no bill","center");
+				});
 			}
 		})
 	}).then(() => {
+		payNowButton.disabled = false;
 		app.preloader.hide();
 	}).catch((err) => {
 		timed_toast(err,"center");
@@ -1373,7 +1436,7 @@ function getUserBilling(){
 /* Online Payment */
 function online_payment_function(){
 	app.preloader.show();
-	var stripe = Stripe('pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ');
+	const stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
 	var jsonString = { "amount": localStorage.getItem('latest-payment-amount') };
 	var clientSecret = "";
 	console.log(JSON.stringify(jsonString));
@@ -1422,6 +1485,7 @@ function online_payment_function(){
 	  event.preventDefault();
 	  console.log(fpxBank);
 	  localStorage.setItem("latest-payment-bank",fpxBank);
+	  localStorage.setItem("latest-payment-secret",clientSecret);
 	  stripe.confirmFpxPayment(clientSecret, {
 		payment_method: {
 		  fpx: fpxBank,
@@ -1445,7 +1509,7 @@ function online_payment_function(){
 /* Credit Payment */
 function credit_payment_function(){
 	app.preloader.show();
-	var stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
+	const stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
 	
 	var jsonString = {
 	  data: {
@@ -1516,6 +1580,7 @@ function credit_payment_function(){
 			redirect("payment-fail");
 		  } else {
 			alert("Complete");
+			localStorage.setItem("latest-payment-secret",clientSecret);
 			orderComplete(result.paymentIntent.id);
 			redirect("payment-success");
 		  }
@@ -1562,13 +1627,13 @@ function credit_payment_function(){
 }
 
 function saveSuccessPaymentDetails(){
-	/*app.preloader.show();
+	app.preloader.show();
 	var user_id = auth.currentUser.uid;
 	var time = new Date();
 	time = time.getTime();
 	
 	db.collection("billing").doc(localStorage.getItem("latest-payment-id")).update({ status: "paid" }).then(() => {
-		db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).add({
+		db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).set({
 			status: "Successful",
 			user_id: user_id,
 			description: localStorage.getItem("latest-payment-descrip"),
@@ -1581,16 +1646,16 @@ function saveSuccessPaymentDetails(){
 		});
 	}).catch((err) => {
 		console.log(err);
-	});*/
+	});
 }
 
 function saveFailPaymentDetails(){
-	/*app.preloader.show();
+	app.preloader.show();
 	var user_id = auth.currentUser.uid;
 	var time = new Date();
 	time = time.getTime();
 	
-	db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).add({
+	db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).set({
 		status: "Failed",
 		user_id: user_id,
 		description: localStorage.getItem("latest-payment-descrip"),
@@ -1600,7 +1665,7 @@ function saveFailPaymentDetails(){
 		bank: localStorage.getItem("latest-payment-bank")
 	}).then(() => {
 		app.preloader.hide();
-	});*/
+	});
 }
 
 /* Not using */

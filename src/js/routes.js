@@ -62,6 +62,7 @@ var routes = [
     component: PaymentPage,
   },
   {
+	name: "payment-method",
     path: '/paymentmethod/',
     component: PaymentMethodPage,
   },
