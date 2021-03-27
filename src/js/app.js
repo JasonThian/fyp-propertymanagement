@@ -1006,7 +1006,7 @@ function getPaymentReminder(){
 				if(status != "Successful"){
 					
 					var time = doc.data().time;
-					var amount = doc.data().amount;
+					var amount = doc.data().amount/100;
 					var bank = doc.data().bank;
 					var description = doc.data().description;
 					var status = doc.data().status;
@@ -1045,7 +1045,7 @@ function getPaymentHistory(){
 		querySnapshot.forEach((doc) => {
 			if (doc.exists) {
 				var time = doc.data().time;
-				var amount = doc.data().amount;
+				var amount = doc.data().amount/100;
 				var bank = doc.data().bank;
 				var description = doc.data().description;
 				var status = doc.data().status;
@@ -1234,10 +1234,11 @@ function getQrCode(){
 	var canvas = document.getElementById("qrcode-canvas");
 	var time = new Date();
 	var QrCodeTime = null;
+	var QrCodeData = null;
 	
 	try{
-		lastQrCode = JSON.parse(lastQrCode);
-		QrCodeTime = lastQrCode.time;
+		QrCodeData = JSON.parse(lastQrCode);
+		QrCodeTime = QrCodeData.time;
 	}catch(err){
 		console.log(err);
 	}
@@ -1246,14 +1247,18 @@ function getQrCode(){
 	
 	if(lastQrCode != null && lastQrCode != undefined && lastQrCode != ""){
 		if(QrCodeTime > time.getTime()){
-			QRCode.toCanvas(canvas, lastQrCode, {width: 320}, function (error) {
+			QRCode.toCanvas(canvas, lastQrCode, {width: 250, height: 250}, function (error) {
 				if (error)
 					console.error(error);
 				else
 					console.log('success!');
 			});
 			
-			count_time(time.getTime());
+			count_time(QrCodeTime);
+		}
+		else{
+			console.log("QrCodeTime",QrCodeTime);
+			console.log("currentTime",time.getTime());
 		}
 	}
 }
@@ -1269,14 +1274,14 @@ function count_time(QRCodeTime){
 	loop = setInterval(function(){
 		var currentTime = new Date();
 		if(QRCodeTime >= currentTime.getTime())
-			loop_time(QRCodeTime);
+			loop_time(QRCodeTime,loop);
 		else
 			clearInterval(loop);
 	}, 1000);
 }
 
 /* QR Code Timer Loop */
-function loop_time(QRCodeTime){
+function loop_time(QRCodeTime,loop){
 	var timer = document.getElementById("time-left");
 	var currentTime = new Date();
 	var time = parseInt(QRCodeTime/1000) - parseInt(currentTime.getTime()/1000);
@@ -1287,7 +1292,15 @@ function loop_time(QRCodeTime){
 	var minutes = (time/60) % 60;
 	var seconds = time % 60;
 	var string = ("0" + Math.floor(hours)).slice(-2) + ":" + ("0" + Math.floor(minutes)).slice(-2) + ":" + ("0" + seconds).slice(-2);
-	timer.innerHTML = string;
+	try{
+		timer.innerHTML = string;
+	}catch(err){
+		try{
+			clearInterval(loop);
+		}catch(err){
+			console.log(err);
+		}
+	}
 }
 
 /* Create QR Code */
@@ -1307,7 +1320,7 @@ function createQrCode(){
 	
 	localStorage.setItem("latest-qr-code",string);
 	
-	QRCode.toCanvas(canvas, string, {width: 250}, {height: 250}, function (error) {
+	QRCode.toCanvas(canvas, string, {width: 250, height: 250}, function (error) {
 		if (error)
 			console.error(error);
 		else
@@ -1389,7 +1402,7 @@ function getUserBilling(){
 				console.log("latest-payment-descrip",paymentDescrip);
 
 				$("#pay-now-button").click(() => {
-					navigate("payment-method");
+					redirect("payment-method");
 				});
 			}
 			else{
