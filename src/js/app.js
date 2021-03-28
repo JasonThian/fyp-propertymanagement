@@ -438,7 +438,7 @@ function makeid(length) {
 }
 
 //////// Issue Reporting PAGE
-function getEditPage(){
+function issueReportPage(){
 	var user_id = auth.currentUser.uid;
 	var docRef = db.collection("landlord").doc(user_id);
 	
