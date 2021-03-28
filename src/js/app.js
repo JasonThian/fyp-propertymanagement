@@ -376,6 +376,8 @@ $$(document).on('page:init', async function (e, page) {
 		getUserBilling();
 	}else if(pn == "qrcode"){
 		getQrCode();
+	}else if(pn == "issue_report"){
+		issueReportPage();
 	}
 })
 
@@ -446,11 +448,14 @@ function issueReportPage(){
 	var blob = "";
 	
 	//fields
-	var report_desc = document.getElementById("report_desc").value;
-	var report_block = document.getElementById("report_block").value;
 	var submit_issue = document.getElementById("submit_issue");
-	var date = new Date();
 	
+	
+	$("#report_img").change(function() {
+		
+		blob = readURL(this,"report_sample");
+		//console.log(blob);
+	});
 	docRef.get().then(function(doc) {
 		var user_id = doc.id;
 		var name = doc.data().name;
@@ -459,46 +464,56 @@ function issueReportPage(){
 		var gender = doc.data().gender;
 		var units = doc.data().unit;
 		
-		/*submit_issue.addEventListener('click', function(e){
+		
+		
+		submit_issue.addEventListener('click', function(e){
 			if(blob != ""){
-				var img_id = makeid(10);
+				//get values
+				var date = new Date();
+				var report_desc = document.getElementById("report_desc").value;
+				var report_block = document.getElementById("report_block").value;
+				if(report_desc.trim() != "" && report_block.trim() != ""){
+					var img_id = makeid(10);
 				
-				var announceref = storage.ref().child("issues/"+img_id+".png");
-				
-				announceref.put(blob).then(function(snapshot) {
-					var issueRef = db.collection("issues");
-					console.log('creating issue doc');
-					issueRef.add({
-						date: date,
-						desc: report_desc,
-						block: report_block,
-						img: img+".png",
-						reporter: user_id.
-						pno: pno,
-						email: email
-					}).then(function(e) {
-						toast("successfully reported this issue");
+					var announceref = storage.ref().child("issues/"+img_id+".png");
+					
+					announceref.put(blob).then(function(snapshot) {
+						var issueRef = db.collection("issues");
+						console.log('creating issue doc');
+						issueRef.add({
+							date: date,
+							desc: report_desc,
+							block: report_block,
+							img: img_id+".png",
+							reporter: user_id,
+							pno: pno,
+							email: email,
+							name: name
+						}).then(function(e) {
+							toast("successfully reported this issue");
+							redirect("home");
+						}).catch(err => {
+							console.log('err: '+err);
+							toast("failed to reported this issue");
+						});
+						
 					}).catch(err => {
 						console.log('err: '+err);
-						toast("failed to reported this issue");
 					});
-					
-				}).catch(err => {
-					console.log('err: '+err);
-				});
+				}else{
+					toast("Please fill in all details");
+				}
+				
 			}else{
 				toast("Please Select a image");
 			}
-		})*/
+		})
 		
 	})
 	
 	
 	
-	$("#report_img").change(function() {
-		blob = readURL(this);
-		//console.log(blob);
-	});
+	
 }
 //////// EDIT PAGE
 function getEditPage(){
@@ -562,7 +577,7 @@ function getEditPage(){
 	})
 	
 	$("#imgInp").change(function() {
-		blob = readURL(this);
+		blob = readURL(this,'blah');
 		//console.log(blob);
 	});
 }
@@ -588,13 +603,15 @@ function timed_toast(msg,pos){
 	normal_toast.open();
 }
 
-function readURL(input) {
+function readURL(input,id) {
 	if (input.files && input.files[0]) {
 		var reader = new FileReader();
 		
 		var blob = input.files[0];
 		reader.onload = function(e) {
-			$('#blah').attr('src', e.target.result);
+			var imgele = document.getElementById(id);
+			console.log(id);
+			imgele.src = e.target.result;
 		}
 	
 		reader.readAsDataURL(input.files[0]); // convert to base64 string
