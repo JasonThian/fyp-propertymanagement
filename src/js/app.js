@@ -251,10 +251,17 @@ async function init_script(){
 				console.log(paymentIntent);
 				console.log(paymentIntent.redirect_status[0]);
 				var stored_payment_intent = "";
+				var payment_description = "";
+				var facility_doc = "";
 				
 				/* Get payment intent id */
 				try{
 					stored_payment_intent = localStorage.getItem("latest-payment-intent");
+					payment_description = localStorage.getItem("latest-payment-descrip");
+					facility_doc = localStorage.getItem("latest-facility-document");
+					console.log("latest-facility-document",facility_doc);
+					console.log("latest-payment-descrip",payment_description);
+					console.log("latest-payment-intent",stored_payment_intent);
 				}catch(err){
 					console.log(err);
 				}
@@ -268,19 +275,59 @@ async function init_script(){
 					console.log(err);
 				}
 				
-				if(paymentIntent.payment_intent[0] != stored_payment_intent){
-					/* Save payment intent id */
-					localStorage.setItem("latest-payment-intent",paymentIntent.payment_intent[0]);
+				/* Check if payment for facility */
+				if(payment_description == "Sauna"){
+					if(paymentIntent.payment_intent[0] != stored_payment_intent){
+						/* Save payment intent id */
+						localStorage.setItem("latest-payment-intent",paymentIntent.payment_intent[0]);
+					}
 					
 					if(paymentIntent.redirect_status[0] == "succeeded"){
-						/* Display Payment Success Page */
-						redirect("payment-success");
+						db.collection("booking").doc(facility_doc).get().then((doc) => {
+							if(doc.data().status == "pending"){
+								console.log("booking is pending");
+								db.collection("booking").doc(facility_doc).update({ status: "success" }).then(() => {
+									console.log("booking success");
+									/* Display Payment Success Page */
+									redirect("payment-success");
+								});
+							}
+						}).catch((err) => {
+							console.log(err);
+						});
+					}else{
+						db.collection("booking").doc(facility_doc).delete().then(() => {
+							console.log("booking failed");
+							/* Disply Payment Failed Page */
+							redirect("payment-fail");
+						}).catch((err) => {
+							console.log(err);
+						});
 					}
-					else{
-						/* Disply Payment Failed Page */
-						redirect("payment-fail");
+				}else{
+					if(paymentIntent.payment_intent[0] != stored_payment_intent){
+						/* Save payment intent id */
+						localStorage.setItem("latest-payment-intent",paymentIntent.payment_intent[0]);
+						
+						if(paymentIntent.redirect_status[0] == "succeeded"){
+							/* Display Payment Success Page */
+							redirect("payment-success");
+						}
+						else{
+							/* Disply Payment Failed Page */
+							redirect("payment-fail");
+						}
 					}
 				}
+			}else{
+				if(localStorage.getItem("latest-payment-descrip") == "Sauna")
+					db.collection("booking").doc(localStorage.getItem("latest-facility-document")).get().then((doc) => {
+						if(doc.exists)
+							if(doc.data().status == "pending")
+								db.collection("booking").doc(localStorage.getItem("latest-facility-document")).delete();
+					}).catch((err) => {
+						
+					});
 			}
 		}catch(err){
 			console.log(err);
@@ -760,6 +807,11 @@ async function set_booking(){
 	var book_button = document.getElementById("book-button");
 	book_button.disabled = true;
 	
+	/* Popup ask for payment */
+	var paymentPopup = app.popup.create({
+		el: '.popup-facility-payment',
+    });
+	
 	//booking collection
 	let querySnapshot = await db.collection("booking").get();
 	//reset booking list
@@ -913,7 +965,7 @@ async function set_booking(){
 		var year = dateObj.getFullYear();
 		var date = day  + '-'+ month  + '-' + year;
 		
-		if(facility_chosen != "" && time_chosen != "" && date_chosen != ""){
+		if(facility_chosen != "Sauna" && facility_chosen != "" && time_chosen != "" && date_chosen != ""){
 			db.collection("booking").add({
 				date: date,
 				duration: "2 hours",
@@ -930,6 +982,13 @@ async function set_booking(){
 				toast.open();
 				redirect('bookingsuccess');
 			})
+		}else if(facility_chosen == "Sauna" && time_chosen != "" && date_chosen != ""){
+			console.log("dsa",localStorage.getItem("facility-payment-dont-show-again"));
+			if(localStorage.getItem("facility-payment-dont-show-again") == "set"){
+				redirect_payment();
+			}else{
+				paymentPopup.open();
+			}
 		}else{
 			var toast = app.toast.create({
 				text: 'Please fill in the details',
@@ -939,6 +998,48 @@ async function set_booking(){
 			toast.open();
 		}
 		
+		/* prevent duplicate onclick event */
+		$("#popup-payment-yes").prop("onclick",null).off("click");
+		$("#popup-payment-no").prop("onclick",null).off("click");
+		
+		$("#popup-payment-yes").click((e) => {
+			e.preventDefault();
+			
+			/* Don't show again */
+			var facility_checkbox = document.getElementById("facility-payment-dont-show-again");
+			
+			if(facility_checkbox.checked){
+				localStorage.setItem("facility-payment-dont-show-again","set");
+			}
+			
+			redirect_payment();
+		});
+		
+		$("#popup-payment-no").click((e) => {
+			e.preventDefault();
+			paymentPopup.close();
+		});
+		
+		function redirect_payment(){
+			db.collection("booking").add({
+				date: date,
+				duration: "2 hours",
+				facility: facility,
+				status: "pending",
+				time: time_chosen,
+				user_id: user_id
+			}).then((doc) =>{
+				var price = 1000 * 2;
+				localStorage.setItem("latest-payment-amount",parseFloat(price).toFixed(0));
+				localStorage.setItem("latest-payment-amount-string",parseFloat(parseFloat(price).toFixed(0)/100).toFixed(2));
+				localStorage.setItem("latest-payment-descrip",facility);
+				localStorage.setItem("latest-facility-document",doc.id);
+				paymentPopup.close();
+				redirect("payment-method");
+			}).catch((err) => {
+				timed_toast("An error has occured","center");
+			});
+		}
 	})
 }
 
@@ -1560,7 +1661,16 @@ function online_payment_function(){
 	
 	$('#online-payment-cancel-button').prop('onclick',null).off('click');
 	$('#online-payment-cancel-button').click(() => {
-		redirect("home");
+		if(localStorage.getItem("latest-payment-descrip") == "Sauna"){
+			db.collection("booking").doc(localStorage.getItem("latest-facility-document")).delete().then(() => {
+				console.log("booking failed");
+				/* Disply Payment Failed Page */
+				redirect("payment-fail");
+			}).catch((err) => {
+				console.log(err);
+			});
+		}else
+			redirect("home");
 	});
 }
 
@@ -1639,12 +1749,37 @@ function credit_payment_function(){
 		  if (result.error) {
 			localStorage.setItem("latest-payment-intent",result.error.payment_intent.id);
 			showError(result.error.message);
-			redirect("payment-fail");
+			if(localStorage.getItem("latest-payment-descrip") == "Sauna"){
+				db.collection("booking").doc(localStorage.getItem("latest-facility-document")).delete().then(() => {
+					console.log("booking failed");
+					/* Disply Payment Failed Page */
+					redirect("payment-fail");
+				}).catch((err) => {
+					console.log(err);
+				});
+			}else{
+				redirect("payment-fail");
+			}
 		  } else {
 			alert("Complete");
 			localStorage.setItem("latest-payment-intent",result.paymentIntent.id);
 			orderComplete(result.paymentIntent.id);
-			redirect("payment-success");
+			if(localStorage.getItem("latest-payment-descrip") == "Sauna"){
+				db.collection("booking").doc(localStorage.getItem("latest-facility-document")).get().then((doc) => {
+					if(doc.data().status == "pending"){
+						console.log("booking is pending");
+						db.collection("booking").doc(localStorage.getItem("latest-facility-document")).update({ status: "success" }).then(() => {
+							console.log("booking success");
+							/* Display Payment Success Page */
+							redirect("payment-success");
+						});
+					}
+				}).catch((err) => {
+					console.log(err);
+				});
+			}else{
+				redirect("payment-success");
+			}
 		  }
 		});
 	};
@@ -1684,7 +1819,16 @@ function credit_payment_function(){
 	
 	$('#credit-payment-cancel-button').prop('onclick',null).off('click');
 	$('#credit-payment-cancel-button').click(() => {
-		redirect("home");
+		if(localStorage.getItem("latest-payment-descrip") == "Sauna"){
+			db.collection("booking").doc(localStorage.getItem("latest-facility-document")).delete().then(() => {
+				console.log("booking failed");
+				/* Disply Payment Failed Page */
+				redirect("payment-fail");
+			}).catch((err) => {
+				console.log(err);
+			});
+		}else
+			redirect("home");
 	});
 }
 
@@ -1694,20 +1838,21 @@ function saveSuccessPaymentDetails(){
 	var time = new Date();
 	time = time.getTime();
 	
-	db.collection("billing").doc(localStorage.getItem("latest-payment-id")).update({ status: "paid" }).then(() => {
-		db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).set({
-			status: "Successful",
-			user_id: user_id,
-			description: localStorage.getItem("latest-payment-descrip"),
-			payment_id: localStorage.getItem("latest-payment-id"),
-			amount: localStorage.getItem("latest-payment-amount"),
-			time: time,
-			bank: localStorage.getItem("latest-payment-bank")
-		}).then(() => {
-			app.preloader.hide();
-		});
-	}).catch((err) => {
-		console.log(err);
+	db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).set({
+		status: "Successful",
+		user_id: user_id,
+		description: localStorage.getItem("latest-payment-descrip"),
+		payment_id: localStorage.getItem("latest-payment-id"),
+		amount: localStorage.getItem("latest-payment-amount"),
+		time: time,
+		bank: localStorage.getItem("latest-payment-bank")
+	}).then(() => {
+		if(localStorage.getItem("latest-payment-descrip") != "Sauna"){
+			db.collection("billing").doc(localStorage.getItem("latest-payment-id")).update({ status: "paid" }).catch((err) => {
+				console.log(err);
+			});
+		}
+		app.preloader.hide();
 	});
 }
 
