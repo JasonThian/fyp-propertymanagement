@@ -19,7 +19,7 @@ import BookFacilityPage from '../pages/bookfacility.f7.html';
 import PaymentHistoryPage from '../pages/paymenthistory.f7.html';
 import PaymentReminderPage from '../pages/paymentreminder.f7.html';
 import TenantListPage from '../pages/tenantlist.f7.html';
-
+import IssueReport from '../pages/issuereport.f7.html';
 
 
 import DynamicRoutePage from '../pages/dynamic-route.f7.html';
@@ -62,6 +62,7 @@ var routes = [
     component: PaymentPage,
   },
   {
+	name: "payment-method",
     path: '/paymentmethod/',
     component: PaymentMethodPage,
   },
@@ -75,6 +76,7 @@ var routes = [
     component: BookingSuccessPage,
   },
   {
+	name: 'announcement',
     path: '/announcement/',
     component: AnnouncementPage,
   },
@@ -115,11 +117,15 @@ var routes = [
     path: '/bookingdetail/',
     component: BookingDetailPage,
   },
+  
   {
     path: '/tenantlist/',
     component: TenantListPage,
   },
-
+  {
+	path: '/issuereport/',
+    component: IssueReport,
+  },
   {
     path: '/dynamic-route/blog/:blogId/post/:postId/',
     component: DynamicRoutePage,

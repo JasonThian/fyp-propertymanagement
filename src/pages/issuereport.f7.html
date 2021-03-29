@@ -1,0 +1,42 @@
+<template>
+<div class="page" data-name="issue_report">
+  <div class="navbar">
+    <div class="navbar-bg"></div>
+    <div class="navbar-inner sliding">
+      <div class="left">
+        <a href="#" class="link back">
+          <i class="icon icon-back"></i>
+          <span class="if-not-md">Back</span>
+        </a>
+      </div>
+      <div class="title">Report An Issue</div>
+    </div>
+  </div>
+    <div class="page-content">
+        <div class="block block-strong">
+          <div class="edit-profile">
+            <div class="change-prof-pic">
+              <img id="report_img" src="static/icons/pfp-placeholder.jpg" alt="your image"class="center"/>
+              <p>
+                <input type='file' id="imgInp" style="display: none;" />
+				<button value="Select Image" onclick="document.getElementById('imgInp').click();" class="col button color-blue">Select Image</button>
+              </p>
+            </div>
+
+            <div class="description_inputs">
+              <p>Description</p>
+			  <textarea  id="report_desc" rows="3" cols="50" placeholder="A Description of the issue"></textarea>
+      
+              <p>Block</p>
+              <textarea id="report_block"  placeholder="The block of the present issue"></textarea>
+            </div>
+			
+			<button id="submit_issue" class="col button button-large button-fill">Submit</button>
+          </div>    
+        </div>
+      </div>
+</div>
+</template>
+<script>
+export default {};
+</script>

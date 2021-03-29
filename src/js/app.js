@@ -243,6 +243,7 @@ async function init_script(){
 	/* Get Stripe PaymentIntent */
 	setTimeout(()=>{
 		app.preloader.hide();
+		const stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
 		try{
 			let paymentIntent = parseURLParams(window.location.href);
 			if(paymentIntent != undefined){
@@ -258,7 +259,15 @@ async function init_script(){
 					console.log(err);
 				}
 				
-				stripe.retrievePaymentIntent(paymentIntent.payment_intent[0]);
+				try{
+					stripe.retrievePaymentIntent(localStorage.getItem("latest-payment-secret")).then(function(result) {
+						// Handle result.error or result.paymentIntent
+						console.log(result);
+					});;
+				}catch(err){
+					console.log(err);
+				}
+				
 				if(paymentIntent.payment_intent[0] != stored_payment_intent){
 					/* Save payment intent id */
 					localStorage.setItem("latest-payment-intent",paymentIntent.payment_intent[0]);
@@ -365,6 +374,8 @@ $$(document).on('page:init', async function (e, page) {
 		getUserBillingPaymentMethod();
 	}else if(pn == "payment"){
 		getUserBilling();
+	}else if(pn == "qrcode"){
+		getQrCode();
 	}
 })
 
@@ -415,6 +426,80 @@ function homesetup(){
 		});
 	})
 }
+
+function makeid(length) {
+   var result           = '';
+   var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   var charactersLength = characters.length;
+   for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
+
+//////// Issue Reporting PAGE
+function issueReportPage(){
+	var user_id = auth.currentUser.uid;
+	var docRef = db.collection("landlord").doc(user_id);
+	
+	//image url
+	var blob = "";
+	
+	//fields
+	var report_desc = document.getElementById("report_desc").value;
+	var report_block = document.getElementById("report_block").value;
+	var submit_issue = document.getElementById("submit_issue");
+	var date = new Date();
+	
+	docRef.get().then(function(doc) {
+		var user_id = doc.id;
+		var name = doc.data().name;
+		var email = doc.data().email;
+		var pno = doc.data().contact;
+		var gender = doc.data().gender;
+		var units = doc.data().unit;
+		
+		/*submit_issue.addEventListener('click', function(e){
+			if(blob != ""){
+				var img_id = makeid(10);
+				
+				var announceref = storage.ref().child("issues/"+img_id+".png");
+				
+				announceref.put(blob).then(function(snapshot) {
+					var issueRef = db.collection("issues");
+					console.log('creating issue doc');
+					issueRef.add({
+						date: date,
+						desc: report_desc,
+						block: report_block,
+						img: img+".png",
+						reporter: user_id.
+						pno: pno,
+						email: email
+					}).then(function(e) {
+						toast("successfully reported this issue");
+					}).catch(err => {
+						console.log('err: '+err);
+						toast("failed to reported this issue");
+					});
+					
+				}).catch(err => {
+					console.log('err: '+err);
+				});
+			}else{
+				toast("Please Select a image");
+			}
+		})*/
+		
+	})
+	
+	
+	
+	$("#report_img").change(function() {
+		blob = readURL(this);
+		//console.log(blob);
+	});
+}
 //////// EDIT PAGE
 function getEditPage(){
 	var user_id = auth.currentUser.uid;
@@ -431,7 +516,7 @@ function getEditPage(){
 	var edit_unit = document.getElementById("edit_unit");
 	var edit_image = document.getElementById("edit_image");
 	var change_photo = document.getElementById("change_photo");
-	var update_photo = document.getElementById("update_photo");
+	//var update_photo = document.getElementById("update_photo");
 	var close_img_popup = document.getElementById("close_img_popup");
 	
 	docRef.get().then(function(doc) {
@@ -457,28 +542,29 @@ function getEditPage(){
 			console.log(error);
 		});
 	})
-
+	
+	change_photo.addEventListener('click', function(e){
+		if(blob != ""){
+			var announceref = storage.ref().child(user_id+".png");
+			
+			announceref.put(blob).then(function(snapshot) {
+				console.log('Updated user image');
+				close_img_popup.click();
+				redirect("home");
+				toast("successfully updated photo");
+			}).catch(err => {
+				console.log('err: '+err);
+				toast("failed to update photo");
+			});
+		}else{
+			toast("Please Select a image");
+		}
+	})
+	
 	$("#imgInp").change(function() {
 		blob = readURL(this);
 		//console.log(blob);
 	});
-	
-	
-	update_photo.addEventListener('submit', function(e){
-		e.preventDefault();
-		var announceref = storage.ref().child(user_id+".png");
-			
-		announceref.put(blob).then(function(snapshot) {
-			console.log('Updated user image');
-			close_img_popup.click();
-			redirect("home");
-			toast("successfully updated photo");
-		}).catch(err => {
-			console.log('err: '+err);
-			toast("failed to update photo");
-		});
-			
-	})
 }
 
 /* Toast with Close Button */
@@ -995,7 +1081,7 @@ function getPaymentReminder(){
 				if(status != "Successful"){
 					
 					var time = doc.data().time;
-					var amount = doc.data().amount;
+					var amount = doc.data().amount/100;
 					var bank = doc.data().bank;
 					var description = doc.data().description;
 					var status = doc.data().status;
@@ -1034,7 +1120,7 @@ function getPaymentHistory(){
 		querySnapshot.forEach((doc) => {
 			if (doc.exists) {
 				var time = doc.data().time;
-				var amount = doc.data().amount;
+				var amount = doc.data().amount/100;
 				var bank = doc.data().bank;
 				var description = doc.data().description;
 				var status = doc.data().status;
@@ -1159,26 +1245,43 @@ function getAnnouncement(){
 	var list_ele = "";
 	var url_list = [];
 	  
-	/*db.collection("announcement").orderBy("date","desc").get().then((querySnapshot) => {
+	db.collection("announcement").orderBy("date","desc").get().then((querySnapshot) => {
 		querySnapshot.forEach((doc) => {
 			
 			var title = doc.data().title;
 			var desc = doc.data().description;
 			var imageurl = doc.data().imageurl;
+			var date = doc.data().date.toDate();
 			
-			annc_list.innerHTML += `<tr class="announcement-list-row" onclick="app.data.SelectAnnc('${doc.id}')">
-						<td>
-							<a href="/announcement/">
-								<img class="announcement-small-icon" src="#" id="${doc.id}')"/>
-							</a>
-						</td>
-						<td>
-							<a href="/announcement/">
-								<h2 class="announcement-small-title">${title}</h2>
-								<p class="announcement-small-text">${desc}</p>
-							</a>
-						</td>
-					</tr>`;
+			var month = monthNames[date.getMonth()];
+			var day = String(date.getDate()).padStart(2, '0');
+			var year = date.getFullYear();
+			
+			// Hours part from the timestamp
+			var hours = date.getHours();
+			// Minutes part from the timestamp
+			var minutes = String(date.getMinutes()).padStart(2, '0');
+			// Seconds part from the timestamp
+			var seconds = String(date.getSeconds()).padStart(2, '0');
+			
+			date = year+"-"+month+"-"+day+" "+hours+":"+minutes+":"+seconds;
+			
+			annc_list.innerHTML += `<a href="#" id="${doc.id}" class="announcement-link">
+			<div class="block block-strong">
+				<div class="announcements">
+					<div class="date">
+						<p class="date-list">${date}</p>
+					</div>					
+					<div class="announcement-icon-block">
+						<img class="announcement-small-icon" src="static/icons/1.png" id="${doc.id}"/>
+					</div>
+					<div class="announcement-text-block">
+						<h2 class="announcement-small-title">${title}</h2>
+						<p class="announcement-small-text">${desc}</p>
+					</div>			
+				</div>	
+			</div>
+		</a>`;
 					
 					
 			url_list.push(imageurl);
@@ -1196,7 +1299,16 @@ function getAnnouncement(){
 		var d = 0;
 
 		setURL(url_list[d],url_list,d,imgset);
-	});*/
+		
+		var announcement_link = document.getElementsByClassName('announcement-link');
+		for(var i=0; i< announcement_link.length;i++){
+			announcement_link[i].addEventListener("click",function(e){
+				e.preventDefault();
+				redirect("announcement");
+				SelectAnnc(this.id)
+			})
+		}
+	});
 }
 
 /* Set Announcement List */
@@ -1216,49 +1328,153 @@ async function setURL(url,url_list,d,imgset){
 	});
 }
 
-/* Create QR Code */
-function createQrCode(){
-	function count_time(){
-		string = "";
-		hours = time/3600;
-		minutes = (time/60) % 60;
-		seconds = time % 60;
-		string = string + ("0" + Math.floor(hours)).slice(-2) + ":" + ("0" + Math.floor(minutes)).slice(-2) + ":" + ("0" + seconds).slice(-2);
-		timer.innerHTML = string;
-		time--;
-	}
-	
-	//auth.signInWithEmailAndPassword("master2@gmail.com", "master2pass").then((cred) => {
-	//	console.log("user logged in");
-	//	//location.replace("residents.html");
-	//	//err.innerHTML = '';
-  	//}).catch(err => {
-	//	console.log(err.message);
-	//	//err.innerHTML = 'password incorrect or user does not exist';
-  	//});
-	
+/* QR Code Page */
+function getQrCode(){
+	app.preloader.show();
+	var lastQrCode = localStorage.getItem("latest-qr-code");
 	var QRCode = require('qrcode');
 	var canvas = document.getElementById("qrcode-canvas");
-	var timer = document.getElementById("time-left");
-	var time = 7200;
-	var hours = 0;
-	var minutes = 0;
-	var seconds = 0;
-	var string = "";
+	var shareButton = document.getElementById("share-button");
+	var time = new Date();
+	var QrCodeTime = null;
+	var QrCodeData = null;
 	
-	QRCode.toCanvas(canvas, 'sample text', {width: 250}, {height: 250}, function (error) {
-		if (error) console.error(error)
-		console.log('success!');
+	try{
+		QrCodeData = JSON.parse(lastQrCode);
+		QrCodeTime = QrCodeData.time;
+	}catch(err){
+		console.log(err);
+	}
+	
+	console.log("latest-qr-code",lastQrCode);
+	
+	if(lastQrCode != null && lastQrCode != undefined && lastQrCode != ""){
+		if(QrCodeTime > time.getTime()){
+			QRCode.toCanvas(canvas, lastQrCode, {width: 250, height: 250}, function (error) {
+				if (error)
+					console.error(error);
+				else
+					console.log('success!');
+			});
+			
+			count_time(QrCodeTime);
+		}
+		else{
+			console.log("QrCodeTime",QrCodeTime);
+			console.log("currentTime",time.getTime());
+		}
+	}
+	
+	$("#share-button").prop("onclick",null).off("click");
+	$("#share-button").click(() => {
+		
+		lastQrCode = localStorage.getItem("latest-qr-code");
+		
+		try{
+			QrCodeData = JSON.parse(lastQrCode);
+			QrCodeTime = QrCodeData.time;
+		}catch(err){
+			console.log(err);
+		}
+		
+		if(lastQrCode != null && lastQrCode != undefined && lastQrCode != ""){
+			if(QrCodeTime > time.getTime()){
+				shareQrCode();
+			}
+			else
+				timed_toast("The Qr Code expired, please generate a new Qr Code.","center");
+		}
 	});
 	
-	count_time();
-	
-	setInterval(function(){
-		count_time();
+	app.preloader.hide();
+}
+
+/* QR Code Set Timer */
+function count_time(QRCodeTime){
+	var loop;
+	try{
+		clearInterval(loop);
+	}catch(err){
+		console.log(err);
+	}
+	loop = setInterval(function(){
+		var currentTime = new Date();
+		if(QRCodeTime >= currentTime.getTime())
+			loop_time(QRCodeTime,loop);
+		else
+			clearInterval(loop);
 	}, 1000);
 }
-//payments
 
+/* QR Code Timer Loop */
+function loop_time(QRCodeTime,loop){
+	var timer = document.getElementById("time-left");
+	var currentTime = new Date();
+	var time = parseInt(QRCodeTime/1000) - parseInt(currentTime.getTime()/1000);
+	console.log(QRCodeTime);
+	console.log(currentTime.getTime());
+	console.log(time);
+	var hours = time/3600;
+	var minutes = (time/60) % 60;
+	var seconds = time % 60;
+	var string = ("0" + Math.floor(hours)).slice(-2) + ":" + ("0" + Math.floor(minutes)).slice(-2) + ":" + ("0" + seconds).slice(-2);
+	try{
+		timer.innerHTML = string;
+	}catch(err){
+		try{
+			clearInterval(loop);
+		}catch(err){
+			console.log(err);
+		}
+	}
+}
+
+/* Create QR Code */
+function createQrCode(){
+
+	var user_id = auth.currentUser.uid;
+	var QRCode = require('qrcode');
+	var canvas = document.getElementById("qrcode-canvas");
+	var time = new Date();
+	time.setHours( time.getHours() + 2 );
+	
+	var string = JSON.stringify({ 
+	user_id: user_id,
+	name: "",
+	time: time.getTime()
+	});
+	
+	localStorage.setItem("latest-qr-code",string);
+	
+	QRCode.toCanvas(canvas, string, {width: 250, height: 250}, function (error) {
+		if (error)
+			console.error(error);
+		else
+			console.log('success!');
+	});
+	
+	count_time(time.getTime());
+}
+
+/* Share Button */
+function shareQrCode(){
+	var options = {
+		files: ['static/icons/img-placeholder.jpg']
+	};
+	 
+	var onSuccess = function(result) {
+		console.log("Share completed? " + result.completed);
+		console.log("Shared to app: " + result.app);
+		timed_toast("Sharing completed", "center");
+	};
+	 
+	var onError = function(msg) {
+		console.log("Sharing failed with message: " + msg);
+		timed_toast("Sharing failed", "center");
+	};
+	 
+	window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
+}
 
 /*
 temp
@@ -1301,7 +1517,7 @@ function getUserBilling(){
 	
 	db.collection("billing").where("user_id", "==", user_id).orderBy("date", "desc").limit(1).get().then((querySnapshot) => {
 		querySnapshot.forEach((doc) => {
-			
+			$("#pay-now-button").prop("onclick",null).off("click");
 			if(doc.data().status != "paid"){
 				var time = new Date();
 				var amount = '';
@@ -1322,21 +1538,27 @@ function getUserBilling(){
 				
 				/* save into storage */
 				localStorage.setItem("latest-payment-id",doc.id);
-				localStorage.setItem("latest-payment-amount",amount);
+				localStorage.setItem("latest-payment-amount",parseFloat(amount).toFixed(0));
 				localStorage.setItem("latest-payment-amount-string",amountString);
 				localStorage.setItem("latest-payment-descrip",paymentDescrip);
 				
+				console.log("latest-payment-id",doc.id);
+				console.log("latest-payment-amount",amount);
+				console.log("latest-payment-amount-string",amountString);
+				console.log("latest-payment-descrip",paymentDescrip);
+
+				$("#pay-now-button").click(() => {
+					redirect("payment-method");
+				});
 			}
 			else{
-				payNowButton.onclick = function(){
-						var toastBottom = app.toast.create({
-						text: 'This is default bottom positioned toast',
-						closeTimeout: 2000,
-					});
-				}
+				$("#pay-now-button").click(() => {
+					timed_toast("There is no bill","center");
+				});
 			}
 		})
 	}).then(() => {
+		payNowButton.disabled = false;
 		app.preloader.hide();
 	}).catch((err) => {
 		timed_toast(err,"center");
@@ -1347,7 +1569,7 @@ function getUserBilling(){
 /* Online Payment */
 function online_payment_function(){
 	app.preloader.show();
-	var stripe = Stripe('pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ');
+	const stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
 	var jsonString = { "amount": localStorage.getItem('latest-payment-amount') };
 	var clientSecret = "";
 	console.log(JSON.stringify(jsonString));
@@ -1396,6 +1618,7 @@ function online_payment_function(){
 	  event.preventDefault();
 	  console.log(fpxBank);
 	  localStorage.setItem("latest-payment-bank",fpxBank);
+	  localStorage.setItem("latest-payment-secret",clientSecret);
 	  stripe.confirmFpxPayment(clientSecret, {
 		payment_method: {
 		  fpx: fpxBank,
@@ -1419,7 +1642,7 @@ function online_payment_function(){
 /* Credit Payment */
 function credit_payment_function(){
 	app.preloader.show();
-	var stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
+	const stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
 	
 	var jsonString = {
 	  data: {
@@ -1484,12 +1707,17 @@ function credit_payment_function(){
 		  }
 		})
 		.then(function(result) {
+		  console.log(result);
 		  localStorage.setItem("latest-payment-bank",null);
+		  localStorage.setItem("latest-payment-secret",clientSecret);
+		  
 		  if (result.error) {
+			localStorage.setItem("latest-payment-intent",result.error.payment_intent.id);
 			showError(result.error.message);
 			redirect("payment-fail");
 		  } else {
 			alert("Complete");
+			localStorage.setItem("latest-payment-intent",result.paymentIntent.id);
 			orderComplete(result.paymentIntent.id);
 			redirect("payment-success");
 		  }
@@ -1536,13 +1764,13 @@ function credit_payment_function(){
 }
 
 function saveSuccessPaymentDetails(){
-	/*app.preloader.show();
+	app.preloader.show();
 	var user_id = auth.currentUser.uid;
 	var time = new Date();
 	time = time.getTime();
 	
 	db.collection("billing").doc(localStorage.getItem("latest-payment-id")).update({ status: "paid" }).then(() => {
-		db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).add({
+		db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).set({
 			status: "Successful",
 			user_id: user_id,
 			description: localStorage.getItem("latest-payment-descrip"),
@@ -1555,16 +1783,16 @@ function saveSuccessPaymentDetails(){
 		});
 	}).catch((err) => {
 		console.log(err);
-	});*/
+	});
 }
 
 function saveFailPaymentDetails(){
-	/*app.preloader.show();
+	app.preloader.show();
 	var user_id = auth.currentUser.uid;
 	var time = new Date();
 	time = time.getTime();
 	
-	db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).add({
+	db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).set({
 		status: "Failed",
 		user_id: user_id,
 		description: localStorage.getItem("latest-payment-descrip"),
@@ -1574,7 +1802,7 @@ function saveFailPaymentDetails(){
 		bank: localStorage.getItem("latest-payment-bank")
 	}).then(() => {
 		app.preloader.hide();
-	});*/
+	});
 }
 
 /* Not using */
