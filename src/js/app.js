@@ -151,6 +151,7 @@ var USER_DOC = "";
 /* Initialize */
 async function init_script(){
 	app.preloader.show();
+	
 	/*import jquery and Stripe js */
 	var jquery = document.createElement('script');
 	var stripe_payment = document.createElement('script');
@@ -244,6 +245,10 @@ async function init_script(){
 	
 	/* Get Stripe PaymentIntent */
 	setTimeout(()=>{
+		/* Testing */
+		console.log("icon check start");
+		console.log($(".f7-icons").html());
+		console.log("icon check end");
 		app.preloader.hide();
 		const stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
 		try{
