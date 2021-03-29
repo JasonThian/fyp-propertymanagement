@@ -75,18 +75,8 @@ window.app = new Framework7({
     calendar: function () {
       
     },
-    start: function () {
-      alert("start");
-    },
 	close_panel: function(){
 		app.panel.close('right');
-	},
-	toast_center: function(el){
-		app.toast.create({
-			text: el,
-			position: center,
-			closeTimeout: 2000,
-		});
 	},
 	online_payment: function(){
 		online_payment_function();
@@ -99,12 +89,6 @@ window.app = new Framework7({
 	},
 	SelectAnnc: function(id){
 		SelectAnnc(id);
-	},
-	getPayment: function(){
-		getUserBilling();
-	},
-	paymentMethodData: function(){
-		getUserBillingPaymentMethod();
 	}
   },
   // App routes
@@ -160,10 +144,11 @@ function set_logout(){
 //app.preloader.hide();
 
 /* Go to page */
-//app.views.main.router.navigate("/");
+//redirect("/");
 
 /* Initialize */
 async function init_script(){
+	app.preloader.show();
 	/*import jquery and Stripe js */
 	var jquery = document.createElement('script');
 	var stripe_payment = document.createElement('script');
@@ -262,26 +247,29 @@ async function init_script(){
 			let paymentIntent = parseURLParams(window.location.href);
 			if(paymentIntent != undefined){
 				
+				console.log(paymentIntent);
+				console.log(paymentIntent.redirect_status[0]);
 				var stored_payment_intent = "";
 				
 				/* Get payment intent id */
 				try{
-					localStorage.getItem("payment_intent");
+					stored_payment_intent = localStorage.getItem("latest-payment-intent");
 				}catch(err){
 					console.log(err);
 				}
 				
+				stripe.retrievePaymentIntent(paymentIntent.payment_intent[0]);
 				if(paymentIntent.payment_intent[0] != stored_payment_intent){
 					/* Save payment intent id */
-					localStorage.set("payment_intent",paymentIntent.payment_intent[0]);
+					localStorage.setItem("latest-payment-intent",paymentIntent.payment_intent[0]);
 					
 					if(paymentIntent.redirect_status[0] == "succeeded"){
 						/* Display Payment Success Page */
-						app.views.main.router.navigate("/paymentsuccess/");
+						redirect("payment-success");
 					}
 					else{
 						/* Disply Payment Failed Page */
-						app.views.main.router.navigate("/paymentfail/");
+						redirect("payment-fail");
 					}
 				}
 			}
@@ -291,30 +279,38 @@ async function init_script(){
 	},2000);
 	
 	/* Customize Android/iOS hardware back button */
-	var count = 0;
-	document.addEventListener("backbutton", function(e, page){
-		e.preventDefault();
-		try{
+	try{
+		var count = 0;
+		document.addEventListener("backbutton", function(e, page){
+			e.preventDefault();
+			
 			console.log(e);
 			console.log(page);
 			console.log(page.name);
-		}catch(err){
-			console.log(err);
-		}
-		count++;
-		var toast = app.toast.create({
-			text: 'Click back button again to exit',
-			closeTimeout: 2000,
-			position: "center"
-		});
-		toast.open();
-		if(count == 2){
-			window.navigator.app.exitApp();
-		}
-		setTimeout(()=>{
-			count = 0;
-		},2100);
-	}, false);
+			
+			var pn = page.name;
+			
+			if(pn == "home" || pn == "login"){
+				count++;
+				var toast = app.toast.create({
+					text: 'Click back button again to exit',
+					closeTimeout: 2000,
+					position: "center"
+				});
+				toast.open();
+				if(count == 2){
+					window.navigator.app.exitApp();
+				}
+				setTimeout(()=>{
+					count = 0;
+				},2100);
+			}else if(pn == "payment-success" || pn == "payment-fail"){
+				redirect("home");
+			}
+		}, false);
+	}catch(err){
+		console.log(err);
+	}
 }
 
 /* Get data from URL - GET Method - All data in Array */
@@ -363,6 +359,12 @@ $$(document).on('page:init', async function (e, page) {
 		getTenants();
 	}else if(pn == "edit"){
 		getEditPage();
+	}else if(pn == "payment-success"){
+		saveSuccessPaymentDetails();
+	}else if(pn == "payment-method"){
+		getUserBillingPaymentMethod();
+	}else if(pn == "payment"){
+		getUserBilling();
 	}
 })
 
@@ -632,27 +634,26 @@ function calendar_init(){
 		for(var timeslots in booked_dates[date]){
 			var restricted = booked_dates[date]['restriction'];
 			if(timeslots != "restriction"){
-				var restricted_limit = restricted['limit'];
-				var restricted_list = restricted['restricted_time'];
-				var restriction = false;
-				
-				for(var index = 0; index < restricted_list.length; index++){
-					//if exist in restricted time, compare with limit
-					if(restricted_list[index] === timeslots){
-						restriction = true;
-						if(booked_dates[date][timeslots] < restricted_limit){
-							disable = false;
+				for(var restricted_limit in restricted){
+					var restricted_list = restricted[restricted_limit];
+					var restriction = false;
+					
+					for(var index = 0; index < restricted_list.length; index++){
+						//if exist in restricted time, compare with limit
+						if(restricted_list[index] === timeslots){
+							restriction = true;
+							if(booked_dates[date][timeslots] < restricted_limit){
+								disable = false;
+							}
+							
 						}
-						
+					}
+					
+					// else, compare with default limit (3)
+					if(!restriction && booked_dates[date][timeslots] < DEFAULT_LIMIT){
+						disable = false;
 					}
 				}
-				
-				// else, compare with default limit (3)
-				if(!restriction && booked_dates[date][timeslots] < DEFAULT_LIMIT){
-					disable = false;
-				}
-				
-				
 			}
 		}
 		//disable still true, add into array
@@ -711,25 +712,28 @@ function disableTimeSlots(){
 			for(var timeslots in booked_dates[date]){
 				var restricted = booked_dates[date]['restriction'];
 				if(timeslots != "restriction"){
-					var restricted_limit = restricted['limit'];
-					var restricted_list = restricted['restricted_time'];
-					var restriction = false;
-					
-					for(var index = 0; index < restricted_list.length; index++){
-						//if exist in restricted time, compare with limit
-						if(restricted_list[index] === timeslots){
-							restriction = true;
-							if(booked_dates[date][timeslots] >= restricted_limit){
-								indexes[timeslots].disabled = true;
+					for(var restricted_limit in restricted){
+						var restricted_list = restricted[restricted_limit];
+						var restriction = false;
+						
+						for(var index = 0; index < restricted_list.length; index++){
+							//if exist in restricted time, compare with limit
+							if(restricted_list[index] === timeslots){
+								restriction = true;
+								if(booked_dates[date][timeslots] >= restricted_limit){
+									indexes[timeslots].disabled = true;
+								}
+								
 							}
-							
+						}
+						
+						// else, compare with default limit (3)
+						if(!restriction && booked_dates[date][timeslots] >= DEFAULT_LIMIT){
+							console.log(indexes[timeslots]);
+							indexes[timeslots].disabled = true;
 						}
 					}
 					
-					// else, compare with default limit (3)
-					if(!restriction && booked_dates[date][timeslots] >= DEFAULT_LIMIT){
-						indexes[timeslots].disabled = true;
-					}
 				}
 			}
 		}
@@ -797,8 +801,7 @@ async function set_booking(){
 					
 					bookings[booked_date]['restriction'] = {};
 			
-					bookings[booked_date]['restriction']['restricted_time'] = [];
-					bookings[booked_date]['restriction']['limit'] = 3;
+					bookings[booked_date]['restriction'][3] = [];
 				}
 				
 				//increment time slot booking counter
@@ -847,15 +850,11 @@ async function set_booking(){
 			bookings[restricted_date]['22:00'] = 0;
 			
 			bookings[restricted_date]['restriction'] = {};
-			
-			bookings[restricted_date]['restriction']['restricted_time'] = [];
-			bookings[restricted_date]['restriction']['limit'] = 3;
 		}
 		
-		bookings[restricted_date]['restriction'] = {};
-			
-		bookings[restricted_date]['restriction']['restricted_time'] = restricted_time;
-		bookings[restricted_date]['restriction']['limit'] = limit;
+		
+		bookings[restricted_date]['restriction'][limit] = [];
+		bookings[restricted_date]['restriction'][limit] = restricted_time.concat(bookings[restricted_date]['restriction'][limit]);
 		
 	});
 	
@@ -876,6 +875,8 @@ async function set_booking(){
 	//submit button clicked
 	
 	book_button.addEventListener('click', function(e){
+		e.preventDefault();
+		
 		var user_id = auth.currentUser.uid;
 		//var facility_chosen = document.getElementById('facility').value;
 		var time_chosen = document.getElementById('time_select').value;
@@ -900,6 +901,7 @@ async function set_booking(){
 		var day = String(dateObj.getDate()).padStart(2, '0');
 		var year = dateObj.getFullYear();
 		var date = day  + '-'+ month  + '-' + year;
+		
 		if(facility_chosen != "" && time_chosen != "" && date_chosen != ""){
 			db.collection("booking").add({
 				date: date,
@@ -909,9 +911,21 @@ async function set_booking(){
 				time: time_chosen,
 				user_id: user_id
 			}).then(()=>{
-				var mainView = app.view.main;
-				mainView.router.navigate({ name: 'bookingsuccess'});
+				var toast = app.toast.create({
+					text: 'Booking has been sent for verification',
+					closeTimeout: 2000,
+					position: "center"
+				});
+				toast.open();
+				redirect('bookingsuccess');
 			})
+		}else{
+			var toast = app.toast.create({
+				text: 'Please fill in the details',
+				closeTimeout: 2000,
+				position: "center"
+			});
+			toast.open();
 		}
 		
 	})
@@ -1244,9 +1258,7 @@ function createQrCode(){
 	}, 1000);
 }
 //payments
-var amount = '';
-var amountString = '';
-var paymentDescrip = '';
+
 
 /*
 temp
@@ -1259,43 +1271,84 @@ localStorage.setItem('label', 'value')*/
 
 /* Payment Method Page */
 function getUserBillingPaymentMethod(){
-	document.getElementById("amount").innerHTML = amountString;
-	document.getElementById("payment-description").innerHTML = paymentDescrip;
+	document.getElementById("amount").innerHTML = localStorage.getItem('latest-payment-amount-string');
+	document.getElementById("payment-description").innerHTML = localStorage.getItem('latest-payment-descrip');
+	
+	$('#payment-selection').prop('onclick',null).off('click');
+	
+	$('#payment-selection').click(() => {
+		var selection = $("input[type='radio'][name='pMethod']:checked").val();
+		console.log(selection);
+		if(selection == "online"){
+			redirect("payment-online");
+		}
+		else if(selection == "credit"){
+			redirect("payment-credit");
+		}
+		else{
+			alert("Please select a payment type");
+		}
+	});
 }
 
 /* Payment Page */
 function getUserBilling(){
 	var user_id = auth.currentUser.uid;
+	var payNowButton = document.getElementById("pay-now-button");
+	
+	app.preloader.show();
+	payNowButton.disabled = true;
+	
 	db.collection("billing").where("user_id", "==", user_id).orderBy("date", "desc").limit(1).get().then((querySnapshot) => {
 		querySnapshot.forEach((doc) => {
-		if(doc.data().status != "paid"){
-			var time = new Date();
-			time.setTime(doc.data().date.seconds * 1000);
-			amountString = (doc.data().amount/100).toFixed(2);
-			paymentDescrip = doc.data().description;
-			document.getElementById("amount-data").innerHTML = amountString;
-			document.getElementById("pay-by").value = time.toLocaleDateString("en-US");
-			document.getElementById("payment-details").value = paymentDescrip;
-			document.getElementById("order-number").value = doc.id;
-		}
-		else{
-			var payNowButton = document.getElementById("pay-now-button");
-			payNowButton.disabled = true;
-			payNowButton.onclick = function(){
-					var toastBottom = app.toast.create({
-					text: 'This is default bottom positioned toast',
-					closeTimeout: 2000,
-				});
+			
+			if(doc.data().status != "paid"){
+				var time = new Date();
+				var amount = '';
+				var amountString = '';
+				var paymentDescrip = '';
+				
+				/* parse data */
+				time.setTime(doc.data().date.seconds * 1000);
+				amount = doc.data().amount;
+				amountString = (doc.data().amount/100).toFixed(2);
+				paymentDescrip = doc.data().description;
+				
+				/* set data */
+				document.getElementById("amount-data").innerHTML = amountString;
+				document.getElementById("pay-by").value = time.toLocaleDateString("en-US");
+				document.getElementById("payment-details").value = paymentDescrip;
+				document.getElementById("order-number").value = doc.id;
+				
+				/* save into storage */
+				localStorage.setItem("latest-payment-id",doc.id);
+				localStorage.setItem("latest-payment-amount",amount);
+				localStorage.setItem("latest-payment-amount-string",amountString);
+				localStorage.setItem("latest-payment-descrip",paymentDescrip);
+				
 			}
-		}
-	})});
+			else{
+				payNowButton.onclick = function(){
+						var toastBottom = app.toast.create({
+						text: 'This is default bottom positioned toast',
+						closeTimeout: 2000,
+					});
+				}
+			}
+		})
+	}).then(() => {
+		app.preloader.hide();
+	}).catch((err) => {
+		timed_toast(err,"center");
+		app.preloader.hide();
+	});
 }
 
 /* Online Payment */
 function online_payment_function(){
 	app.preloader.show();
 	var stripe = Stripe('pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ');
-	var jsonString = { "amount": 8000 };
+	var jsonString = { "amount": localStorage.getItem('latest-payment-amount') };
 	var clientSecret = "";
 	console.log(JSON.stringify(jsonString));
 	var form = document.getElementById('payment-form');
@@ -1325,20 +1378,24 @@ function online_payment_function(){
 		clientSecret = result.data;
 		fpxButton.disabled = false;
 		fpxButton.setAttribute("data-secret",clientSecret);
-		sessionStorage.setItem('stripe_client_secret', clientSecret);
+		localStorage.setItem('stripe_client_secret', clientSecret);
 		app.preloader.hide();
 	}).catch((error) => {
 		// Getting the Error details.
 		var code = error.code;
 		var message = error.message;
 		var details = error.details;
+		
+		timed_toast("An error has occured","center");
+		fpxButton.disabled = true;
 		// ...
 		app.preloader.hide();
 	});
 
 	form.addEventListener('submit', function(event) {
 	  event.preventDefault();
-	  
+	  console.log(fpxBank);
+	  localStorage.setItem("latest-payment-bank",fpxBank);
 	  stripe.confirmFpxPayment(clientSecret, {
 		payment_method: {
 		  fpx: fpxBank,
@@ -1352,6 +1409,11 @@ function online_payment_function(){
 		}
 	  });
 	});
+	
+	$('#online-payment-cancel-button').prop('onclick',null).off('click');
+	$('#online-payment-cancel-button').click(() => {
+		redirect("home");
+	});
 }
 
 /* Credit Payment */
@@ -1362,7 +1424,7 @@ function credit_payment_function(){
 	var jsonString = {
 	  data: {
 		  currency: "myr",
-		  amount: 1000
+		  amount: localStorage.getItem('latest-payment-amount')
 	  }
 	};
 	
@@ -1400,7 +1462,7 @@ function credit_payment_function(){
 		card.mount("#card-element");
 
 		card.on("change", function (event) {
-		  document.querySelector("button").disabled = event.empty;
+		  document.getElementById("card-submit").disabled = event.empty;
 		  document.querySelector("#card-error").textContent = event.error ? event.error.message : "";
 		});
 
@@ -1422,13 +1484,14 @@ function credit_payment_function(){
 		  }
 		})
 		.then(function(result) {
+		  localStorage.setItem("latest-payment-bank",null);
 		  if (result.error) {
 			showError(result.error.message);
-			app.views.main.router.navigate("/paymentfail/");
+			redirect("payment-fail");
 		  } else {
 			alert("Complete");
 			orderComplete(result.paymentIntent.id);
-			app.views.main.router.navigate("/paymentsuccess/");
+			redirect("payment-success");
 		  }
 		});
 	};
@@ -1442,7 +1505,7 @@ function credit_payment_function(){
 		  "https://dashboard.stripe.com/test/payments/" + paymentIntentId
 		);
 	  document.querySelector(".result-message").classList.remove("hidden");
-	  document.querySelector("button").disabled = true;
+	  document.getElementById("card-submit").disabled = true;
 	};
 
 	var showError = function(errorMsgText) {
@@ -1456,16 +1519,62 @@ function credit_payment_function(){
 
 	var loading = function(isLoading) {
 	  if (isLoading) {
-		document.querySelector("button").disabled = true;
+		document.getElementById("card-submit").disabled = true;
 		document.querySelector("#spinner").classList.remove("hidden");
 		document.querySelector("#button-text").classList.add("hidden");
 	  } else {
-		document.querySelector("button").disabled = false;
+		document.getElementById("card-submit").disabled = false;
 		document.querySelector("#spinner").classList.add("hidden");
 		document.querySelector("#button-text").classList.remove("hidden");
 	  }
 	};
 	
+	$('#credit-payment-cancel-button').prop('onclick',null).off('click');
+	$('#credit-payment-cancel-button').click(() => {
+		redirect("home");
+	});
+}
+
+function saveSuccessPaymentDetails(){
+	/*app.preloader.show();
+	var user_id = auth.currentUser.uid;
+	var time = new Date();
+	time = time.getTime();
+	
+	db.collection("billing").doc(localStorage.getItem("latest-payment-id")).update({ status: "paid" }).then(() => {
+		db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).add({
+			status: "Successful",
+			user_id: user_id,
+			description: localStorage.getItem("latest-payment-descrip"),
+			payment_id: localStorage.getItem("latest-payment-id"),
+			amount: localStorage.getItem("latest-payment-amount"),
+			time: time,
+			bank: localStorage.getItem("latest-payment-bank")
+		}).then(() => {
+			app.preloader.hide();
+		});
+	}).catch((err) => {
+		console.log(err);
+	});*/
+}
+
+function saveFailPaymentDetails(){
+	/*app.preloader.show();
+	var user_id = auth.currentUser.uid;
+	var time = new Date();
+	time = time.getTime();
+	
+	db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).add({
+		status: "Failed",
+		user_id: user_id,
+		description: localStorage.getItem("latest-payment-descrip"),
+		payment_id: localStorage.getItem("latest-payment-id"),
+		amount: localStorage.getItem("latest-payment-amount"),
+		time: time,
+		bank: localStorage.getItem("latest-payment-bank")
+	}).then(() => {
+		app.preloader.hide();
+	});*/
 }
 
 /* Not using */

@@ -79,20 +79,22 @@ var routes = [
     component: AnnouncementPage,
   },
   {
+	name: "payment-online",
     path: '/paymentonline/',
     component: PaymentOnlinePage,
   },
   {
+	name: "payment-credit",
     path: '/paymentcredit/',
     component: PaymentCreditPage,
   },
   {
-	name: "payment-success",
+	name: "payment-fail",
     path: '/paymentfail/',
     component: PaymentFailPage,
   },
   {
-	name: "payment-fail",
+	name: "payment-success",
     path: '/paymentsuccess/',
     component: PaymentSuccessPage,
   },

@@ -18,12 +18,12 @@
   <div class="page-content no-margin no-padding" id="stripe-payment-page">
 	  <form id="payment-form">
 		<div id="card-element"><!--Stripe.js injects the Card Element--></div>
-		<button id="submit">
+		<button id="card-submit">
 			<div class="spinner hidden" id="spinner"></div>
 			<span id="button-text">Pay</span>
 		</button>
-		<button id="credit-payment-cancel-button" style="margin-top:10px;">
-			<a href="/">Cancel</a>
+		<button id="credit-payment-cancel-button" type="button" style="margin-top:10px;background:#990000;">
+			Cancel
 		</button>
 		<p id="card-error" role="alert"></p>
 		<p class="result-message hidden">
