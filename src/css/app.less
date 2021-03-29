@@ -5,7 +5,7 @@
 @announcement-width: @body-width * 0.8;
 @announcement-height: @announcement-width * (9/16);
 @card-view-width: @body-width * 0.8;
-@card-width: @card-view-width * 0.35;
+@card-width: @card-view-width * 0.3;
 
 /* iOS Cordova Tweak */
 .device-cordova.device-ios {
@@ -13,7 +13,7 @@
 }
 
 *{
-	font-family: Arial, Helvetica, sans-serif;
+	font-family: 'Nunito', sans-serif;
 }
 
 /* Your app custom styles here */
@@ -106,18 +106,14 @@
 }
 
 .card-inline-blocks{
-	
 	width: @card-width;
 	display: inline-block; 
-	
 	border-radius: 7%;
 }
 
 .navbar-inner{
-	// background-color: #c8e0ff;
 	background-color: transparent;
 	backdrop-filter: blur(2rem);
-	
 }
 
 .navbar-bg{
@@ -148,9 +144,8 @@
 
 .announcement-img{
 	width: @announcement-width * 0.7;
+	max-height: 150px;
 }
-
-
 
 //Right Panel List
 .list-buttons{
@@ -159,8 +154,7 @@
     text-align: left;
     font-weight: 500;
     text-transform: capitalize;
-	
-	 height: 55px;
+	height: 55px;
 	background-color: transparent;
 }
 
@@ -217,27 +211,26 @@
 
 // announcement
 .date{
-	margin: 2%;
+	margin: 8px;
+	font-size: 18px;
+	font-weight: bold;
 }
 
 .announcement-icon-block{
-	float: left;
-	padding: 15px;
+	float: left;	
+	margin: 6px;
 }
 
 .announcement-text-block{
 	clear: right;
-	padding: 15px;
 }
 
 .announcement-small-icon{
 	width: 50px;
 	height: 50px;
 	border-radius: 50%;
-	background-size: cover;
-	background-position: center;
-	// image-rendering: pixelated;
-	image-rendering: -webkit-optimize-contrast;
+	image-rendering: pixelated;
+	// image-rendering: -webkit-optimize-contrast;
 	border: 1px solid #7278B9;
 }
 
@@ -246,13 +239,9 @@
 }
 
 .announcement-small-text{
-	overflow: hidden;
 	white-space: nowrap;
 	max-width: 700px;
-}
-
-.announcement-list-row{
-	padding: 15px 0;
+	overflow: hidden;
 }
 
 p#annc_title{
@@ -400,18 +389,24 @@ p#annc_desc {
 
 
 .popup{
-	
 	background: linear-gradient(180deg, rgba(200,224,255,1) 0%, rgba(252,252,252,1) 100%);
 }
+
+.popup-open{
+	text-transform: capitalize;
+}
+
 .popup form
 {
-		text-align:center;
-		margin-top:40px;
+	text-align: center;
+	margin-top: 40px;
 }
+
 .popup button
 {
-		margin-top:20px;
+	margin-top: 20px;
 }
+
 //Booking Details
 .booking-details{
 	border: 1px solid rgba(255,255,255,1);
@@ -451,7 +446,7 @@ p#annc_desc {
 	background-size: cover;
 	display: flex;
 	padding: 5px;
-	margin: 20px 10px 10px 20px;
+	margin: 20px 10px 20px 10px;
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.652);
 	min-height: 120px;
 	border-radius: 8px;
@@ -704,3 +699,93 @@ select[name="booking_duration"], select[name="booking_duration"] option{
     width: 80vw;
   }
 }
+
+// .message-group-received > div:first-child > img{
+// 	border-radius: 50%;
+// 	height: 25px;
+// 	width: 25px;
+// }
+.messages{
+	background-image: url("https://fsa.zobj.net/crop.php?r=HPh6XjS0Se_VNODSUR6Fm1R9bTHZZaIQV6BsKvbihNqsgOSM3Ftm58HrQ7nlrF9R65nUhHXkiA34Cu7Y-5-p1HjQHAcMj7SGoQS1XmK8i_Su-brIg-80w-9HV-s5c4w8z4JjR8VarCwJf8G_O4NlM5gHNQF7uHvtbJqCEL3X3fXhBsF3EdkZTrdef64jzBx9PwjBSJ23C_QtWaUi");
+}
+
+.message-received{
+	max-width: 75%;
+	margin: 2px 0;
+	display: flex;
+}
+
+.message-received-text{
+	padding: 10px;
+	min-height: 20px;
+	background: #fff;
+	border-radius: 4px 20px 20px 4px;
+}
+
+.message-group-received{
+	margin-top: 20px;
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+}
+
+.message-received:first-child > .message-received-text{
+	border-top-right-radius: 20px;
+}
+
+.message-received:last-child > .message-received-text{
+	border-bottom-right-radius: 20px;
+}
+
+.message-group-sent{
+	width: 100%;
+	// margin-bottom: 20px;
+	text-align: right;
+}
+
+.message-sent{
+	max-width: 75%;
+	display: flex;
+	margin: 2px 0 2px auto;
+}
+
+.message-sent-text{
+	background: #0099ff;
+	border-radius: 20px 4px 4px 20px;
+	min-height: 20px;
+	padding: 10px;
+	color: #fff;
+}
+
+.message-sent:first-child > .message-sent-text{
+	border-top-right-radius: 20px;
+	// margin-top: 10px;
+}
+
+.message-sent:last-child > .message-sent-text{
+	border-bottom-right-radius: 20px;
+}
+
+.msg-bottom{
+	display: flex;
+	justify-content: space-evenly;
+	align-items:flex-start;
+	border-radius: 60px;
+	position: fixed;
+	cursor: pointer;
+	flex: 1;
+}
+
+.input-group > input{
+	width: 90%;
+	border-radius: 60px;
+	margin: 5px;
+	// outline: none;
+	font-size: 19px;
+	padding-left: 40px;
+	padding-right: 80px;
+	border: 2px solid #ccc;
+	color: #555;
+	flex: 1;
+
+} 
