@@ -827,11 +827,11 @@ function set_login(){
 var facility_chosen = ""
 //booking variables
 var booking_list = {
-	"AV_Room": {},
+	"AV Room": {},
 	"Sauna": {},
-	"PingPong": {},
-	"BBQ": {},
-	"SkyLounge": {} 
+	"Gym": {},
+	"BBQ Pit": {},
+	"Sky Lounge": {} 
 	};
  var calendarEvents = "";
  var DEFAULT_LIMIT = 3;
@@ -991,13 +991,6 @@ async function set_booking(){
 	//booking collection
 	let querySnapshot = await db.collection("booking").get();
 	//reset booking list
-	booking_list = {
-	"AV_Room": {},
-	"Sauna": {},
-	"PingPong": {},
-	"BBQ": {},
-	"SkyLounge": {} 
-	};
 	
 	querySnapshot.forEach((doc) => {
 		var status = doc.data().status;
@@ -1005,18 +998,7 @@ async function set_booking(){
 			var booked_date = new Date(doc.data().date);
 			var facility_type = doc.data().facility;
 			
-			var bookings = "";
-			//filter booked facilities
-			if(facility_type === "AV Room")
-				bookings = booking_list.AV_Room;
-			else if(facility_type === "Sauna")
-				bookings = booking_list.Sauna;
-			else if(facility_type === "Sky Lounge")
-				bookings = booking_list.SkyLounge;
-			else if(facility_type === "BBQ Pit")
-				bookings = booking_list.BBQ;
-			else if(facility_type === "Ping-Pong Table")
-				bookings = booking_list.PingPong;
+			var bookings = booking_list[facility_type];
 			
 			//if date is in the future or today
 			if(booked_date >= today){
@@ -1063,19 +1045,8 @@ async function set_booking(){
 		var restricted_time = doc.data().disabled_time;
 		var limit = doc.data().limit;
 		var facility_type = doc.data().facility;
-		var bookings = "";
 		
-		//filter booked facilities
-		if(facility_type === "AV Room")
-			bookings = booking_list.AV_Room;
-		else if(facility_type === "Sauna")
-			bookings = booking_list.Sauna;
-		else if(facility_type === "Sky Lounge")
-			bookings = booking_list.SkyLounge;
-		else if(facility_type === "BBQ Pit")
-			bookings = booking_list.BBQ;
-		else if(facility_type === "Ping-Pong Table")
-			bookings = booking_list.PingPong;
+		var bookings = booking_list[facility_chosen];
 		
 		if(bookings[restricted_date] == null){
 			bookings[restricted_date] = {};
@@ -1120,20 +1091,7 @@ async function set_booking(){
 		//var facility_chosen = document.getElementById('facility').value;
 		var time_chosen = document.getElementById('time_select').value;
 		var date_chosen = document.getElementById('calendar-events-disable').value;
-		
-		//filter booked facilities
-		var facility = "";
-		if(facility_chosen === "AV_Room")
-			facility = "AV Room";
-		else if(facility_chosen === "Sauna")
-			facility = "Sauna";
-		else if(facility_chosen === "SkyLounge")
-			facility = "Sky Lounge";
-		else if(facility_chosen === "BBQ")
-			facility = "BBQ Pit";
-		else if(facility_chosen === "PingPong")
-			facility = "Ping-Pong Table";
-		
+
 		//format date
 		var dateObj = new Date(date_chosen);
 		var month = monthNames[dateObj.getMonth()];
@@ -1145,7 +1103,7 @@ async function set_booking(){
 			db.collection("booking").add({
 				date: date,
 				duration: "2 hours",
-				facility: facility,
+				facility: facility_chosen,
 				status: "pending",
 				time: time_chosen,
 				user_id: user_id
@@ -1230,9 +1188,25 @@ function getFacility(){
 	var avroom = document.getElementById('avroom');
 	var sauna = document.getElementById('sauna');
 	var gym = document.getElementById('gym');
+	var facilities = document.getElementsByClassName('facility-name');
+	console.log(facilities)
+	booking_list = {
+		"AV Room": {},
+		"Sauna": {},
+		"Gym": {},
+		"BBQ Pit": {},
+		"Sky Lounge": {} 
+	};
+	for(var i=0; i< facilities.length;i++){
+		facilities[i].parentElement.addEventListener('click', function(e){
+			e.preventDefault();
+			facility_chosen = this.id;
+			console.log(facility_chosen);
+			//redirect("facilities");
+		})
+	}
 	
-	
-	bbq.addEventListener('click', function(e){
+	/*bbq.addEventListener('click', function(e){
 		e.preventDefault();
 		facility_chosen = "BBQ";
 		console.log(facility_chosen);
@@ -1265,7 +1239,7 @@ function getFacility(){
 		facility_chosen = "PingPong";
 		console.log(facility_chosen);		
 		redirect("facilities");
-	})
+	})*/
 }
 
 
