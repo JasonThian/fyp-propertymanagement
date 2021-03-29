@@ -146,6 +146,8 @@ function set_logout(){
 /* Go to page */
 //redirect("/");
 
+var USER_DOC = "";
+
 /* Initialize */
 async function init_script(){
 	app.preloader.show();
@@ -430,9 +432,88 @@ $$(document).on('page:init', async function (e, page) {
 		getQrCode();
 	}else if(pn == "issue_report"){
 		issueReportPage();
+	}else if(pn == "chatbox"){
+		chatbox();
 	}
 })
 
+function check_msg_type(doc){
+	var chatele="";
+	
+	if(doc.user != "user"){
+		chatele += `
+		<div class="message-group-received">             
+			<div class="message-received">
+				<div class="message-received-text">
+					${doc.message}
+                </div>
+            </div>
+		</div>`;
+	}else{
+		chatele += `
+		<div class="message-group-sent">          
+            <div class="message-sent">
+                <div class="message-sent-text">
+                  ${doc.message}
+                </div>
+            </div>
+		</div>`;
+	}
+	
+	return chatele;
+}
+
+// chatbox
+function chatbox(){
+	var user_id = auth.currentUser.uid;
+	
+	var send = document.getElementById("send_msg");
+	
+	var msg_box = document.getElementById("msg_box");
+	
+	var chatroomRef = db.collection("landlord").doc(user_id).collection("chatroom");
+	var chatele = "";
+	var new_chat = "";
+	
+	chatroomRef.orderBy("time", "desc").onSnapshot((snapshot) => {
+
+        snapshot.docChanges().forEach((change) => {
+			console.log(change);
+			if(msg_box.innerHTML.trim() == ""){
+				chatele = check_msg_type(change.doc.data()) + chatele;
+			}else{
+				chatele += check_msg_type(change.doc.data());
+			}
+			
+        });
+
+		msg_box.innerHTML = chatele;
+		
+    }, (error) => {
+        console.log(error);
+    });
+	
+	send.addEventListener("click",function(e){
+		e.preventDefault();
+		var msg = document.getElementById("chatbox_msg").value;
+		if(msg.trim() != ""){
+			console.log(USER_DOC);
+			chatroomRef.add({
+				name: USER_DOC.name,
+				message: msg,
+				user: "user",
+				time: new Date()
+			})
+			
+			db.collection("landlord").doc(user_id).update({
+				rmsg : msg,
+				dateupdated: new Date()
+			})
+		}else{
+			console.log("empty msg");
+		}
+	})
+}
 
 //subscribe to topic
 function subscribe(token,topic){
@@ -458,10 +539,13 @@ function homesetup(){
 	var username = document.getElementById("username");
 	var user_pic = document.getElementById("user_pic");
 	var user_icon = document.getElementById("user_icon");
-	console.log(user_icon);
+	console.log(uid);
 
-	db.collection('landlord').doc(uid).onSnapshot((doc) => {
-				
+	db.collection('landlord').doc(uid).get().then((doc) => {
+		console.log("getting user data");
+		console.log(doc.data())
+		USER_DOC = doc.data();
+		
 		var name = doc.data().name;
 		var imageurl = doc.data().imageurl;
 			
