@@ -532,6 +532,8 @@ function subscribe(token,topic){
 		console.error(error);
 	})
 }
+
+var user_type = "";
 ///////////// HOME SETUP
 function homesetup(){
 	var uid = auth.currentUser.uid;
@@ -544,7 +546,16 @@ function homesetup(){
 	db.collection('landlord').doc(uid).get().then((doc) => {
 		console.log("getting user data");
 		console.log(doc.data())
+		
+		var landlords = doc.data().landlords;
+		
 		USER_DOC = doc.data();
+		
+		if(landlords == ""){
+			user_type = "landlord";
+		}else{
+			user_type = "user";
+		}
 		
 		var name = doc.data().name;
 		var imageurl = doc.data().imageurl;
@@ -871,7 +882,7 @@ function calendar_init(){
 		var disable = true;
 		
 		for(var timeslots in booked_dates[date]){
-			var restricted = booked_dates[date]['restriction'];
+			var restricted = booked_dates[date]['restriction'][user_type];
 			if(timeslots != "restriction"){
 				for(var restricted_limit in restricted){
 					var restricted_list = restricted[restricted_limit];
@@ -949,7 +960,7 @@ function disableTimeSlots(){
 		if(booked_dates[date] != undefined){
 			
 			for(var timeslots in booked_dates[date]){
-				var restricted = booked_dates[date]['restriction'];
+				var restricted = booked_dates[date]['restriction'][user_type];
 				if(timeslots != "restriction"){
 					for(var restricted_limit in restricted){
 						var restricted_list = restricted[restricted_limit];
@@ -1024,10 +1035,6 @@ async function set_booking(){
 					bookings[booked_date]['18:00'] = 0;
 					bookings[booked_date]['20:00'] = 0;
 					bookings[booked_date]['22:00'] = 0;
-					
-					bookings[booked_date]['restriction'] = {};
-			
-					bookings[booked_date]['restriction'][3] = [];
 				}
 				
 				//increment time slot booking counter
@@ -1050,6 +1057,7 @@ async function set_booking(){
 		var restricted_time = doc.data().disabled_time;
 		var limit = doc.data().limit;
 		var facility_type = doc.data().facility;
+		var limited_type = doc.data().users;
 		
 		var bookings = booking_list[facility_chosen];
 		
@@ -1067,9 +1075,35 @@ async function set_booking(){
 			bookings[restricted_date]['restriction'] = {};
 		}
 		
+		if(bookings[restricted_date]['restriction'] == null){
+			bookings[restricted_date]['restriction'] = {};
+		}
 		
-		bookings[restricted_date]['restriction'][limit] = [];
-		bookings[restricted_date]['restriction'][limit] = restricted_time.concat(bookings[restricted_date]['restriction'][limit]);
+		if(bookings[restricted_date]['restriction']['landlord'] == null){
+			bookings[restricted_date]['restriction']['landlord'] = {};
+			bookings[restricted_date]['restriction']['user'] = {};
+		}
+		
+		
+		if(limited_type == "all"){
+			if(bookings[restricted_date]['restriction']['landlord'][limit] == null){
+				bookings[restricted_date]['restriction']['landlord'][limit] = [];
+			}
+			
+			if(bookings[restricted_date]['restriction']['user'][limit] == null){
+				bookings[restricted_date]['restriction']['user'][limit] = [];
+			}
+			
+			bookings[restricted_date]['restriction']['landlord'][limit] = restricted_time.concat(bookings[restricted_date]['restriction']['landlord'][limit]);
+			bookings[restricted_date]['restriction']['user'][limit] = restricted_time.concat(bookings[restricted_date]['restriction']['user'][limit]);
+		}else{
+			if(bookings[restricted_date]['restriction'][limited_type][limit] == null){
+				bookings[restricted_date]['restriction'][limited_type][limit] = [];
+			}
+			bookings[restricted_date]['restriction'][limited_type][limit] = restricted_time.concat(bookings[restricted_date]['restriction'][limited_type][limit]);
+		}
+		
+		
 		
 	});
 	
@@ -1210,41 +1244,6 @@ function getFacility(){
 			//redirect("facilities");
 		})
 	}
-	
-	/*bbq.addEventListener('click', function(e){
-		e.preventDefault();
-		facility_chosen = "BBQ";
-		console.log(facility_chosen);
-		redirect("facilities");
-	})
-	
-	skylounge.addEventListener('click', function(e){
-		e.preventDefault();
-		facility_chosen = "SkyLounge";		
-		console.log(facility_chosen);
-		redirect("facilities");
-	})
-	
-	avroom.addEventListener('click', function(e){
-		e.preventDefault();
-		facility_chosen = "AV_Room";
-		console.log(facility_chosen);
-		redirect("facilities");
-	})
-	
-	sauna.addEventListener('click', function(e){
-		e.preventDefault();
-		facility_chosen = "Sauna";	
-		console.log(facility_chosen);
-		redirect("facilities");
-	})
-	
-	gym.addEventListener('click', function(e){
-		e.preventDefault();
-		facility_chosen = "PingPong";
-		console.log(facility_chosen);		
-		redirect("facilities");
-	})*/
 }
 
 
