@@ -121,6 +121,13 @@ window.app = new Framework7({
   },
 });
 
+document.addEventListener("offline", stopAllExecution(), false);
+
+function stopAllExecution(){
+	//throw new Error("Something went wrong");
+	console.log("?");
+}
+
 app.preloader.show();
 
 /* Logout */
@@ -245,10 +252,6 @@ async function init_script(){
 	
 	/* Get Stripe PaymentIntent */
 	setTimeout(()=>{
-		/* Testing */
-		console.log("icon check start");
-		console.log($(".f7-icons").html());
-		console.log("icon check end");
 		app.preloader.hide();
 		const stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
 		try{
@@ -426,6 +429,8 @@ $$(document).on('page:init', async function (e, page) {
 		saveSuccessPaymentDetails();
 	}else if(pn == "payment-method"){
 		getUserBillingPaymentMethod();
+	}else if(pn == "billing"){
+		getBilling();
 	}else if(pn == "payment"){
 		getUserBilling();
 	}else if(pn == "qrcode"){
@@ -1636,7 +1641,7 @@ function createQrCode(){
 	count_time(time.getTime());
 }
 
-/* Share Button */
+/* Share Button - Not Functioning */
 function shareQrCode(){
 	var options = {
 		files: ['static/icons/img-placeholder.jpg']
@@ -1656,6 +1661,119 @@ function shareQrCode(){
 	window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
 }
 
+function getPaymentDetails(id){
+	localStorage.setItem("latest-payment-id",id);
+	redirect("payment");
+}
+
+/* Billing Page */
+function getBilling(){
+	app.preloader.show();
+	var paid_container = document.getElementById("paid_billing");
+	var unpaid_container = document.getElementById("unpaid_billing");
+	var paid_list = document.createElement("ul");
+	var unpaid_list = document.createElement("ul");
+	var user_id = auth.currentUser.uid;
+	var paid_array = [];
+	var unpaid_array = [];
+	var paid_html = "";
+	var unpaid_html = "";
+	
+	paid_container.innerHTML = "";
+	unpaid_container.innerHTML = "";
+	
+	db.collection("billing").where("user_id","==",user_id).get().then((querySnapshot) => {
+		querySnapshot.forEach((doc) => {
+			if(doc.data().status == "paid"){
+				let object = {
+					id: doc.id,
+					description: doc.data().description,
+					amount: doc.data().amount,
+					due_date: doc.data().due_date.toDate().toString(),
+					time: doc.data().due_date.toDate().getTime()
+				};
+				paid_array.push(object);
+			}
+			else if(doc.data().status == "unpaid"){
+				let object = {
+					id: doc.id,
+					description: doc.data().description,
+					amount: doc.data().amount,
+					due_date: doc.data().due_date.toDate().toString(),
+					time: doc.data().due_date.toDate().getTime()
+				};
+				unpaid_array.push(object);
+			}
+		});
+	}).then(() => {
+		for (let j = 0; j < paid_array.length; j++) {
+			for (let i = 0; i+1 < paid_array.length; i++) {
+				if(paid_array[i].time < paid_array[i+1].time){
+					let array = paid_array[i];
+					paid_array[i] = paid_array[i+1];
+					paid_array[i+1] = array;
+				}
+			}
+		}
+		for (let j = 0; j < unpaid_array.length; j++) {
+			for (let i = 0; i+1 < unpaid_array.length; i++) {
+				if(unpaid_array[i].time < unpaid_array[i+1].time){
+					let array = unpaid_array[i];
+					unpaid_array[i] = unpaid_array[i+1];
+					unpaid_array[i+1] = array;
+				}
+			}
+		}
+	}).then(() => {
+		for (let i = 0; i < paid_array.length; i++) {
+			let url = "";
+			paid_html += `
+			<li id="${paid_array[i].id}" class="billing-row">
+				<a id="${paid_array[i].id}" class="item-link item-content">
+					<div class="item-media"><img src="${url}"/></div>
+					<div class="item-inner">
+						<div class="item-title-row">
+							<div class="item-title">${paid_array[i].description}</div>
+							<div class="item-after">RM${parseInt(paid_array[i].amount/100).toFixed(2)}</div>
+						</div>
+						<div class="item-text">${paid_array[i].due_date}</div>
+					</div>
+				</a>
+			</li>`;
+		}
+		for (let i = 0; i < unpaid_array.length; i++) {
+			let url = "";
+			unpaid_html += `
+			<li id="${unpaid_array[i].id}" class="billing-row">
+				<a id="${unpaid_array[i].id}" class="item-link item-content">
+					<div class="item-media"><img src="${url}"/></div>
+					<div class="item-inner">
+						<div class="item-title-row">
+							<div class="item-title">${unpaid_array[i].description}</div>
+							<div class="item-after">RM${parseInt(unpaid_array[i].amount/100).toFixed(2)}</div>
+						</div>
+						<div class="item-text">${unpaid_array[i].due_date}</div>
+					</div>
+				</a>
+			</li>`;
+		}
+	}).then(() => {
+		paid_list.innerHTML = paid_html;
+		unpaid_list.innerHTML = unpaid_html;
+		paid_container.appendChild(paid_list);
+		unpaid_container.appendChild(unpaid_list);
+		document.getElementById("unpaid_tab").click();
+		$(".billing-row").prop("onclick",null).off("click");
+		$(".billing-row").click((event) => {
+			getPaymentDetails(event.currentTarget.id);
+		});
+		app.preloader.hide();
+	}).catch((err) => {
+		console.log(err);
+		app.preloader.hide();
+	});
+}
+
 /*
 temp
 sessionStorage.getItem('label')
@@ -1664,6 +1782,7 @@ sessionStorage.setItem('label', 'value')
 perm
 localStorage.getItem('label')
 localStorage.setItem('label', 'value')*/
+
 
 /* Payment Method Page */
 function getUserBillingPaymentMethod(){
@@ -1694,49 +1813,48 @@ function getUserBilling(){
 	
 	app.preloader.show();
 	payNowButton.disabled = true;
-	
-	db.collection("billing").where("user_id", "==", user_id).orderBy("date", "desc").limit(1).get().then((querySnapshot) => {
-		querySnapshot.forEach((doc) => {
-			$("#pay-now-button").prop("onclick",null).off("click");
-			if(doc.data().status != "paid"){
-				var time = new Date();
-				var amount = '';
-				var amountString = '';
-				var paymentDescrip = '';
-				
-				/* parse data */
-				time.setTime(doc.data().date.seconds * 1000);
-				amount = doc.data().amount;
-				amountString = (doc.data().amount/100).toFixed(2);
-				paymentDescrip = doc.data().description;
-				
-				/* set data */
-				document.getElementById("amount-data").innerHTML = amountString;
-				document.getElementById("pay-by").value = time.toLocaleDateString("en-US");
-				document.getElementById("payment-details").value = paymentDescrip;
-				document.getElementById("order-number").value = doc.id;
-				
-				/* save into storage */
-				localStorage.setItem("latest-payment-id",doc.id);
-				localStorage.setItem("latest-payment-amount",parseFloat(amount).toFixed(0));
-				localStorage.setItem("latest-payment-amount-string",amountString);
-				localStorage.setItem("latest-payment-descrip",paymentDescrip);
-				
-				console.log("latest-payment-id",doc.id);
-				console.log("latest-payment-amount",amount);
-				console.log("latest-payment-amount-string",amountString);
-				console.log("latest-payment-descrip",paymentDescrip);
+	db.collection("billing").doc(localStorage.getItem("latest-payment-id")).get().then((doc) => {
+		$("#pay-now-button").prop("onclick",null).off("click");
+		
+		var time = new Date();
+		var amount = '';
+		var amountString = '';
+		var paymentDescrip = '';
+		
+		/* parse data */
+		time.setTime(doc.data().date.seconds * 1000);
+		amount = doc.data().amount;
+		amountString = (doc.data().amount/100).toFixed(2);
+		paymentDescrip = doc.data().description;
+		
+		/* set data */
+		document.getElementById("amount-data").innerHTML = amountString;
+		document.getElementById("pay-by").value = time.toLocaleDateString("en-US");
+		document.getElementById("payment-details").value = paymentDescrip;
+		document.getElementById("order-number").value = doc.id;
+		
+		if(doc.data().status != "paid"){
+			
+			/* save into storage */
+			localStorage.setItem("latest-payment-id",doc.id);
+			localStorage.setItem("latest-payment-amount",parseFloat(amount).toFixed(0));
+			localStorage.setItem("latest-payment-amount-string",amountString);
+			localStorage.setItem("latest-payment-descrip",paymentDescrip);
+			
+			console.log("latest-payment-id",doc.id);
+			console.log("latest-payment-amount",amount);
+			console.log("latest-payment-amount-string",amountString);
+			console.log("latest-payment-descrip",paymentDescrip);
 
-				$("#pay-now-button").click(() => {
-					redirect("payment-method");
-				});
-			}
-			else{
-				$("#pay-now-button").click(() => {
-					timed_toast("There is no bill","center");
-				});
-			}
-		})
+			$("#pay-now-button").click(() => {
+				redirect("payment-method");
+			});
+		}
+		else{
+			$("#pay-now-button").click(() => {
+				timed_toast("This bill has been paid","center");
+			});
+		}
 	}).then(() => {
 		payNowButton.disabled = false;
 		app.preloader.hide();
