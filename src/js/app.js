@@ -1726,7 +1726,7 @@ function getBilling(){
 		}
 	}).then(() => {
 		for (let i = 0; i < paid_array.length; i++) {
-			let url = "";
+			let url = "static/icons/success.png";
 			paid_html += `
 			<li id="${paid_array[i].id}" class="billing-row">
 				<a id="${paid_array[i].id}" class="item-link item-content">
@@ -1742,7 +1742,7 @@ function getBilling(){
 			</li>`;
 		}
 		for (let i = 0; i < unpaid_array.length; i++) {
-			let url = "";
+			let url = "static/icons/fail.png";
 			unpaid_html += `
 			<li id="${unpaid_array[i].id}" class="billing-row">
 				<a id="${unpaid_array[i].id}" class="item-link item-content">
