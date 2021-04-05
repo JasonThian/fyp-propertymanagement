@@ -963,7 +963,6 @@ function disableTimeSlots(){
 		var date = new Date(date_chosen);
 		console.log(date);
 		if(booked_dates[date] != undefined){
-			
 			for(var timeslots in booked_dates[date]){
 				var restricted = booked_dates[date]['restriction'][user_type];
 				if(timeslots != "restriction"){
@@ -1040,6 +1039,13 @@ async function set_booking(){
 					bookings[booked_date]['18:00'] = 0;
 					bookings[booked_date]['20:00'] = 0;
 					bookings[booked_date]['22:00'] = 0;
+					
+					bookings[restricted_date]['restriction'] = {};
+					bookings[restricted_date]['restriction']['landlord'] = {};
+					bookings[restricted_date]['restriction']['user'] = {};
+					
+					bookings[restricted_date]['restriction']['landlord'][3] = [];
+					bookings[restricted_date]['restriction']['user'][3] = [];
 				}
 				
 				//increment time slot booking counter
