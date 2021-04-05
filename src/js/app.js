@@ -2170,3 +2170,57 @@ function saveFailPaymentDetails(){
 		}
 	});
 }*/
+
+//************************************  OUTSIDE DEVICE READY
+// handle APNS notifications for iOS
+function onNotificationAPN(e) {
+	// storage the e.id value  (the extra value sent in push notification)
+	window.localStorage.setItem("push_que", e.id);
+	var push_que=e.id;
+	// if the push notification is coming inline
+	if (e.foreground=="1"){
+		// storage the e.numero value  (the extra value sent in push notification)
+		window.localStorage.setItem("push_que", e.id);
+		var push_que=e.id;
+		// some code here to open a message  if a new push is recieved inline
+	}
+	if ( event.alert ){
+		navigator.notification.alert(event.alert);
+	}
+	if ( event.sound ){
+		var snd = new Media(event.sound);
+		snd.play();
+	}
+	if ( event.badge ){
+		pushNotification.setApplicationIconBadgeNumber(successHandler, errorHandler, event.badge);
+	}
+}
+
+// handle GCM notifications for Android
+function onNotificationGCM(e) {
+	switch( e.event ){
+		if (e.foreground){
+			//  if the push is recieved inline
+			//  storage the value of  playoad.id,  the extra value sent by push
+			window.localStorage.setItem("push_que", e.payload.id);
+			var push_que=e.payload.id;
+		}
+		else{
+			// otherwise we were launched because the user touched a notification in the notification tray
+			if (e.coldstart){
+				//  storage the value of  playoad.numero, the extra value sent by push
+				window.localStorage.setItem("push_que", e.payload.id);
+			}
+			else{
+				//  storage the value of  playoad.numero, the extra value sent by push
+				window.localStorage.setItem("push_que", e.payload.id);
+			}
+		}
+		break;
+		case 'error':
+		break;
+		default:
+		break;
+	}
+}
+//********************************** END OUTSIDE DEVICE READY
