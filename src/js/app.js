@@ -1208,7 +1208,7 @@ async function set_booking(){
 			db.collection("booking").add({
 				date: date,
 				duration: "2 hours",
-				facility: facility,
+				facility: facility_chosen,
 				status: "pending",
 				time: time_chosen,
 				user_id: user_id
@@ -1216,7 +1216,7 @@ async function set_booking(){
 				var price = 1000 * 2;
 				localStorage.setItem("latest-payment-amount",parseFloat(price).toFixed(0));
 				localStorage.setItem("latest-payment-amount-string",parseFloat(parseFloat(price).toFixed(0)/100).toFixed(2));
-				localStorage.setItem("latest-payment-descrip",facility);
+				localStorage.setItem("latest-payment-descrip",facility_chosen);
 				localStorage.setItem("latest-facility-document",doc.id);
 				paymentPopup.close();
 				redirect("payment-method");
@@ -2171,6 +2171,8 @@ function saveFailPaymentDetails(){
 	});
 }*/
 
+
+/* Codes to Refer for notification - https://github.com/phonegap-build/PushPlugin/issues/213 */
 //************************************  OUTSIDE DEVICE READY
 // handle APNS notifications for iOS
 /*function onNotificationAPN(e) {
