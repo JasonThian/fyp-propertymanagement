@@ -1040,12 +1040,12 @@ async function set_booking(){
 					bookings[booked_date]['20:00'] = 0;
 					bookings[booked_date]['22:00'] = 0;
 					
-					bookings[restricted_date]['restriction'] = {};
-					bookings[restricted_date]['restriction']['landlord'] = {};
-					bookings[restricted_date]['restriction']['user'] = {};
+					bookings[booked_date]['restriction'] = {};
+					bookings[booked_date]['restriction']['landlord'] = {};
+					bookings[booked_date]['restriction']['user'] = {};
 					
-					bookings[restricted_date]['restriction']['landlord'][3] = [];
-					bookings[restricted_date]['restriction']['user'][3] = [];
+					bookings[booked_date]['restriction']['landlord'][3] = [];
+					bookings[booked_date]['restriction']['user'][3] = [];
 				}
 				
 				//increment time slot booking counter
@@ -2173,7 +2173,7 @@ function saveFailPaymentDetails(){
 
 //************************************  OUTSIDE DEVICE READY
 // handle APNS notifications for iOS
-function onNotificationAPN(e) {
+/*function onNotificationAPN(e) {
 	// storage the e.id value  (the extra value sent in push notification)
 	window.localStorage.setItem("push_que", e.id);
 	var push_que=e.id;
@@ -2222,5 +2222,5 @@ function onNotificationGCM(e) {
 		default:
 		break;
 	}
-}
+}*/
 //********************************** END OUTSIDE DEVICE READY
