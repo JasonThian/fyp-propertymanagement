@@ -47,5 +47,8 @@
       "android",
       "ios"
     ]
+  },
+  "dependencies": {
+    "framework7-icons": "^4.0.2"
   }
 }

@@ -6,6 +6,7 @@ import ChatPage from '../pages/chatbox.f7.html';
 import AnnouncementPage from '../pages/announcement.f7.html';
 import FacilitiesPage from '../pages/facilities.f7.html';
 import QRCodePage from '../pages/qrcode.f7.html';
+import BillingPage from '../pages/billing.f7.html';
 import PaymentPage from '../pages/payment.f7.html';
 import PaymentMethodPage from '../pages/paymentmethod.f7.html';
 import PaymentOnlinePage from '../pages/paymentonline.f7.html';
@@ -58,6 +59,7 @@ var routes = [
     component: QRCodePage,
   },
   {
+	name: "payment",
     path: '/payment/',
     component: PaymentPage,
   },
@@ -99,6 +101,11 @@ var routes = [
 	name: "payment-success",
     path: '/paymentsuccess/',
     component: PaymentSuccessPage,
+  },
+  {
+	name: "billing",
+    path: '/billing/',
+    component: BillingPage,
   },
   {
 	name: "login",
