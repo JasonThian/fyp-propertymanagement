@@ -89,6 +89,10 @@ window.app = new Framework7({
 	},
 	SelectAnnc: function(id){
 		SelectAnnc(id);
+	},
+	Chosen_Facility: function(chosen){
+		console.log(chosen)
+		chosen_facility(chosen);
 	}
   },
   // App routes
@@ -995,7 +999,7 @@ function disableTimeSlots(){
 }
 
 async function set_booking(){
-	
+	console.log(facility_chosen);
 	//get today
 	var now = new Date();
 	var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1232,32 +1236,86 @@ function redirect(page){
 	mainView.router.navigate({ name: page});
 }
 
-function getFacility(){
-	var bbq = document.getElementById('bbq');
-	var skylounge = document.getElementById('skylounge');
-	var avroom = document.getElementById('avroom');
-	var sauna = document.getElementById('sauna');
-	var gym = document.getElementById('gym');
-	var facilities = document.getElementsByClassName('facility-name');
-	console.log(facilities)
-	booking_list = {
-		"AV Room": {},
-		"Sauna": {},
-		"Gym": {},
-		"BBQ Pit": {},
-		"Sky Lounge": {} 
-	};
-	for(var i=0; i< facilities.length;i++){
-		facilities[i].parentElement.addEventListener('click', function(e){
+async function getFacility(){
+	var facilities = document.getElementById('facility-list');
+	console.log(facilities);
+	booking_list = {};
+	
+	var facilityRef = db.collection("config").doc("facilities").collection("facilities_list");
+	
+	let facilities_list = await facilityRef.get();
+	
+	var fac_count = 0;
+	facilities_list.forEach(async (doc) => {
+		//init vars
+		var img_url = doc.data().img;
+		var name = doc.data().name;
+		
+		//setup obj
+		booking_list[name] = {};
+		
+		var pathReference = storage.ref("facilities/"+img_url);
+			
+		let url = await pathReference.getDownloadURL();
+		
+		
+		console.log(fac_count);
+		if(fac_count == 0){
+			
+			facilities.innerHTML += `<div class="row no-gap">
+			<div class="col">
+			  <div class="card facility-card">
+				<div class="card-content card-content-padding card-margin-middle">
+				  <a href="" class="facility_redirect" id="${name}" onclick="app.data.Chosen_Facility('${name}');">
+					<img src="${url}" width="80" height="80">
+					<p class="subtitle">${name}</p>
+				  </a>
+				</div>
+			  </div>             
+			</div> 
+		  </div>`;
+		  console.log(facilities);
+		}else if(fac_count == 1){
+			var rows = document.getElementsByClassName('row no-gap');
+			var row_count = rows.length-1;
+			
+			rows[row_count].innerHTML += `<div class="col">
+			  <div class="card facility-card" >
+				<div class="card-content card-content-padding card-margin-middle">
+				  <a href="" class="facility_redirect" id="${name}" onclick="app.data.Chosen_Facility('${name}');">
+					<img src="${url}" width="80" height="80">
+					<p class="subtitle">${name}</p>
+				  </a>
+				</div>
+			  </div>             
+			</div> `;
+			
+			
+		}
+		
+		fac_count += 1;
+		
+		if(fac_count == 2){
+			fac_count = 0;
+		}
+	})
+	
+	
+	var cards = document.getElementsByClassName('facility_redirect');
+	for(var i=0; i< cards.length;i++){
+		cards[i].parentElement.addEventListener('click', function(e){
 			e.preventDefault();
 			facility_chosen = this.id;
 			console.log(facility_chosen);
-			//redirect("facilities");
+			redirect("facilities");
 		})
 	}
 }
 
-
+function chosen_facility(chosen){
+	facility_chosen = chosen;
+	redirect('facilities');
+}
 
 //////Payment Reminder
 //Payment History
