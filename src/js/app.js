@@ -121,6 +121,13 @@ window.app = new Framework7({
   },
 });
 
+document.addEventListener("offline", stopAllExecution(), false);
+
+function stopAllExecution(){
+	//throw new Error("Something went wrong");
+	console.log("?");
+}
+
 app.preloader.show();
 
 /* Logout */
@@ -146,9 +153,12 @@ function set_logout(){
 /* Go to page */
 //redirect("/");
 
+var USER_DOC = "";
+
 /* Initialize */
 async function init_script(){
 	app.preloader.show();
+	
 	/*import jquery and Stripe js */
 	var jquery = document.createElement('script');
 	var stripe_payment = document.createElement('script');
@@ -251,10 +261,17 @@ async function init_script(){
 				console.log(paymentIntent);
 				console.log(paymentIntent.redirect_status[0]);
 				var stored_payment_intent = "";
+				var payment_description = "";
+				var facility_doc = "";
 				
 				/* Get payment intent id */
 				try{
 					stored_payment_intent = localStorage.getItem("latest-payment-intent");
+					payment_description = localStorage.getItem("latest-payment-descrip");
+					facility_doc = localStorage.getItem("latest-facility-document");
+					console.log("latest-facility-document",facility_doc);
+					console.log("latest-payment-descrip",payment_description);
+					console.log("latest-payment-intent",stored_payment_intent);
 				}catch(err){
 					console.log(err);
 				}
@@ -268,19 +285,59 @@ async function init_script(){
 					console.log(err);
 				}
 				
-				if(paymentIntent.payment_intent[0] != stored_payment_intent){
-					/* Save payment intent id */
-					localStorage.setItem("latest-payment-intent",paymentIntent.payment_intent[0]);
+				/* Check if payment for facility */
+				if(payment_description == "Sauna"){
+					if(paymentIntent.payment_intent[0] != stored_payment_intent){
+						/* Save payment intent id */
+						localStorage.setItem("latest-payment-intent",paymentIntent.payment_intent[0]);
+					}
 					
 					if(paymentIntent.redirect_status[0] == "succeeded"){
-						/* Display Payment Success Page */
-						redirect("payment-success");
+						db.collection("booking").doc(facility_doc).get().then((doc) => {
+							if(doc.data().status == "pending"){
+								console.log("booking is pending");
+								db.collection("booking").doc(facility_doc).update({ status: "success" }).then(() => {
+									console.log("booking success");
+									/* Display Payment Success Page */
+									redirect("payment-success");
+								});
+							}
+						}).catch((err) => {
+							console.log(err);
+						});
+					}else{
+						db.collection("booking").doc(facility_doc).delete().then(() => {
+							console.log("booking failed");
+							/* Disply Payment Failed Page */
+							redirect("payment-fail");
+						}).catch((err) => {
+							console.log(err);
+						});
 					}
-					else{
-						/* Disply Payment Failed Page */
-						redirect("payment-fail");
+				}else{
+					if(paymentIntent.payment_intent[0] != stored_payment_intent){
+						/* Save payment intent id */
+						localStorage.setItem("latest-payment-intent",paymentIntent.payment_intent[0]);
+						
+						if(paymentIntent.redirect_status[0] == "succeeded"){
+							/* Display Payment Success Page */
+							redirect("payment-success");
+						}
+						else{
+							/* Disply Payment Failed Page */
+							redirect("payment-fail");
+						}
 					}
 				}
+			}else{
+				if(localStorage.getItem("latest-payment-descrip") == "Sauna")
+					db.collection("booking").doc(localStorage.getItem("latest-facility-document")).get().then((doc) => {
+						if(doc.exists)
+							if(doc.data().status == "pending")
+								db.collection("booking").doc(localStorage.getItem("latest-facility-document")).delete();
+					}).catch((err) => {
+						
+					});
 			}
 		}catch(err){
 			console.log(err);
@@ -372,13 +429,96 @@ $$(document).on('page:init', async function (e, page) {
 		saveSuccessPaymentDetails();
 	}else if(pn == "payment-method"){
 		getUserBillingPaymentMethod();
+	}else if(pn == "billing"){
+		getBilling();
 	}else if(pn == "payment"){
 		getUserBilling();
 	}else if(pn == "qrcode"){
 		getQrCode();
+	}else if(pn == "issue_report"){
+		issueReportPage();
+	}else if(pn == "chatbox"){
+		chatbox();
 	}
 })
 
+function check_msg_type(doc){
+	var chatele="";
+	
+	if(doc.user != "user"){
+		chatele += `
+		<div class="message-group-received">             
+			<div class="message-received">
+				<div class="message-received-text">
+					${doc.message}
+                </div>
+            </div>
+		</div>`;
+	}else{
+		chatele += `
+		<div class="message-group-sent">          
+            <div class="message-sent">
+                <div class="message-sent-text">
+                  ${doc.message}
+                </div>
+            </div>
+		</div>`;
+	}
+	
+	return chatele;
+}
+
+// chatbox
+function chatbox(){
+	var user_id = auth.currentUser.uid;
+	
+	var send = document.getElementById("send_msg");
+	
+	var msg_box = document.getElementById("msg_box");
+	
+	var chatroomRef = db.collection("landlord").doc(user_id).collection("chatroom");
+	var chatele = "";
+	var new_chat = "";
+	
+	chatroomRef.orderBy("time", "desc").onSnapshot((snapshot) => {
+
+        snapshot.docChanges().forEach((change) => {
+			console.log(change);
+			if(msg_box.innerHTML.trim() == ""){
+				chatele = check_msg_type(change.doc.data()) + chatele;
+			}else{
+				chatele += check_msg_type(change.doc.data());
+			}
+			
+        });
+
+		msg_box.innerHTML = chatele;
+		
+    }, (error) => {
+        console.log(error);
+    });
+	
+	send.addEventListener("click",function(e){
+		e.preventDefault();
+		var msg = document.getElementById("chatbox_msg").value;
+		if(msg.trim() != ""){
+			console.log(USER_DOC);
+			chatroomRef.add({
+				name: USER_DOC.name,
+				message: msg,
+				user: "user",
+				time: new Date()
+			})
+			
+			db.collection("landlord").doc(user_id).update({
+				rmsg : msg,
+				dateupdated: new Date()
+			})
+		}else{
+			console.log("empty msg");
+		}
+	})
+}
 
 //subscribe to topic
 function subscribe(token,topic){
@@ -397,6 +537,8 @@ function subscribe(token,topic){
 		console.error(error);
 	})
 }
+
+var user_type = "";
 ///////////// HOME SETUP
 function homesetup(){
 	var uid = auth.currentUser.uid;
@@ -404,10 +546,22 @@ function homesetup(){
 	var username = document.getElementById("username");
 	var user_pic = document.getElementById("user_pic");
 	var user_icon = document.getElementById("user_icon");
-	console.log(user_icon);
+	console.log(uid);
 
-	db.collection('landlord').doc(uid).onSnapshot((doc) => {
-				
+	db.collection('landlord').doc(uid).get().then((doc) => {
+		console.log("getting user data");
+		console.log(doc.data())
+		
+		var landlords = doc.data().landlords;
+		
+		USER_DOC = doc.data();
+		
+		if(landlords == ""){
+			user_type = "landlord";
+		}else{
+			user_type = "user";
+		}
+		
 		var name = doc.data().name;
 		var imageurl = doc.data().imageurl;
 			
@@ -446,11 +600,14 @@ function issueReportPage(){
 	var blob = "";
 	
 	//fields
-	var report_desc = document.getElementById("report_desc").value;
-	var report_block = document.getElementById("report_block").value;
 	var submit_issue = document.getElementById("submit_issue");
-	var date = new Date();
 	
+	
+	$("#report_img").change(function() {
+		
+		blob = readURL(this,"report_sample");
+		//console.log(blob);
+	});
 	docRef.get().then(function(doc) {
 		var user_id = doc.id;
 		var name = doc.data().name;
@@ -459,46 +616,56 @@ function issueReportPage(){
 		var gender = doc.data().gender;
 		var units = doc.data().unit;
 		
-		/*submit_issue.addEventListener('click', function(e){
+		
+		
+		submit_issue.addEventListener('click', function(e){
 			if(blob != ""){
-				var img_id = makeid(10);
+				//get values
+				var date = new Date();
+				var report_desc = document.getElementById("report_desc").value;
+				var report_block = document.getElementById("report_block").value;
+				if(report_desc.trim() != "" && report_block.trim() != ""){
+					var img_id = makeid(10);
 				
-				var announceref = storage.ref().child("issues/"+img_id+".png");
-				
-				announceref.put(blob).then(function(snapshot) {
-					var issueRef = db.collection("issues");
-					console.log('creating issue doc');
-					issueRef.add({
-						date: date,
-						desc: report_desc,
-						block: report_block,
-						img: img+".png",
-						reporter: user_id.
-						pno: pno,
-						email: email
-					}).then(function(e) {
-						toast("successfully reported this issue");
+					var announceref = storage.ref().child("issues/"+img_id+".png");
+					
+					announceref.put(blob).then(function(snapshot) {
+						var issueRef = db.collection("issues");
+						console.log('creating issue doc');
+						issueRef.add({
+							date: date,
+							desc: report_desc,
+							block: report_block,
+							img: img_id+".png",
+							reporter: user_id,
+							pno: pno,
+							email: email,
+							name: name
+						}).then(function(e) {
+							toast("successfully reported this issue");
+							redirect("home");
+						}).catch(err => {
+							console.log('err: '+err);
+							toast("failed to reported this issue");
+						});
+						
 					}).catch(err => {
 						console.log('err: '+err);
-						toast("failed to reported this issue");
 					});
-					
-				}).catch(err => {
-					console.log('err: '+err);
-				});
+				}else{
+					toast("Please fill in all details");
+				}
+				
 			}else{
 				toast("Please Select a image");
 			}
-		})*/
+		})
 		
 	})
 	
 	
 	
-	$("#report_img").change(function() {
-		blob = readURL(this);
-		//console.log(blob);
-	});
+	
 }
 //////// EDIT PAGE
 function getEditPage(){
@@ -562,7 +729,7 @@ function getEditPage(){
 	})
 	
 	$("#imgInp").change(function() {
-		blob = readURL(this);
+		blob = readURL(this,'blah');
 		//console.log(blob);
 	});
 }
@@ -588,13 +755,15 @@ function timed_toast(msg,pos){
 	normal_toast.open();
 }
 
-function readURL(input) {
+function readURL(input,id) {
 	if (input.files && input.files[0]) {
 		var reader = new FileReader();
 		
 		var blob = input.files[0];
 		reader.onload = function(e) {
-			$('#blah').attr('src', e.target.result);
+			var imgele = document.getElementById(id);
+			console.log(id);
+			imgele.src = e.target.result;
 		}
 	
 		reader.readAsDataURL(input.files[0]); // convert to base64 string
@@ -679,11 +848,11 @@ function set_login(){
 var facility_chosen = ""
 //booking variables
 var booking_list = {
-	"AV_Room": {},
+	"AV Room": {},
 	"Sauna": {},
-	"PingPong": {},
-	"BBQ": {},
-	"SkyLounge": {} 
+	"Gym": {},
+	"BBQ Pit": {},
+	"Sky Lounge": {} 
 	};
  var calendarEvents = "";
  var DEFAULT_LIMIT = 3;
@@ -718,7 +887,7 @@ function calendar_init(){
 		var disable = true;
 		
 		for(var timeslots in booked_dates[date]){
-			var restricted = booked_dates[date]['restriction'];
+			var restricted = booked_dates[date]['restriction'][user_type];
 			if(timeslots != "restriction"){
 				for(var restricted_limit in restricted){
 					var restricted_list = restricted[restricted_limit];
@@ -794,9 +963,8 @@ function disableTimeSlots(){
 		var date = new Date(date_chosen);
 		console.log(date);
 		if(booked_dates[date] != undefined){
-			
 			for(var timeslots in booked_dates[date]){
-				var restricted = booked_dates[date]['restriction'];
+				var restricted = booked_dates[date]['restriction'][user_type];
 				if(timeslots != "restriction"){
 					for(var restricted_limit in restricted){
 						var restricted_list = restricted[restricted_limit];
@@ -835,16 +1003,14 @@ async function set_booking(){
 	var book_button = document.getElementById("book-button");
 	book_button.disabled = true;
 	
+	/* Popup ask for payment */
+	var paymentPopup = app.popup.create({
+		el: '.popup-facility-payment',
+    });
+	
 	//booking collection
 	let querySnapshot = await db.collection("booking").get();
 	//reset booking list
-	booking_list = {
-	"AV_Room": {},
-	"Sauna": {},
-	"PingPong": {},
-	"BBQ": {},
-	"SkyLounge": {} 
-	};
 	
 	querySnapshot.forEach((doc) => {
 		var status = doc.data().status;
@@ -852,18 +1018,7 @@ async function set_booking(){
 			var booked_date = new Date(doc.data().date);
 			var facility_type = doc.data().facility;
 			
-			var bookings = "";
-			//filter booked facilities
-			if(facility_type === "AV Room")
-				bookings = booking_list.AV_Room;
-			else if(facility_type === "Sauna")
-				bookings = booking_list.Sauna;
-			else if(facility_type === "Sky Lounge")
-				bookings = booking_list.SkyLounge;
-			else if(facility_type === "BBQ Pit")
-				bookings = booking_list.BBQ;
-			else if(facility_type === "Ping-Pong Table")
-				bookings = booking_list.PingPong;
+			var bookings = booking_list[facility_type];
 			
 			//if date is in the future or today
 			if(booked_date >= today){
@@ -886,8 +1041,11 @@ async function set_booking(){
 					bookings[booked_date]['22:00'] = 0;
 					
 					bookings[booked_date]['restriction'] = {};
-			
-					bookings[booked_date]['restriction'][3] = [];
+					bookings[booked_date]['restriction']['landlord'] = {};
+					bookings[booked_date]['restriction']['user'] = {};
+					
+					bookings[booked_date]['restriction']['landlord'][3] = [];
+					bookings[booked_date]['restriction']['user'][3] = [];
 				}
 				
 				//increment time slot booking counter
@@ -910,19 +1068,9 @@ async function set_booking(){
 		var restricted_time = doc.data().disabled_time;
 		var limit = doc.data().limit;
 		var facility_type = doc.data().facility;
-		var bookings = "";
+		var limited_type = doc.data().users;
 		
-		//filter booked facilities
-		if(facility_type === "AV Room")
-			bookings = booking_list.AV_Room;
-		else if(facility_type === "Sauna")
-			bookings = booking_list.Sauna;
-		else if(facility_type === "Sky Lounge")
-			bookings = booking_list.SkyLounge;
-		else if(facility_type === "BBQ Pit")
-			bookings = booking_list.BBQ;
-		else if(facility_type === "Ping-Pong Table")
-			bookings = booking_list.PingPong;
+		var bookings = booking_list[facility_chosen];
 		
 		if(bookings[restricted_date] == null){
 			bookings[restricted_date] = {};
@@ -938,9 +1086,35 @@ async function set_booking(){
 			bookings[restricted_date]['restriction'] = {};
 		}
 		
+		if(bookings[restricted_date]['restriction'] == null){
+			bookings[restricted_date]['restriction'] = {};
+		}
 		
-		bookings[restricted_date]['restriction'][limit] = [];
-		bookings[restricted_date]['restriction'][limit] = restricted_time.concat(bookings[restricted_date]['restriction'][limit]);
+		if(bookings[restricted_date]['restriction']['landlord'] == null){
+			bookings[restricted_date]['restriction']['landlord'] = {};
+			bookings[restricted_date]['restriction']['user'] = {};
+		}
+		
+		
+		if(limited_type == "all"){
+			if(bookings[restricted_date]['restriction']['landlord'][limit] == null){
+				bookings[restricted_date]['restriction']['landlord'][limit] = [];
+			}
+			
+			if(bookings[restricted_date]['restriction']['user'][limit] == null){
+				bookings[restricted_date]['restriction']['user'][limit] = [];
+			}
+			
+			bookings[restricted_date]['restriction']['landlord'][limit] = restricted_time.concat(bookings[restricted_date]['restriction']['landlord'][limit]);
+			bookings[restricted_date]['restriction']['user'][limit] = restricted_time.concat(bookings[restricted_date]['restriction']['user'][limit]);
+		}else{
+			if(bookings[restricted_date]['restriction'][limited_type][limit] == null){
+				bookings[restricted_date]['restriction'][limited_type][limit] = [];
+			}
+			bookings[restricted_date]['restriction'][limited_type][limit] = restricted_time.concat(bookings[restricted_date]['restriction'][limited_type][limit]);
+		}
+		
+		
 		
 	});
 	
@@ -967,20 +1141,7 @@ async function set_booking(){
 		//var facility_chosen = document.getElementById('facility').value;
 		var time_chosen = document.getElementById('time_select').value;
 		var date_chosen = document.getElementById('calendar-events-disable').value;
-		
-		//filter booked facilities
-		var facility = "";
-		if(facility_chosen === "AV_Room")
-			facility = "AV Room";
-		else if(facility_chosen === "Sauna")
-			facility = "Sauna";
-		else if(facility_chosen === "SkyLounge")
-			facility = "Sky Lounge";
-		else if(facility_chosen === "BBQ")
-			facility = "BBQ Pit";
-		else if(facility_chosen === "PingPong")
-			facility = "Ping-Pong Table";
-		
+
 		//format date
 		var dateObj = new Date(date_chosen);
 		var month = monthNames[dateObj.getMonth()];
@@ -988,11 +1149,11 @@ async function set_booking(){
 		var year = dateObj.getFullYear();
 		var date = day  + '-'+ month  + '-' + year;
 		
-		if(facility_chosen != "" && time_chosen != "" && date_chosen != ""){
+		if(facility_chosen != "Sauna" && facility_chosen != "" && time_chosen != "" && date_chosen != ""){
 			db.collection("booking").add({
 				date: date,
 				duration: "2 hours",
-				facility: facility,
+				facility: facility_chosen,
 				status: "pending",
 				time: time_chosen,
 				user_id: user_id
@@ -1005,6 +1166,13 @@ async function set_booking(){
 				toast.open();
 				redirect('bookingsuccess');
 			})
+		}else if(facility_chosen == "Sauna" && time_chosen != "" && date_chosen != ""){
+			console.log("dsa",localStorage.getItem("facility-payment-dont-show-again"));
+			if(localStorage.getItem("facility-payment-dont-show-again") == "set"){
+				redirect_payment();
+			}else{
+				paymentPopup.open();
+			}
 		}else{
 			var toast = app.toast.create({
 				text: 'Please fill in the details',
@@ -1014,6 +1182,48 @@ async function set_booking(){
 			toast.open();
 		}
 		
+		/* prevent duplicate onclick event */
+		$("#popup-payment-yes").prop("onclick",null).off("click");
+		$("#popup-payment-no").prop("onclick",null).off("click");
+		
+		$("#popup-payment-yes").click((e) => {
+			e.preventDefault();
+			
+			/* Don't show again */
+			var facility_checkbox = document.getElementById("facility-payment-dont-show-again");
+			
+			if(facility_checkbox.checked){
+				localStorage.setItem("facility-payment-dont-show-again","set");
+			}
+			
+			redirect_payment();
+		});
+		
+		$("#popup-payment-no").click((e) => {
+			e.preventDefault();
+			paymentPopup.close();
+		});
+		
+		function redirect_payment(){
+			db.collection("booking").add({
+				date: date,
+				duration: "2 hours",
+				facility: facility_chosen,
+				status: "pending",
+				time: time_chosen,
+				user_id: user_id
+			}).then((doc) =>{
+				var price = 1000 * 2;
+				localStorage.setItem("latest-payment-amount",parseFloat(price).toFixed(0));
+				localStorage.setItem("latest-payment-amount-string",parseFloat(parseFloat(price).toFixed(0)/100).toFixed(2));
+				localStorage.setItem("latest-payment-descrip",facility_chosen);
+				localStorage.setItem("latest-facility-document",doc.id);
+				paymentPopup.close();
+				redirect("payment-method");
+			}).catch((err) => {
+				timed_toast("An error has occured","center");
+			});
+		}
 	})
 }
 
@@ -1028,42 +1238,23 @@ function getFacility(){
 	var avroom = document.getElementById('avroom');
 	var sauna = document.getElementById('sauna');
 	var gym = document.getElementById('gym');
-	
-	
-	bbq.addEventListener('click', function(e){
-		e.preventDefault();
-		facility_chosen = "BBQ";
-		console.log(facility_chosen);
-		redirect("facilities");
-	})
-	
-	skylounge.addEventListener('click', function(e){
-		e.preventDefault();
-		facility_chosen = "SkyLounge";		
-		console.log(facility_chosen);
-		redirect("facilities");
-	})
-	
-	avroom.addEventListener('click', function(e){
-		e.preventDefault();
-		facility_chosen = "AV_Room";
-		console.log(facility_chosen);
-		redirect("facilities");
-	})
-	
-	sauna.addEventListener('click', function(e){
-		e.preventDefault();
-		facility_chosen = "Sauna";	
-		console.log(facility_chosen);
-		redirect("facilities");
-	})
-	
-	gym.addEventListener('click', function(e){
-		e.preventDefault();
-		facility_chosen = "PingPong";
-		console.log(facility_chosen);		
-		redirect("facilities");
-	})
+	var facilities = document.getElementsByClassName('facility-name');
+	console.log(facilities)
+	booking_list = {
+		"AV Room": {},
+		"Sauna": {},
+		"Gym": {},
+		"BBQ Pit": {},
+		"Sky Lounge": {} 
+	};
+	for(var i=0; i< facilities.length;i++){
+		facilities[i].parentElement.addEventListener('click', function(e){
+			e.preventDefault();
+			facility_chosen = this.id;
+			console.log(facility_chosen);
+			//redirect("facilities");
+		})
+	}
 }
 
 
@@ -1456,7 +1647,7 @@ function createQrCode(){
 	count_time(time.getTime());
 }
 
-/* Share Button */
+/* Share Button - Not Functioning */
 function shareQrCode(){
 	var options = {
 		files: ['static/icons/img-placeholder.jpg']
@@ -1476,6 +1667,119 @@ function shareQrCode(){
 	window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
 }
 
+function getPaymentDetails(id){
+	localStorage.setItem("latest-payment-id",id);
+	redirect("payment");
+}
+
+/* Billing Page */
+function getBilling(){
+	app.preloader.show();
+	var paid_container = document.getElementById("paid_billing");
+	var unpaid_container = document.getElementById("unpaid_billing");
+	var paid_list = document.createElement("ul");
+	var unpaid_list = document.createElement("ul");
+	var user_id = auth.currentUser.uid;
+	var paid_array = [];
+	var unpaid_array = [];
+	var paid_html = "";
+	var unpaid_html = "";
+	
+	paid_container.innerHTML = "";
+	unpaid_container.innerHTML = "";
+	
+	db.collection("billing").where("user_id","==",user_id).get().then((querySnapshot) => {
+		querySnapshot.forEach((doc) => {
+			if(doc.data().status == "paid"){
+				let object = {
+					id: doc.id,
+					description: doc.data().description,
+					amount: doc.data().amount,
+					due_date: doc.data().due_date.toDate().toString(),
+					time: doc.data().due_date.toDate().getTime()
+				};
+				paid_array.push(object);
+			}
+			else if(doc.data().status == "unpaid"){
+				let object = {
+					id: doc.id,
+					description: doc.data().description,
+					amount: doc.data().amount,
+					due_date: doc.data().due_date.toDate().toString(),
+					time: doc.data().due_date.toDate().getTime()
+				};
+				unpaid_array.push(object);
+			}
+		});
+	}).then(() => {
+		for (let j = 0; j < paid_array.length; j++) {
+			for (let i = 0; i+1 < paid_array.length; i++) {
+				if(paid_array[i].time < paid_array[i+1].time){
+					let array = paid_array[i];
+					paid_array[i] = paid_array[i+1];
+					paid_array[i+1] = array;
+				}
+			}
+		}
+		for (let j = 0; j < unpaid_array.length; j++) {
+			for (let i = 0; i+1 < unpaid_array.length; i++) {
+				if(unpaid_array[i].time < unpaid_array[i+1].time){
+					let array = unpaid_array[i];
+					unpaid_array[i] = unpaid_array[i+1];
+					unpaid_array[i+1] = array;
+				}
+			}
+		}
+	}).then(() => {
+		for (let i = 0; i < paid_array.length; i++) {
+			let url = "static/icons/success.png";
+			paid_html += `
+			<li id="${paid_array[i].id}" class="billing-row">
+				<a id="${paid_array[i].id}" class="item-link item-content">
+					<div class="item-media"><img src="${url}"/></div>
+					<div class="item-inner">
+						<div class="item-title-row">
+							<div class="item-title">${paid_array[i].description}</div>
+							<div class="item-after">RM${parseInt(paid_array[i].amount/100).toFixed(2)}</div>
+						</div>
+						<div class="item-text">${paid_array[i].due_date}</div>
+					</div>
+				</a>
+			</li>`;
+		}
+		for (let i = 0; i < unpaid_array.length; i++) {
+			let url = "static/icons/fail.png";
+			unpaid_html += `
+			<li id="${unpaid_array[i].id}" class="billing-row">
+				<a id="${unpaid_array[i].id}" class="item-link item-content">
+					<div class="item-media"><img src="${url}"/></div>
+					<div class="item-inner">
+						<div class="item-title-row">
+							<div class="item-title">${unpaid_array[i].description}</div>
+							<div class="item-after">RM${parseInt(unpaid_array[i].amount/100).toFixed(2)}</div>
+						</div>
+						<div class="item-text">${unpaid_array[i].due_date}</div>
+					</div>
+				</a>
+			</li>`;
+		}
+	}).then(() => {
+		paid_list.innerHTML = paid_html;
+		unpaid_list.innerHTML = unpaid_html;
+		paid_container.appendChild(paid_list);
+		unpaid_container.appendChild(unpaid_list);
+		document.getElementById("unpaid_tab").click();
+		$(".billing-row").prop("onclick",null).off("click");
+		$(".billing-row").click((event) => {
+			getPaymentDetails(event.currentTarget.id);
+		});
+		app.preloader.hide();
+	}).catch((err) => {
+		console.log(err);
+		app.preloader.hide();
+	});
+}
+
 /*
 temp
 sessionStorage.getItem('label')
@@ -1484,6 +1788,7 @@ sessionStorage.setItem('label', 'value')
 perm
 localStorage.getItem('label')
 localStorage.setItem('label', 'value')*/
+
 
 /* Payment Method Page */
 function getUserBillingPaymentMethod(){
@@ -1514,49 +1819,48 @@ function getUserBilling(){
 	
 	app.preloader.show();
 	payNowButton.disabled = true;
-	
-	db.collection("billing").where("user_id", "==", user_id).orderBy("date", "desc").limit(1).get().then((querySnapshot) => {
-		querySnapshot.forEach((doc) => {
-			$("#pay-now-button").prop("onclick",null).off("click");
-			if(doc.data().status != "paid"){
-				var time = new Date();
-				var amount = '';
-				var amountString = '';
-				var paymentDescrip = '';
-				
-				/* parse data */
-				time.setTime(doc.data().date.seconds * 1000);
-				amount = doc.data().amount;
-				amountString = (doc.data().amount/100).toFixed(2);
-				paymentDescrip = doc.data().description;
-				
-				/* set data */
-				document.getElementById("amount-data").innerHTML = amountString;
-				document.getElementById("pay-by").value = time.toLocaleDateString("en-US");
-				document.getElementById("payment-details").value = paymentDescrip;
-				document.getElementById("order-number").value = doc.id;
-				
-				/* save into storage */
-				localStorage.setItem("latest-payment-id",doc.id);
-				localStorage.setItem("latest-payment-amount",parseFloat(amount).toFixed(0));
-				localStorage.setItem("latest-payment-amount-string",amountString);
-				localStorage.setItem("latest-payment-descrip",paymentDescrip);
-				
-				console.log("latest-payment-id",doc.id);
-				console.log("latest-payment-amount",amount);
-				console.log("latest-payment-amount-string",amountString);
-				console.log("latest-payment-descrip",paymentDescrip);
+	db.collection("billing").doc(localStorage.getItem("latest-payment-id")).get().then((doc) => {
+		$("#pay-now-button").prop("onclick",null).off("click");
+		
+		var time = new Date();
+		var amount = '';
+		var amountString = '';
+		var paymentDescrip = '';
+		
+		/* parse data */
+		time.setTime(doc.data().date.seconds * 1000);
+		amount = doc.data().amount;
+		amountString = (doc.data().amount/100).toFixed(2);
+		paymentDescrip = doc.data().description;
+		
+		/* set data */
+		document.getElementById("amount-data").innerHTML = amountString;
+		document.getElementById("pay-by").value = time.toLocaleDateString("en-US");
+		document.getElementById("payment-details").value = paymentDescrip;
+		document.getElementById("order-number").value = doc.id;
+		
+		if(doc.data().status != "paid"){
+			
+			/* save into storage */
+			localStorage.setItem("latest-payment-id",doc.id);
+			localStorage.setItem("latest-payment-amount",parseFloat(amount).toFixed(0));
+			localStorage.setItem("latest-payment-amount-string",amountString);
+			localStorage.setItem("latest-payment-descrip",paymentDescrip);
+			
+			console.log("latest-payment-id",doc.id);
+			console.log("latest-payment-amount",amount);
+			console.log("latest-payment-amount-string",amountString);
+			console.log("latest-payment-descrip",paymentDescrip);
 
-				$("#pay-now-button").click(() => {
-					redirect("payment-method");
-				});
-			}
-			else{
-				$("#pay-now-button").click(() => {
-					timed_toast("There is no bill","center");
-				});
-			}
-		})
+			$("#pay-now-button").click(() => {
+				redirect("payment-method");
+			});
+		}
+		else{
+			$("#pay-now-button").click(() => {
+				timed_toast("This bill has been paid","center");
+			});
+		}
 	}).then(() => {
 		payNowButton.disabled = false;
 		app.preloader.hide();
@@ -1635,7 +1939,16 @@ function online_payment_function(){
 	
 	$('#online-payment-cancel-button').prop('onclick',null).off('click');
 	$('#online-payment-cancel-button').click(() => {
-		redirect("home");
+		if(localStorage.getItem("latest-payment-descrip") == "Sauna"){
+			db.collection("booking").doc(localStorage.getItem("latest-facility-document")).delete().then(() => {
+				console.log("booking failed");
+				/* Disply Payment Failed Page */
+				redirect("payment-fail");
+			}).catch((err) => {
+				console.log(err);
+			});
+		}else
+			redirect("home");
 	});
 }
 
@@ -1714,12 +2027,37 @@ function credit_payment_function(){
 		  if (result.error) {
 			localStorage.setItem("latest-payment-intent",result.error.payment_intent.id);
 			showError(result.error.message);
-			redirect("payment-fail");
+			if(localStorage.getItem("latest-payment-descrip") == "Sauna"){
+				db.collection("booking").doc(localStorage.getItem("latest-facility-document")).delete().then(() => {
+					console.log("booking failed");
+					/* Disply Payment Failed Page */
+					redirect("payment-fail");
+				}).catch((err) => {
+					console.log(err);
+				});
+			}else{
+				redirect("payment-fail");
+			}
 		  } else {
 			alert("Complete");
 			localStorage.setItem("latest-payment-intent",result.paymentIntent.id);
 			orderComplete(result.paymentIntent.id);
-			redirect("payment-success");
+			if(localStorage.getItem("latest-payment-descrip") == "Sauna"){
+				db.collection("booking").doc(localStorage.getItem("latest-facility-document")).get().then((doc) => {
+					if(doc.data().status == "pending"){
+						console.log("booking is pending");
+						db.collection("booking").doc(localStorage.getItem("latest-facility-document")).update({ status: "success" }).then(() => {
+							console.log("booking success");
+							/* Display Payment Success Page */
+							redirect("payment-success");
+						});
+					}
+				}).catch((err) => {
+					console.log(err);
+				});
+			}else{
+				redirect("payment-success");
+			}
 		  }
 		});
 	};
@@ -1759,7 +2097,16 @@ function credit_payment_function(){
 	
 	$('#credit-payment-cancel-button').prop('onclick',null).off('click');
 	$('#credit-payment-cancel-button').click(() => {
-		redirect("home");
+		if(localStorage.getItem("latest-payment-descrip") == "Sauna"){
+			db.collection("booking").doc(localStorage.getItem("latest-facility-document")).delete().then(() => {
+				console.log("booking failed");
+				/* Disply Payment Failed Page */
+				redirect("payment-fail");
+			}).catch((err) => {
+				console.log(err);
+			});
+		}else
+			redirect("home");
 	});
 }
 
@@ -1769,20 +2116,21 @@ function saveSuccessPaymentDetails(){
 	var time = new Date();
 	time = time.getTime();
 	
-	db.collection("billing").doc(localStorage.getItem("latest-payment-id")).update({ status: "paid" }).then(() => {
-		db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).set({
-			status: "Successful",
-			user_id: user_id,
-			description: localStorage.getItem("latest-payment-descrip"),
-			payment_id: localStorage.getItem("latest-payment-id"),
-			amount: localStorage.getItem("latest-payment-amount"),
-			time: time,
-			bank: localStorage.getItem("latest-payment-bank")
-		}).then(() => {
-			app.preloader.hide();
-		});
-	}).catch((err) => {
-		console.log(err);
+	db.collection("payment").doc(localStorage.getItem("latest-payment-intent")).set({
+		status: "Successful",
+		user_id: user_id,
+		description: localStorage.getItem("latest-payment-descrip"),
+		payment_id: localStorage.getItem("latest-payment-id"),
+		amount: localStorage.getItem("latest-payment-amount"),
+		time: time,
+		bank: localStorage.getItem("latest-payment-bank")
+	}).then(() => {
+		if(localStorage.getItem("latest-payment-descrip") != "Sauna"){
+			db.collection("billing").doc(localStorage.getItem("latest-payment-id")).update({ status: "paid" }).catch((err) => {
+				console.log(err);
+			});
+		}
+		app.preloader.hide();
 	});
 }
 
@@ -1822,3 +2170,59 @@ function saveFailPaymentDetails(){
 		}
 	});
 }*/
+
+
+/* Codes to Refer for notification - https://github.com/phonegap-build/PushPlugin/issues/213 */
+//************************************  OUTSIDE DEVICE READY
+// handle APNS notifications for iOS
+/*function onNotificationAPN(e) {
+	// storage the e.id value  (the extra value sent in push notification)
+	window.localStorage.setItem("push_que", e.id);
+	var push_que=e.id;
+	// if the push notification is coming inline
+	if (e.foreground=="1"){
+		// storage the e.numero value  (the extra value sent in push notification)
+		window.localStorage.setItem("push_que", e.id);
+		var push_que=e.id;
+		// some code here to open a message  if a new push is recieved inline
+	}
+	if ( event.alert ){
+		navigator.notification.alert(event.alert);
+	}
+	if ( event.sound ){
+		var snd = new Media(event.sound);
+		snd.play();
+	}
+	if ( event.badge ){
+		pushNotification.setApplicationIconBadgeNumber(successHandler, errorHandler, event.badge);
+	}
+}
+
+// handle GCM notifications for Android
+function onNotificationGCM(e) {
+	switch( e.event ){
+		if (e.foreground){
+			//  if the push is recieved inline
+			//  storage the value of  playoad.id,  the extra value sent by push
+			window.localStorage.setItem("push_que", e.payload.id);
+			var push_que=e.payload.id;
+		}
+		else{
+			// otherwise we were launched because the user touched a notification in the notification tray
+			if (e.coldstart){
+				//  storage the value of  playoad.numero, the extra value sent by push
+				window.localStorage.setItem("push_que", e.payload.id);
+			}
+			else{
+				//  storage the value of  playoad.numero, the extra value sent by push
+				window.localStorage.setItem("push_que", e.payload.id);
+			}
+		}
+		break;
+		case 'error':
+		break;
+		default:
+		break;
+	}
+}*/
+//********************************** END OUTSIDE DEVICE READY
