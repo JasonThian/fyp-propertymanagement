@@ -447,26 +447,42 @@ $$(document).on('page:init', async function (e, page) {
 })
 
 function check_msg_type(doc){
-	var chatele="";
+	var chatele=[];
 	
 	if(doc.user != "user"){
-		chatele += `
-		<div class="message-group-received">             
-			<div class="message-received">
-				<div class="message-received-text">
-					${doc.message}
-                </div>
-            </div>
-		</div>`;
+		chatele.push({text: doc.message,type: 'received'});
 	}else{
-		chatele += `
-		<div class="message-group-sent">          
-            <div class="message-sent">
-                <div class="message-sent-text">
-                  ${doc.message}
-                </div>
-            </div>
-		</div>`;
+		chatele.push({text: doc.message,type: 'sent'});
+	}
+	
+	return chatele;
+}
+
+function check_msg_type2(doc){
+	var chatele="";
+	var messages = app.messages.create({
+		el: '.messages'
+	});
+	
+	if(doc.user == "user"){
+		 messages.addMessage({
+            text: doc.message,
+            type: 'sent'
+          });
+	}else{
+		messages.showTyping({
+          header: 'Admin is typing'
+        });
+		
+		setTimeout(function () {
+          // Add received dummy message
+          messages.addMessage({
+            text: doc.message,
+            type: 'received'
+          });
+          // Hide typing indicator
+          messages.hideTyping();
+        }, 4000);
 	}
 	
 	return chatele;
@@ -474,6 +490,13 @@ function check_msg_type(doc){
 
 // chatbox
 function chatbox(){
+	
+	var messagebar = app.messagebar.create({
+        el: '.messagebar'
+    });
+	var messages;
+	messagebar.clear();
+	
 	var user_id = auth.currentUser.uid;
 	
 	var send = document.getElementById("send_msg");
@@ -481,31 +504,49 @@ function chatbox(){
 	var msg_box = document.getElementById("msg_box");
 	
 	var chatroomRef = db.collection("landlord").doc(user_id).collection("chatroom");
+	var chat_array = [];
 	var chatele = "";
 	var new_chat = "";
+	var start = true;
 	
 	chatroomRef.orderBy("time", "desc").onSnapshot((snapshot) => {
 
         snapshot.docChanges().forEach((change) => {
 			console.log(change);
-			if(msg_box.innerHTML.trim() == ""){
-				chatele = check_msg_type(change.doc.data()) + chatele;
+			
+			var doc = change.doc.data();
+			if(msg_box.innerHTML.trim() == ""){		
+				
+				if(doc.user != "user"){
+					chat_array.push({text: doc.message,type: 'received'});
+				}else{
+					chat_array.push({text: doc.message,type: 'sent'});
+				}
 			}else{
-				chatele += check_msg_type(change.doc.data());
+				//chatele += check_msg_type(change.doc.data());
+				check_msg_type2(doc);
 			}
+			
 			
         });
 
-		msg_box.innerHTML = chatele;
+		//msg_box.innerHTML = chatele;
+		messages = app.messages.create({
+			el: '.messages',
+			messages: chat_array
+		});
 		
+		start = false;
     }, (error) => {
-        console.log(error);
-    });
+		console.error(error);
+	});
+	
 	
 	send.addEventListener("click",function(e){
 		e.preventDefault();
 		var msg = document.getElementById("chatbox_msg").value;
 		if(msg.trim() != ""){
+			
 			console.log(USER_DOC);
 			chatroomRef.add({
 				name: USER_DOC.name,
@@ -518,6 +559,8 @@ function chatbox(){
 				rmsg : msg,
 				dateupdated: new Date()
 			})
+			
+			messagebar.clear();
 		}else{
 			console.log("empty msg");
 		}
