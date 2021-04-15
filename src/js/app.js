@@ -125,11 +125,33 @@ window.app = new Framework7({
   },
 });
 
-document.addEventListener("offline", stopAllExecution(), false);
+/* Check Internet Connection */
+function checkConnection() {
+    var networkState = navigator.connection.type;
+
+    /*var states = {};
+    states[Connection.UNKNOWN]  = 'Unknown connection';
+    states[Connection.ETHERNET] = 'Ethernet connection';
+    states[Connection.WIFI]     = 'WiFi connection';
+    states[Connection.CELL_2G]  = 'Cell 2G connection';
+    states[Connection.CELL_3G]  = 'Cell 3G connection';
+    states[Connection.CELL_4G]  = 'Cell 4G connection';
+    states[Connection.CELL]     = 'Cell generic connection';
+    states[Connection.NONE]     = 'No network connection';*/
+
+    console.log("Connection Log",'Connection type: ' + networkState);//states[networkState]);
+	return networkState;
+}
+
+function onOffline(){
+	document.addEventListener("offline", stopAllExecution(), false);
+}
 
 function stopAllExecution(){
-	//throw new Error("Something went wrong");
-	console.log("?");
+	var currentState = checkConnection();
+	//if(currentState == Connection.NONE)
+		//throw new Error("Something went wrong");
+	console.log(currentState);
 }
 
 app.preloader.show();
@@ -185,6 +207,8 @@ async function init_script(){
 	}catch(err){
 		console.log(err);
 	}
+	
+	document.addEventListener("deviceready", onOffline(), false);
 	
 	/* Check User Login */
 	auth.onAuthStateChanged(async user => {
@@ -444,6 +468,7 @@ $$(document).on('page:init', async function (e, page) {
 	}else if(pn == "chatbox"){
 		chatbox();
 	}
+	checkConnection();
 })
 
 function check_msg_type(doc){

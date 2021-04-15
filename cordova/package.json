@@ -19,6 +19,7 @@
     "cordova-plugin-fcm-ng": "^8.3.0",
     "cordova-plugin-file": "^6.0.2",
     "cordova-plugin-keyboard": "^1.2.0",
+    "cordova-plugin-network-information": "git+https://github.com/apache/cordova-plugin-network-information.git",
     "cordova-plugin-np-socialsharing": "^5.6.5",
     "cordova-plugin-splashscreen": "^6.0.0",
     "cordova-plugin-statusbar": "^2.4.3",
@@ -41,7 +42,8 @@
         "ANDROID_SUPPORT_V4_VERSION": "24.1.1+",
         "PHOTO_LIBRARY_ADD_USAGE_DESCRIPTION": "This app requires photo library access to function properly.",
         "PHOTO_LIBRARY_USAGE_DESCRIPTION": "This app requires photo library access to function properly."
-      }
+      },
+      "cordova-plugin-network-information": {}
     },
     "platforms": [
       "android",
