@@ -1645,6 +1645,8 @@ async function setURL(url,url_list,d,imgset){
 	});
 }
 
+var loop;
+
 /* QR Code Page */
 function getQrCode(){
 	app.preloader.show();
@@ -1655,10 +1657,13 @@ function getQrCode(){
 	var time = new Date();
 	var QrCodeTime = null;
 	var QrCodeData = null;
+	var QrCodeArray = null;
 	
 	try{
-		QrCodeData = JSON.parse(lastQrCode);
-		QrCodeTime = QrCodeData.time;
+		QrCodeData = lastQrCode.replaceAll(/[a-zA-Z ]+[:][ ]/g, "");
+		console.log(QrCodeData);
+		QrCodeArray = QrCodeData.split("\n");
+		QrCodeTime = QrCodeArray[4];
 	}catch(err){
 		console.log(err);
 	}
@@ -1708,7 +1713,7 @@ function getQrCode(){
 
 /* QR Code Set Timer */
 function count_time(QRCodeTime){
-	var loop;
+	
 	try{
 		clearInterval(loop);
 	}catch(err){
@@ -1755,22 +1760,35 @@ function createQrCode(){
 	var time = new Date();
 	time.setHours( time.getHours() + 2 );
 	
-	var string = JSON.stringify({ 
-	user_id: user_id,
-	name: "",
-	time: time.getTime()
+	clearInterval(loop);
+	
+	db.collection("landlord").doc(user_id).get().then((doc) => {
+		
+		var string = "Owner Contact: " + doc.id +
+		"\nUnit: " + doc.data().contact +
+		"\nOwner IC: " + doc.data().ic +
+		"\nOwner Name: " + doc.data().name +
+		"\nExpire time: " + time.getTime();
+		
+		return string;
+	
+	}).then((string) => {
+		
+		localStorage.setItem("latest-qr-code",string);
+	
+		QRCode.toCanvas(canvas, string, {width: 250, height: 250}, function (error) {
+			if (error)
+				console.error(error);
+			else
+				console.log('success!');
+		});
+		
+		count_time(time.getTime());
+		
+	}).catch((err) => {
+		console.log(err);
+		timed_toast("Unable to create QR Code, please check your connection","Center");
 	});
-	
-	localStorage.setItem("latest-qr-code",string);
-	
-	QRCode.toCanvas(canvas, string, {width: 250, height: 250}, function (error) {
-		if (error)
-			console.error(error);
-		else
-			console.log('success!');
-	});
-	
-	count_time(time.getTime());
 }
 
 /* Share Button - Not Functioning */
