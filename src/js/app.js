@@ -89,6 +89,10 @@ window.app = new Framework7({
 	},
 	SelectAnnc: function(id){
 		SelectAnnc(id);
+	},
+	Chosen_Facility: function(chosen){
+		console.log(chosen)
+		chosen_facility(chosen);
 	}
   },
   // App routes
@@ -121,11 +125,33 @@ window.app = new Framework7({
   },
 });
 
-document.addEventListener("offline", stopAllExecution(), false);
+/* Check Internet Connection */
+function checkConnection() {
+    var networkState = navigator.connection.type;
+
+    /*var states = {};
+    states[Connection.UNKNOWN]  = 'Unknown connection';
+    states[Connection.ETHERNET] = 'Ethernet connection';
+    states[Connection.WIFI]     = 'WiFi connection';
+    states[Connection.CELL_2G]  = 'Cell 2G connection';
+    states[Connection.CELL_3G]  = 'Cell 3G connection';
+    states[Connection.CELL_4G]  = 'Cell 4G connection';
+    states[Connection.CELL]     = 'Cell generic connection';
+    states[Connection.NONE]     = 'No network connection';*/
+
+    console.log("Connection Log",'Connection type: ' + networkState);//states[networkState]);
+	return networkState;
+}
+
+function onOffline(){
+	document.addEventListener("offline", stopAllExecution(), false);
+}
 
 function stopAllExecution(){
-	//throw new Error("Something went wrong");
-	console.log("?");
+	var currentState = checkConnection();
+	//if(currentState == Connection.NONE)
+		//throw new Error("Something went wrong");
+	console.log(currentState);
 }
 
 app.preloader.show();
@@ -181,6 +207,8 @@ async function init_script(){
 	}catch(err){
 		console.log(err);
 	}
+	
+	document.addEventListener("deviceready", onOffline(), false);
 	
 	/* Check User Login */
 	auth.onAuthStateChanged(async user => {
@@ -440,29 +468,46 @@ $$(document).on('page:init', async function (e, page) {
 	}else if(pn == "chatbox"){
 		chatbox();
 	}
+	checkConnection();
 })
 
 function check_msg_type(doc){
-	var chatele="";
+	var chatele=[];
 	
 	if(doc.user != "user"){
-		chatele += `
-		<div class="message-group-received">             
-			<div class="message-received">
-				<div class="message-received-text">
-					${doc.message}
-                </div>
-            </div>
-		</div>`;
+		chatele.push({text: doc.message,type: 'received'});
 	}else{
-		chatele += `
-		<div class="message-group-sent">          
-            <div class="message-sent">
-                <div class="message-sent-text">
-                  ${doc.message}
-                </div>
-            </div>
-		</div>`;
+		chatele.push({text: doc.message,type: 'sent'});
+	}
+	
+	return chatele;
+}
+
+function check_msg_type2(doc){
+	var chatele="";
+	var messages = app.messages.create({
+		el: '.messages'
+	});
+	
+	if(doc.user == "user"){
+		 messages.addMessage({
+            text: doc.message,
+            type: 'sent'
+          });
+	}else{
+		messages.showTyping({
+          header: 'Admin is typing'
+        });
+		
+		setTimeout(function () {
+          // Add received dummy message
+          messages.addMessage({
+            text: doc.message,
+            type: 'received'
+          });
+          // Hide typing indicator
+          messages.hideTyping();
+        }, 4000);
 	}
 	
 	return chatele;
@@ -470,6 +515,13 @@ function check_msg_type(doc){
 
 // chatbox
 function chatbox(){
+	
+	var messagebar = app.messagebar.create({
+        el: '.messagebar'
+    });
+	var messages;
+	messagebar.clear();
+	
 	var user_id = auth.currentUser.uid;
 	
 	var send = document.getElementById("send_msg");
@@ -477,31 +529,49 @@ function chatbox(){
 	var msg_box = document.getElementById("msg_box");
 	
 	var chatroomRef = db.collection("landlord").doc(user_id).collection("chatroom");
+	var chat_array = [];
 	var chatele = "";
 	var new_chat = "";
+	var start = true;
 	
 	chatroomRef.orderBy("time", "desc").onSnapshot((snapshot) => {
 
         snapshot.docChanges().forEach((change) => {
 			console.log(change);
-			if(msg_box.innerHTML.trim() == ""){
-				chatele = check_msg_type(change.doc.data()) + chatele;
+			
+			var doc = change.doc.data();
+			if(msg_box.innerHTML.trim() == ""){		
+				
+				if(doc.user != "user"){
+					chat_array.push({text: doc.message,type: 'received'});
+				}else{
+					chat_array.push({text: doc.message,type: 'sent'});
+				}
 			}else{
-				chatele += check_msg_type(change.doc.data());
+				//chatele += check_msg_type(change.doc.data());
+				check_msg_type2(doc);
 			}
+			
 			
         });
 
-		msg_box.innerHTML = chatele;
+		//msg_box.innerHTML = chatele;
+		messages = app.messages.create({
+			el: '.messages',
+			messages: chat_array
+		});
 		
+		start = false;
     }, (error) => {
-        console.log(error);
-    });
+		console.error(error);
+	});
+	
 	
 	send.addEventListener("click",function(e){
 		e.preventDefault();
 		var msg = document.getElementById("chatbox_msg").value;
 		if(msg.trim() != ""){
+			
 			console.log(USER_DOC);
 			chatroomRef.add({
 				name: USER_DOC.name,
@@ -514,6 +584,8 @@ function chatbox(){
 				rmsg : msg,
 				dateupdated: new Date()
 			})
+			
+			messagebar.clear();
 		}else{
 			console.log("empty msg");
 		}
@@ -995,7 +1067,7 @@ function disableTimeSlots(){
 }
 
 async function set_booking(){
-	
+	console.log(facility_chosen);
 	//get today
 	var now = new Date();
 	var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1232,32 +1304,86 @@ function redirect(page){
 	mainView.router.navigate({ name: page});
 }
 
-function getFacility(){
-	var bbq = document.getElementById('bbq');
-	var skylounge = document.getElementById('skylounge');
-	var avroom = document.getElementById('avroom');
-	var sauna = document.getElementById('sauna');
-	var gym = document.getElementById('gym');
-	var facilities = document.getElementsByClassName('facility-name');
-	console.log(facilities)
-	booking_list = {
-		"AV Room": {},
-		"Sauna": {},
-		"Gym": {},
-		"BBQ Pit": {},
-		"Sky Lounge": {} 
-	};
-	for(var i=0; i< facilities.length;i++){
-		facilities[i].parentElement.addEventListener('click', function(e){
+async function getFacility(){
+	var facilities = document.getElementById('facility-list');
+	console.log(facilities);
+	booking_list = {};
+	
+	var facilityRef = db.collection("config").doc("facilities").collection("facilities_list");
+	
+	let facilities_list = await facilityRef.get();
+	
+	var fac_count = 0;
+	facilities_list.forEach(async (doc) => {
+		//init vars
+		var img_url = doc.data().img;
+		var name = doc.data().name;
+		
+		//setup obj
+		booking_list[name] = {};
+		
+		var pathReference = storage.ref("facilities/"+img_url);
+			
+		let url = await pathReference.getDownloadURL();
+		
+		
+		console.log(fac_count);
+		if(fac_count == 0){
+			
+			facilities.innerHTML += `<div class="row no-gap">
+			<div class="col">
+			  <div class="card facility-card">
+				<div class="card-content card-content-padding card-margin-middle">
+				  <a href="" class="facility_redirect" id="${name}" onclick="app.data.Chosen_Facility('${name}');">
+					<img src="${url}" width="80" height="80">
+					<p class="subtitle">${name}</p>
+				  </a>
+				</div>
+			  </div>             
+			</div> 
+		  </div>`;
+		  console.log(facilities);
+		}else if(fac_count == 1){
+			var rows = document.getElementsByClassName('row no-gap');
+			var row_count = rows.length-1;
+			
+			rows[row_count].innerHTML += `<div class="col">
+			  <div class="card facility-card" >
+				<div class="card-content card-content-padding card-margin-middle">
+				  <a href="" class="facility_redirect" id="${name}" onclick="app.data.Chosen_Facility('${name}');">
+					<img src="${url}" width="80" height="80">
+					<p class="subtitle">${name}</p>
+				  </a>
+				</div>
+			  </div>             
+			</div> `;
+			
+			
+		}
+		
+		fac_count += 1;
+		
+		if(fac_count == 2){
+			fac_count = 0;
+		}
+	})
+	
+	
+	var cards = document.getElementsByClassName('facility_redirect');
+	for(var i=0; i< cards.length;i++){
+		cards[i].parentElement.addEventListener('click', function(e){
 			e.preventDefault();
 			facility_chosen = this.id;
 			console.log(facility_chosen);
-			//redirect("facilities");
+			redirect("facilities");
 		})
 	}
 }
 
-
+function chosen_facility(chosen){
+	facility_chosen = chosen;
+	redirect('facilities');
+}
 
 //////Payment Reminder
 //Payment History
