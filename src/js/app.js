@@ -534,7 +534,7 @@ function chatbox(){
 	var new_chat = "";
 	var start = true;
 	
-	chatroomRef.orderBy("time", "desc").onSnapshot((snapshot) => {
+	chatroomRef.orderBy("time", "asc").limit(50).onSnapshot((snapshot) => {
 
         snapshot.docChanges().forEach((change) => {
 			console.log(change);
@@ -788,9 +788,14 @@ function getEditPage(){
 			
 			announceref.put(blob).then(function(snapshot) {
 				console.log('Updated user image');
-				close_img_popup.click();
-				redirect("home");
-				toast("successfully updated photo");
+				docRef.update({
+					imageurl: user_id+".png"
+				}).then( promise => {
+					close_img_popup.click();
+					redirect("home");
+					toast("successfully updated photo");
+				})
+				
 			}).catch(err => {
 				console.log('err: '+err);
 				toast("failed to update photo");
