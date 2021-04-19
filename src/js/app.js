@@ -554,12 +554,14 @@ function chatbox(){
 			
 			
         });
-
-		//msg_box.innerHTML = chatele;
-		messages = app.messages.create({
-			el: '.messages',
-			messages: chat_array
-		});
+		if(msg_box.innerHTML.trim() == ""){
+			//msg_box.innerHTML = chatele;
+			messages = app.messages.create({
+				el: '.messages',
+				messages: chat_array
+			});
+		}
+		
 		
 		start = false;
     }, (error) => {
