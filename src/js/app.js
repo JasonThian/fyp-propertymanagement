@@ -537,7 +537,7 @@ function chatbox(){
 	chatroomRef.orderBy("time", "asc").limit(50).onSnapshot((snapshot) => {
 
         snapshot.docChanges().forEach((change) => {
-			console.log(change);
+			//console.log(change);
 			
 			var doc = change.doc.data();
 			if(msg_box.innerHTML.trim() == ""){		
@@ -554,13 +554,13 @@ function chatbox(){
 			
 			
         });
-		if(msg_box.innerHTML.trim() == ""){
-			//msg_box.innerHTML = chatele;
-			messages = app.messages.create({
-				el: '.messages',
-				messages: chat_array
-			});
-		}
+		
+		//msg_box.innerHTML = chatele;
+		messages = app.messages.create({
+			el: '.messages',
+			messages: chat_array
+		});
+		
 		
 		
 		start = false;
