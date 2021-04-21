@@ -1,42 +1,65 @@
 <template>
-<div class="page" data-name="edit">
-  <div class="navbar">
-    <div class="navbar-bg"></div>
-    <div class="navbar-inner sliding">
-      <div class="left">
-        <a href="#" class="link back">
-          <i class="icon icon-back"></i>
-          <span class="if-not-md">Back</span>
-        </a>
+  <div class="page" data-name="edit">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a class="link back">
+            <i class="f7-icons color-gold">chevron_left</i>
+            <span class="if-not-md">Back</span>
+          </a>
+        </div>
+        <div class="title color-gold">Account Details</div>
       </div>
-      <div class="title">Edit Profile</div>
     </div>
-  </div>
-    <div class="page-content">
+
+    <div class="toolbar tabbar toolbar-bottom" style="height: 8%">
+      <div class="toolbar-inner display-flex">
+        <a href="/billing/" class="tab-link flex-direction-column">
+          <i class="f7-icons size-22">creditcard_fill</i>
+          <span class="tabbar-label">Payment</span>
+        </a>
+        <a href="/bookfacility/" class="tab-link tab-link-active flex-direction-column">
+          <i class="f7-icons size-22">building_2_fill</i>
+          <span class="tabbar-label">Facilities</span>
+        </a>
+        <a href="/" class="tab-link flex-direction-column">
+          <i class="f7-icons size-22">house_alt</i>
+          <span class="tabbar-label">Home</span>
+        </a>
+        <a href="/news/" class="tab-link flex-direction-column">
+          <i class="f7-icons size-22">dot_radiowaves_left_right</i>
+          <span class="tabbar-label">News</span>
+        </a>
+        <a href="/qrcode/" class="tab-link flex-direction-column">
+          <i class="f7-icons size-22">qrcode_viewfinder</i>
+          <span class="tabbar-label">Guest QR</span>
+        </a>		  
+      </div>
+    </div>
+    <div class="page-content color-bg-white">
         <div class="block block-strong">
           <div class="edit-profile">
             <div class="change-prof-pic">
-              <img class="user-icon" id="edit_image" src="static/icons/pfp-placeholder.jpg">
-              <p>
-                <a class="button popup-open" href="#" data-popup=".popup-about">Change Profile Image</a>
-              </p>
+              <img class="user-icon margin-bottom" id="edit_image" src="static/icons/pfp-placeholder.jpg">
+              <a class="popup-open color-gold" href="#" data-popup=".popup-about">Change Profile Picture</a>
             </div>
 
             <div class="profile-inputs">
               <p>Name</p>
-              <input type="text" id="edit_username" name="username" placeholder="Your Name" disabled>
+              <input type="text" class="color-white" id="edit_username" name="username" placeholder="Your Name" disabled>
       
               <p>Email</p>
-              <input type="text" id="edit_email" name="email" placeholder="Your Email" disabled>
+              <input type="text" class="color-white" id="edit_email" name="email" placeholder="Your Email" disabled>
       
               <p>Phone Number</p>
-              <input type="number" id="edit_pno" name="phone" placeholder="Your Phone Number" disabled>
+              <input type="number" class="color-white" id="edit_pno" name="phone" placeholder="Your Phone Number" disabled>
       
               <p>Gender</p>
-              <input type="text" id="edit_gender" name="gender" placeholder="Your Gender" disabled>
+              <input type="text" class="color-white" id="edit_gender" name="gender" placeholder="Your Gender" disabled>
       
               <p>Unit Number</p>
-              <input type="text" id="edit_unit" name="unit" placeholder="Your Unit numbers" disabled>
+              <input type="text" class="color-white" id="edit_unit" name="unit" placeholder="Your Unit numbers" disabled>
             </div>
           </div>    
         </div>

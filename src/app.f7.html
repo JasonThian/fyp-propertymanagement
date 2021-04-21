@@ -5,41 +5,41 @@
     <div class="panel panel-right panel-cover theme-dark panel-init">
       <div class="view">
         <div class="page">
-          <div class="navbar">
+          <!-- <div class="navbar">
             <div class="navbar-bg"></div>
             <div class="navbar-inner">
               <img class="user-icon" id="user_icon" src="static/icons/favicon.png" width="50" height="50">
-			  <p class="username"></p>
+			        <p class="username"></p> 
+                <div class="user-detail">
+                  <img src="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8aHVtYW58ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80" 
+                  width="50" height="50" style="border: 2px solid #cca679; border-radius: 50%;"/>
+                  <h2 class="no-margin-bottom no-margin-top color-custom">Hi, Sara Lockharr</h2>
+                 </div>
             </div>
-          </div>
+          </div> -->
+          
+
+
+
           <div class="page-content">
-			<div class="list">
-				<ul>
-					<a onclick="app.data.close_panel()" href="/edit/" class="button list-buttons"><span class="f7-icons">pencil</span>   Edit Profile</a>
-					<a onclick="app.data.close_panel()" href="/bookingdetail/" class="button list-buttons"><span class="f7-icons">calendar_today</span>    Booking Detail</a>
-					<a onclick="app.data.close_panel()" data-popup=".popup-change-password" class="popup-open button list-buttons"><span class="f7-icons">lock_shield</span>     Change Password</a>
-					<a onclick="app.data.close_panel()" href="/paymentreminder/" class="button list-buttons landlord"><span class="f7-icons">bell</span>     Payment Reminder</a>
-					<a onclick="app.data.close_panel()" href="/paymenthistory/" class="button list-buttons landlord"><span class="f7-icons">clock</span>     Payment History</a>
-					<a onclick="app.data.close_panel()" href="/tenantlist/" class="button list-buttons landlord"><span class="f7-icons">person_2_fill</span>     Tenant List</a>
-				</ul>
-
-            <!-- <ul >
-              <li class="item-content" value="layout-dark">
-                <div class="item-inner">
-                  <div class="item-title">Dark Theme</div>
-                  <div class="item-after">
-                    <label class="toggle toggle-init">
-                      <input name="layout-dark" type="checkbox" value="layout-dark">
-                      <span class="toggle-icon">
-
-                      </span>
-                    </label>
-                  </div>
-                </div>
-              </li>
-            </ul> -->
-			</div>
-			<a onclick="app.data.close_panel()" href="/login/" class="button button-raised button-fill button-large logout" id="logout">Logout</a>
+            <div class="list">
+              <div class="user-detail">
+                <img src="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8aHVtYW58ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80" 
+                width="50" height="50" style="border: 2px solid #cca679; border-radius: 50%;"/>
+                <h5 class="no-margin-bottom no-margin-top color-custom">Sara Lockharr | Landlord</h5>
+              </div>
+              <ul>
+                <a onclick="app.data.close_panel()" href="/edit/" class="button list-buttons padding-left padding-right"><span class="f7-icons size-25">person_fill</span>   Account Details</a>
+                <a onclick="app.data.close_panel()" href="/bookingdetail/" class="button list-buttons padding-left padding-right"><span class="f7-icons size-25">calendar_today</span>    Booking Detail</a>
+                <a onclick="app.data.close_panel()" data-popup=".popup-change-password" class="popup-open button list-buttons padding-left padding-right"><span class="f7-icons size-25">lock_shield</span>     Change Password</a>
+                <a onclick="app.data.close_panel()" href="/paymentreminder/" class="button list-buttons landlord padding-left padding-right"><span class="f7-icons size-25">bell</span>     Payment Reminder</a>
+                <a onclick="app.data.close_panel()" href="/paymenthistory/" class="button list-buttons landlord padding-left padding-right"><span class="f7-icons size-25">clock</span>     Payment History</a>
+                <a onclick="app.data.close_panel()" href="/tenantlist/" class="button list-buttons landlord padding-left padding-right"><span class="f7-icons size-25">person_3_fill</span>     Tenant List</a>
+                <a onclick="app.data.close_panel()" href="/issuereport/" class="button list-buttons landlord padding-left padding-right"><span class="f7-icons size-25">question_circle_fill</span>     Issue Reporting</a>
+              </ul>
+            </div>
+		        	<a onclick="app.data.close_panel()" href="/login/" class="button margin-bottom padding-right padding-left button-raised button-fill button-large logout color-gold color-bg-custom" id="logout">Logout</a>
+              <br>
           </div>
         </div>
       </div>
@@ -55,13 +55,13 @@
           <div class="navbar">
             <div class="navbar-bg"></div>
             <div class="navbar-inner">
-              <div class="title">Change Password</div>
+              <div class="title color-gold">Change Password</div>
               <div class="right">
-                <a href="#" class="link popup-close">Close</a>
+                <a href="#" class="link popup-close color-custom">Close</a>
               </div>
             </div>
           </div>
-          <div class="page-content">
+          <div class="page-content color-bg-white">
             <div class="block">
               <div class="list no-hairlines-md">
                 <ul>
@@ -70,7 +70,7 @@
                     <div class="item-content item-input">
                       <div class="item-inner">
                         <div class="item-input-wrap">
-                          <input type="password" id="cPassword" placeholder="Current Password">
+                          <input class="color-gold" type="password" id="cPassword" placeholder="Current Password">
                         </div>
                       </div>
                     </div>
@@ -80,7 +80,7 @@
                     <div class="item-content item-input">
                     <div class="item-inner">
                       <div class="item-input-wrap">
-                      <input type="password" id="nPassword" placeholder="New Password">
+                      <input class="color-gold" type="password" id="nPassword" placeholder="New Password">
                     </div>
                     </div>
                     </div>
@@ -90,7 +90,7 @@
                     <div class="item-content item-input">
                     <div class="item-inner">
                       <div class="item-input-wrap">
-                      <input type="password" id="cnPassword" placeholder="Confirm New Password">
+                      <input class="color-gold" type="password" id="cnPassword" placeholder="Confirm New Password">
                     </div>
                     </div>
                     </div>
@@ -98,7 +98,7 @@
                 </ul>
               </div>
               <div class="block">
-                <a id="changePassword" class="button button-raised button-fill button-large">Confirm</a>
+                <a id="changePassword" class="button button-raised button-fill button-large color-gold color-bg-custom">Confirm</a>
               </div>
             </div>
           </div>

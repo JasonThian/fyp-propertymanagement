@@ -1,35 +1,60 @@
 <template>
 <div class="page toolbar-fixed navbar-fixed" data-name="billing">
   <div class="navbar" style="position:relative;">
-    <div class="navbar-inner">
-      <div class="left">
-        <a href="#" class="link back">
-          <i class="icon icon-back"></i>
-          <span class="if-not-md">Back</span>
-        </a>
-      </div>
-	  <div class="title">Payment</div>
-    </div>
+    <div class="navbar-inner sliding">
+		<div class="left">
+		  <a class="link back">
+			<i class="f7-icons color-gold">chevron_left</i>
+			<span class="if-not-md">Back</span>
+		  </a>
+		</div>
+		<div class="title color-gold">Payment</div>
+	  </div>
   </div>
+	  <div class="toolbar tabbar toolbar-bottom" style="height: 8%">
+		<div class="toolbar-inner display-flex">
+		  <a href="/billing/" class="tab-link tab-link-active flex-direction-column">
+			<i class="f7-icons size-22">creditcard_fill</i>
+			<span class="tabbar-label">Payment</span>
+		  </a>
+		  <a href="/bookfacility/" class="tab-link flex-direction-column">
+			<i class="f7-icons size-22">building_2_fill</i>
+			<span class="tabbar-label">Facilities</span>
+		  </a>
+		  <a href="/" class="tab-link flex-direction-column">
+			<i class="f7-icons size-22">house_alt</i>
+			<span class="tabbar-label">Home</span>
+		  </a>
+		  <a href="/news/" class="tab-link flex-direction-column">
+			<i class="f7-icons size-22">dot_radiowaves_left_right</i>
+			<span class="tabbar-label">News</span>
+		  </a>
+		  <a href="/qrcode/" class="tab-link flex-direction-column">
+			<i class="f7-icons size-22">qrcode_viewfinder</i>
+			<span class="tabbar-label">Guest QR</span>
+		  </a>		  
+		</div>
+	  </div>
 	<!-- Additional "tabbar-scrollable" class -->
 	<div class="toolbar tabbar tabbar-scrollable">
 		<div class="toolbar-inner">
-		  <a href="#unpaid" id="unpaid_tab" class="tab-link" style="width:49.9%">Unpaid</a>
-		  <a href="#paid" class="tab-link" style="width:49.9%">Paid</a>
+		  <a href="#unpaid" id="unpaid_tab" class="tab-link">Unpaid</a>
+		  <a href="#paid" class="tab-link">Paid</a>
 		</div>
 	</div>
-	<div class="page-content" style="padding-top: calc(var(--f7-page-navbar-offset, 0px) + var(--f7-page-toolbar-top-offset, 0px) + var(--f7-page-subnavbar-offset, 0px) + var(--f7-page-searchbar-offset, 0px) + var(--f7-page-content-extra-padding-top, 0px));
-    padding-bottom: calc(var(--f7-page-toolbar-bottom-offset, 0px) + var(--f7-safe-area-bottom) + var(--f7-page-content-extra-padding-bottom, 0px));">
+	<!-- <div class="page-content" style="padding-top: calc(var(--f7-page-navbar-offset, 0px) + var(--f7-page-toolbar-top-offset, 0px) + var(--f7-page-subnavbar-offset, 0px) + var(--f7-page-searchbar-offset, 0px) + var(--f7-page-content-extra-padding-top, 0px));
+    padding-bottom: calc(var(--f7-page-toolbar-bottom-offset, 0px) + var(--f7-safe-area-bottom) + var(--f7-page-content-extra-padding-bottom, 0px));"> -->
+	<div class="page-content">
 	<div class="tabs">
 		<div id="paid" class="tab">
-			<div class="content-block">
+			<div class="block">
 				<div class="list media-list no-ios-edges" id="paid_billing">
 				<p>Paid</p>
 				</div>
 			</div>
 		</div>
 		<div id="unpaid" class="tab">
-			<div class="content-block">
+			<div class="block">
 				<div class="list media-list no-ios-edges" id="unpaid_billing">
 				<p>Unpaid</p>
 				</div>

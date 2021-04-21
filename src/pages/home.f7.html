@@ -1,80 +1,101 @@
-
 <template>
-  <div class="page" data-name="home">
-    
-	<!-- Scrollable page content-->
-	<div class="page-content">
-	<div class="navbar navbar-transparent navbar-large">
-	<div class="navbar-bg"></div>
-		<div class="navbar-inner">
-			<div class="left">
-				<p><span>Hello</span>,<br><span class="username" id="username"></span></p>
+	<div class="page">
+	 	<div class="navbar">
+			<div class="navbar-bg"></div>
+			<div class="navbar-inner sliding">
+				<div class="left">
+					<a href="/chatbox/" class="link icon-only">
+						<i class="f7-icons color-custom">chat_bubble_2</i>
+					</a>
+				</div>
+
+				<div class="right">
+					<a href="#" class="link icon-only panel-open">
+						<i class="f7-icons color-custom">menu</i>
+					</a>
+				</div>
 			</div>
-			<div class="right">
-				<a href="#" class="link icon-only panel-open" style="width: 50%;" data-panel="right">
-					<img class="user-icon" id="user_pic" src="static/icons/pfp-placeholder.jpg" width="50" height="50">
-				</a>
+	  	</div>
+
+	  <div class="toolbar tabbar toolbar-bottom" style="height: 8%">
+		<div class="toolbar-inner display-flex">
+		  <a href="/billing/" class="tab-link flex-direction-column">
+			<i class="f7-icons size-22">creditcard_fill</i>
+			<span class="tabbar-label">Payment</span>
+		  </a>
+		  <a href="/bookfacility/" class="tab-link flex-direction-column">
+			<i class="f7-icons size-22">building_2_fill</i>
+			<span class="tabbar-label">Facilities</span>
+		  </a>
+		  <a href="/" class="tab-link tab-link-active flex-direction-column">
+			<i class="f7-icons size-22">house_alt</i>
+			<span class="tabbar-label">Home</span>
+		  </a>
+		  <a href="/news/" class="tab-link flex-direction-column">
+			<i class="f7-icons size-22">dot_radiowaves_left_right</i>
+			<span class="tabbar-label">News</span>
+		  </a>
+		  <a href="/qrcode/" class="tab-link flex-direction-column">
+			<i class="f7-icons size-22">qrcode_viewfinder</i>
+			<span class="tabbar-label">Guest QR</span>
+		  </a>		  
+		</div>
+	  </div>
+
+	 	 <div class="page-content hide-navbar-on-scroll">		
+			<div class="block-strong">
+				<div class="user-detail margin-top margin-bottom padding-top padding-bottom">
+					<img src="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8aHVtYW58ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80" 
+					width="80vw" height="80vw" style="border: 2px solid #cca679; border-radius: 50%;"/>
+					<h1 class="no-margin-bottom no-margin-top color-custom">Hi, Sara Lockharr</h1>
+				</div>
+
+				<div class="block-title no-margin-top color-custom">Latest Announcement</div>
+				<div class="card demo-card-header-pic elevation-demo elevation-5">					
+					<div class="card-content no-border text-align-justify">
+						<div class="card-header annc-title color-custom " style="width: 100%;">Announcement Title</div>
+						<img src="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8aHVtYW58ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80" 
+						width="100%" height="250px">						
+						<div class="card-footer no-border">
+							<a href="#" class="link text-align-center">Read more</a>
+						</div>
+					</div>
+				</div>
+
+				<div class="block-title color-custom">Bill Details</div>
+				<div class="card">					
+					<div class="card-content-padding no-border text-align-center ">
+						<div class="block-header color-custom">Due Amount</div>
+						<div class="block block-strong">
+						  <p class="amont-due color-gold">RM 280.00</p>
+						</div>
+						<div class="block-header color-custom">Due Date</div>
+						<div class="block block-strong">
+							<p class="amont-due color-gold">RM 280.00</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="block-title color-custom">Upcoming Facility Booked</div>
+				<div class="card">					
+					<div class="card-content-padding no-border display-flex flex-direction-column ">
+						<div class="block-header color-custom no-padding">Facility Booked</div>
+						<div class="block block-strong">
+							<p class="amont-due color-gold">Gym</p>
+						</div>
+
+						<div class="block-header color-custom no-padding">Date & Time</div>
+						<div class="block block-strong">
+							<p class="amont-due no-margin-bottom color-gold">4/1/2021</p>
+						</div>
+						<div class="block block-strong">
+							<p class="amont-due no-margin-top color-gold">2:00pm - 4:00pm</p>
+						</div>
+					</div>
+				</div>
+				<br><br>
 			</div>
 		</div>
+	  </div>
 	</div>
-		<div data-pagination='{"el": ".swiper-pagination"}' data-slides-per-view="auto" data-centered-slides="true" class="swiper-container swiper-init demo-swiper demo-swiper-auto">
-		  <div class="swiper-pagination"></div>
-		  <div class="swiper-wrapper">
-
-        <div class="swiper-slide"><img class="announcement-img" id="annc1" src="static/icons/ann1.png"></div>
-        <div class="swiper-slide"><img class="announcement-img" id="annc2" src="static/icons/ann2.png"></div>
-
-		  </div>
-		</div>
-		<div class="card-views">
-			<div class="card card-inline-blocks">
-				<a href="/news/">
-				  <div class="card-content card-content-padding card-margin-middle">
-					  <img src="static/icons/promotion.png" width="50">
-					  <p class="card-title">News</p>
-				  </div>
-				</a>
-			</div>
-			<div class="card card-inline-blocks">
-				<!-- <a href="/facilities/" onclick="app.data.calendar();"> -->
-				<a href="/bookfacility/">
-				  <div class="card-content card-content-padding card-margin-middle">
-					  <img src="static/icons/dumbbell.png" width="50" height="50">
-					  <p class="card-title">Facilities</p>
-				  </div>
-				</a>
-			</div>
-			<br>
-			<div class="card card-inline-blocks">
-				<a href="/qrcode/">
-				  <div class="card-content card-content-padding card-margin-middle">
-					  <img src="static/icons/qr-code.png" width="50">
-					  <!-- <p></p>QR Code</p> -->
-					  <p class="card-title">QR Code</p>
-				  </div>
-				</a>
-			</div>
-			<div class="card card-inline-blocks">
-				<a href="/billing/"  class="landlord">
-				  <div class="card-content card-content-padding card-margin-middle">
-					  <img src="static/icons/payment.png" width="50">
-					  <p class="card-title">Payment</p>
-				  </div>
-				</a>
-			</div>
-		</div>
-      
-    </div>
-	 <div class="fab fab-right-bottom float-buttons">
-		<a href="/chatbox/">
-		  <span class="f7-icons">chat_bubble_2</span>
-		</a>
-	 </div>
-	 <div class="fab fab-left-bottom float-buttons">
-		<a href="/issuereport/">
-		  <span class="f7-icons">exclamationmark_circle</span>
-		</a>
-	 </div>
-  </div>
-  
-</template>
+  </template>
