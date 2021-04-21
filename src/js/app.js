@@ -483,11 +483,11 @@ function check_msg_type(doc){
 	return chatele;
 }
 
-function check_msg_type2(doc){
+function check_msg_type2(doc,messages){
 	var chatele="";
-	var messages = app.messages.create({
-		el: '.messages'
-	});
+//	var messages = app.messages.create({
+//		el: '.messages'
+//	});
 	
 	if(doc.user == "user"){
 		 messages.addMessage({
@@ -534,45 +534,56 @@ function chatbox(){
 	var new_chat = "";
 	var start = true;
 	
-	chatroomRef.orderBy("time", "asc").limit(50).onSnapshot((snapshot) => {
-
+	chatroomRef.orderBy("time", "desc").limit(50).onSnapshot((snapshot) => {
+		
         snapshot.docChanges().forEach((change) => {
-			console.log(change);
+			
 			
 			var doc = change.doc.data();
-			if(msg_box.innerHTML.trim() == ""){		
-				
+			
+			console.log(change);
+			var init_msg_box = document.getElementById("msg_box");
+			if(init_msg_box.innerHTML.trim() == ""){		
+				console.log("old message");
 				if(doc.user != "user"){
 					chat_array.push({text: doc.message,type: 'received'});
 				}else{
 					chat_array.push({text: doc.message,type: 'sent'});
 				}
 			}else{
-				//chatele += check_msg_type(change.doc.data());
-				check_msg_type2(doc);
+				if(change.type == "added"){
+					console.log("new message");
+					//chatele += check_msg_type(change.doc.data());
+					
+					check_msg_type2(doc,messages);
+				}
 			}
 			
 			
         });
-
-		//msg_box.innerHTML = chatele;
-		messages = app.messages.create({
-			el: '.messages',
-			messages: chat_array
-		});
+		var init_msg_box = document.getElementById("msg_box");
+		if(init_msg_box.innerHTML.trim() == ""){		
+			//msg_box.innerHTML = chatele;
+			messages = app.messages.create({
+				el: '.messages',
+				messages: chat_array.reverse()
+			});
 		
-		start = false;
+		}
+		
     }, (error) => {
 		console.error(error);
 	});
 	
-	
+	var msg_box = document.getElementById("chatbox_msg");
+
+			
 	send.addEventListener("click",function(e){
 		e.preventDefault();
 		var msg = document.getElementById("chatbox_msg").value;
 		if(msg.trim() != ""){
 			
-			console.log(USER_DOC);
+			//console.log(USER_DOC);
 			chatroomRef.add({
 				name: USER_DOC.name,
 				message: msg,
