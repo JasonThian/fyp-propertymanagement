@@ -1,37 +1,37 @@
 <template>
-<div class="page" data-name="issue_report">
-  <div class="navbar">
-    <div class="navbar-bg"></div>
-    <div class="navbar-inner sliding">
-      <div class="left">
-        <a href="#" class="link back">
-          <i class="icon icon-back"></i>
-          <span class="if-not-md">Back</span>
-        </a>
-      </div>
-      <div class="title">Report An Issue</div>
-    </div>
-  </div>
+	<div class="page" data-name="issue_report">
+		<div class="navbar">
+			<div class="navbar-bg"></div>
+			<div class="navbar-inner sliding">
+				<div class="left">
+					<a class="link back">
+						<i class="f7-icons color-gold">chevron_left</i>
+						<span class="if-not-md">Back</span>
+					</a>
+				</div>
+				<div class="title color-gold">Report An Issue</div>
+			</div>
+		</div>
     <div class="page-content">
-        <div class="block block-strong">
-          <div class="edit-profile">
-            <div class="change-prof-pic">
-              <img id="report_sample" src="static/icons/pfp-placeholder.jpg" alt="your image"class="center"/>
+        <div class="block">
+          <div class="report_issue">
+            <div class="issue_report_image">
+              <img id="report_sample" width="100%" src="https://static.thenounproject.com/png/117746-200.png" alt="issue image" class="center color-bg-white text-align-center"/>
               <p>
                 <input type='file' id="report_img" style="display: none;" />
-				<button value="Select Image" onclick="document.getElementById('report_img').click();" class="col button color-blue">Select Image</button>
+				        <button value="Select Image" onclick="document.getElementById('report_img').click();" class="col button color-white" style="text-transform: capitalize;">Select Image</button>
               </p>
             </div>
 
-            <div class="description_inputs">
-              <p>Description</p>
-			  <textarea  id="report_desc" rows="3" cols="50" style="border:none; background-color: #fff;" placeholder="A Description of the issue"></textarea>
+            <div class="description_inputs margin-top">
+              <p class="no-margin">Description</p>
+			        <textarea  id="report_desc" rows="3" cols="50" class="color-white padding margin-bottom" style="border:none;" placeholder="A description of the issue"></textarea>
       
-              <p>Block</p>
-              <textarea id="report_block" rows="3" cols="50" style="border:none; background-color: #fff;"  placeholder="The block of the present issue"></textarea>
+              <p class="no-margin">Block</p>
+              <textarea id="report_block" rows="3" cols="50" class="color-white padding margin-bottom" style="border:none;"  placeholder="The block of the present issue"></textarea>
             </div>
 			
-			<button id="submit_issue" class="col button button-large button-fill">Submit</button>
+			<button id="submit_issue" style="text-transform: capitalize;" class="col button button large color-white margin-top">Submit</button>
           </div>    
         </div>
       </div>
