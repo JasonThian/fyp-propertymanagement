@@ -83,13 +83,6 @@
 // background: linear-gradient(180deg, rgba(47,47,47,1) 0%, rgba(120,120,120,1) 50%);
 }
 
-.page-content{
-	// overflow-x: hidden;
-	// overflow-y: scroll;
-	// padding: 3px;
-	// top: 10px;
-}
-
 .left{
 	// margin-left: 15px;
 	// margin-left: 2vw;
@@ -140,34 +133,34 @@
 	background-color: transparent;
 }
 
-// .card-views{
-// 	// width: @card-view-width;
-// 	margin: 0 auto;
-// 	text-align: center;
-// }
-// .swiper-slide{
-// 	text-align: center;
-// }
+.card-views{
+	// width: @card-view-width;
+	margin: 0 auto;
+	text-align: center;
+}
+.swiper-slide{
+	text-align: center;
+}
 
-// .swiper-wrapper
-// {
-// 	margin-top:10px;
+.swiper-wrapper
+{
+	margin-top:10px;
 
-// }
+}
 
-// .demo-swiper .swiper-slide {
-//     display: flex;
-//     justify-content: center;
-//     align-items: center;
-// }
+.demo-swiper .swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-// .announcement-img{
-// 	width: 240px;
-//     max-width: 240px;
-//     max-height: 150px;
-// }
+.announcement-img{
+	width: 240px;
+    max-width: 240px;
+    max-height: 150px;
+}
 
-//Right Panel List
+// Right Panel List
 .list-buttons{
 	width: 100%;
     font-size: 18px;
@@ -297,21 +290,22 @@ p#annc_desc {
 
 //payment
 .amount-title{
-	text-align:center;
-	font-size:18px;
+	text-align: center;
+    font-size: 5vw;
 }
 
 .amount-large{
-	text-align:center;
-	font-size:28px;
-	margin-top:70px;
+	text-align: center;
+    font-size: 11vw;
 }
+
 .page-content1{
-	overflow-x: hidden;
-	overflow-y: scroll;
-	padding: 10% 0%;
-	background-color:white;
+	// overflow-x: hidden; 
+	// overflow-y: scroll;
+	// padding: 10% 0%;
+	// background-color:white;
 }
+
 .list .payment{
 	padding: 5px 0;
 }
@@ -339,23 +333,8 @@ p#annc_desc {
 }
 
 //tenant_list
-.list .tenant_list
-{
+.list .tenant_list{
 	background-color:white;
-}
-// .card .card-content1
-// {
-// 	margin-top:10px;
-// }
-// .card .card-content2
-// {
-// 	margin-top:55px;
-// }
-//edit profile
-.edit-profile{
-	width: 100%;
-	margin: 0 auto;
-	background: transparent;
 }
 
 .change-prof-pic{
@@ -378,8 +357,6 @@ p#annc_desc {
 	width: 100px;
 	height: 100px;
 	display: block;
-	margin-left: auto;
-	margin-right: auto;
 }
 
 .profile-inputs > p{
@@ -392,7 +369,6 @@ p#annc_desc {
 	margin: 0 auto;
 	font-size: 15px;
 }
-
 
 .popup{
 	background: linear-gradient(180deg, rgba(200,224,255,1) 0%, rgba(252,252,252,1) 100%);
@@ -672,15 +648,16 @@ select[name="booking_duration"], select[name="booking_duration"] option{
   }
 }
 
-// .message-group-received > div:first-child > img{
-// 	border-radius: 50%;
-// 	height: 25px;
-// 	width: 25px;
-// }
+
 .messages{
-	background-image: url("https://fsa.zobj.net/crop.php?r=HPh6XjS0Se_VNODSUR6Fm1R9bTHZZaIQV6BsKvbihNqsgOSM3Ftm58HrQ7nlrF9R65nUhHXkiA34Cu7Y-5-p1HjQHAcMj7SGoQS1XmK8i_Su-brIg-80w-9HV-s5c4w8z4JjR8VarCwJf8G_O4NlM5gHNQF7uHvtbJqCEL3X3fXhBsF3EdkZTrdef64jzBx9PwjBSJ23C_QtWaUi");
+	background-image: url(../static/icons/dryx-logo.png);
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-position: center;
+	background-size: 200px;
     position: relative;
 	padding-top: 10px;
+	z-index: 1;
 }
 
 .message-received{
@@ -765,15 +742,9 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 } 
 //issue
 .description_inputs textarea ,.description_inputs input{
-	border-style: outset;
 	width: 100%;
-	margin: 0 auto;
-	background: transparent;
-}
-
-.edit-profile #submit_issue
-{
-	margin-top:30px;
+	background: #3f3f3f;
+	border-radius: 8px;
 }
 
 .description_inputs p 
@@ -781,7 +752,15 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 	font-weight: bold;
 	color: #7278B9;
 	font-size: 20px;
-	text-align:left;
+	text-align: left;
+}
+
+.issue_report_image img{
+	display: block;
+	width: 200px;
+	height: 200px;
+	opacity: 0.5;
+	margin: 0 auto;
 }
 
 .user-detail{
@@ -834,20 +813,61 @@ img{
 }
 
 .bg-black{
-	background: rgb(53, 53, 53);
+	background: #383838;
 }
 
 :root{
-	--f7-card-border-radius: 20px;
+	--f7-card-border-radius: 15px;
 	--f7-tabbar-link-active-border-color: #cca679;
 	--f7-tabbar-link-active-color: #cca679;
 	--f7-tabbar-link-inactive-color: #7278b9;
 	--f7-button-text-color: #cca679;
 	--f7-button-bg-color: #7278b9;
-	--f7-elevation-5: 0px 3px 5px -1px rgb(107, 107, 107), 0px 5px 8px 0px rgb(107, 107, 107),
-    0px 1px 14px 0px rgb(107, 107, 107);
+	--f7-label-font-size: 15px;
+	--f7-label-text-color: #7278b9;
 }
 
-.elevation-demo {
-    background: rgb(225, 225, 225);
- }
+
+.wrapper > div{
+	background: #484848;
+	padding: 1em;
+}
+
+.wrapper{
+	display: grid;
+	grid-template-columns: 1fr 2fr 1fr;
+	grid-auto-rows: minmax(	100px, auto);
+	grid-gap: 5%;
+	text-align: center;
+	align-items: stretch;
+}
+
+.wrapper div:nth-last-child(1){
+	grid-row: 3;
+    grid-column-start: 1;
+    grid-column-end: 4;
+}
+
+.wrapper div:nth-child(1){
+	grid-row: 1;
+    grid-column-start: 1;
+    grid-column-end: 1;
+}
+
+.wrapper div:nth-child(2){
+	grid-row: 1;
+    grid-column-start: 2;
+    grid-column-end: 4;
+}
+
+.wrapper div:nth-child(3){
+	grid-row: 2;
+    grid-column-start: 1;
+    grid-column-end: 3;
+}
+
+.wrapper div:nth-child(4){
+	grid-row: 2;
+    grid-column-start: 3;
+}
+

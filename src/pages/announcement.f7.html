@@ -1,17 +1,42 @@
 <template>
-<div class="page" data-name="announcement">
-  <div class="navbar">
-    <div class="navbar-bg"></div>
-    <div class="navbar-inner sliding">
-      <div class="left">
-        <a href="#" class="link back">
-          <i class="icon icon-back"></i>
-          <span class="if-not-md">Back</span>
-        </a>
+  <div class="page" data-name="announcement">
+    <div class="navbar">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner sliding">
+        <div class="left">
+          <a class="link back">
+            <i class="f7-icons color-gold">chevron_left</i>
+            <span class="if-not-md">Back</span>
+          </a>
+        </div>
+        <div class="title color-gold">Announcement</div>
       </div>
-      <div class="title">Announcement</div>
     </div>
-  </div>
+
+    <div class="toolbar tabbar toolbar-bottom" style="height: 8%">
+      <div class="toolbar-inner display-flex">
+        <a href="/billing/" class="tab-link flex-direction-column">
+          <i class="f7-icons size-22">creditcard_fill</i>
+          <span class="tabbar-label">Payment</span>
+        </a>
+        <a href="/bookfacility/" class="tab-link flex-direction-column">
+          <i class="f7-icons size-22">building_2_fill</i>
+          <span class="tabbar-label">Facilities</span>
+        </a>
+        <a href="/" class="tab-link flex-direction-column">
+          <i class="f7-icons size-22">house_alt</i>
+          <span class="tabbar-label">Home</span>
+        </a>
+        <a href="/news/" class="tab-link tab-link-active flex-direction-column">
+          <i class="f7-icons size-22">dot_radiowaves_left_right</i>
+          <span class="tabbar-label">News</span>
+        </a>
+        <a href="/qrcode/" class="tab-link flex-direction-column">
+          <i class="f7-icons size-22">qrcode_viewfinder</i>
+          <span class="tabbar-label">Guest QR</span>
+        </a>		  
+      </div>
+    </div>
   <div class="page-content">
     <div class="block block-strong" id="annc">
       <p>Sorry</p>

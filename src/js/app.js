@@ -1597,7 +1597,7 @@ function getAnnouncement(){
 			// Seconds part from the timestamp
 			var seconds = String(date.getSeconds()).padStart(2, '0');
 			
-			date = year+"-"+month+"-"+day+" "+hours+":"+minutes+":"+seconds;
+			date = day+" "+month+" "+year+" "+hours+":"+minutes;
 			
 			annc_list.innerHTML += `<a href="#" id="${doc.id}" class="announcement-link">
 			<div class="block block-strong">
