@@ -1398,8 +1398,8 @@ async function getFacility(){
 		var pathReference = storage.ref("facilities/"+img_url);
 			
 		let url = await pathReference.getDownloadURL();
-		facilities.innerHTML += `<div>
-				  <a href="" onclick="app.data.Chosen_Facility(this)" id="${name}">
+		facilities.innerHTML += `<div onclick="app.data.Chosen_Facility(this)" id="${name}">
+				  <a href="">
 					<img src="${url}" width="80" height="80">
 					<p class="subtitle">${name}</p>
 				  </a>
