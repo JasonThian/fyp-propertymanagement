@@ -91,8 +91,8 @@ window.app = new Framework7({
 		SelectAnnc(id);
 	},
 	Chosen_Facility: function(chosen){
-		console.log(chosen)
-		chosen_facility(chosen);
+		console.log(chosen.id);
+		chosen_facility(chosen.id);
 	}
   },
   // App routes
@@ -219,22 +219,6 @@ async function init_script(){
 			var uid = user.uid;
 			set_changepassword();
 			
-			//set announcements
-			let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(2).get();
-			var annc_img = document.getElementsByClassName('announcement-img');
-			var annc = 0; 
-			querySnapshot.forEach(async (doc) => {
-				var imageurl = doc.data().imageurl;
-				
-				var pathReference = storage.ref("announcement/"+imageurl);
-				
-				console.log(imageurl);
-				let url = await pathReference.getDownloadURL();
-
-				annc_img[annc].src = url;
-				
-				annc++; 
-			});
 			
 			mainView.router.navigate({ name: 'home'});
 			homesetup();
@@ -623,19 +607,23 @@ function subscribe(token,topic){
 
 var user_type = "";
 ///////////// HOME SETUP
-function homesetup(){
+async function homesetup(){
 	var uid = auth.currentUser.uid;
 	//fields
 	var username = document.getElementById("username");
 	var user_pic = document.getElementById("user_pic");
+	
 	var user_icon = document.getElementById("user_icon");
+	var user_icon_name = document.getElementById("user_icon_name");
+	
 	console.log(uid);
-
+	//set user details
 	db.collection('landlord').doc(uid).get().then((doc) => {
 		console.log("getting user data");
 		console.log(doc.data())
 		
 		var landlords = doc.data().landlords;
+		var role = doc.data().role;
 		
 		USER_DOC = doc.data();
 		
@@ -648,20 +636,88 @@ function homesetup(){
 		var name = doc.data().name;
 		var imageurl = doc.data().imageurl;
 			
-		username.innerHTML = name;
-				
+		username.innerHTML = "Hi, "+name;
+		user_icon_name.innerHTML = name + " | "+role;
+		
 		var pathReference = storage.ref(imageurl);
 					
 		pathReference.getDownloadURL().then(function(url) {
+			
 			//console.log(url);
-			user_icon.src = url;
 			user_pic.src = url;
-					
-					
+			user_icon.src = url;
+			
 		}).catch(function(error) {
 			console.log(error);
 		});
 	})
+	
+	//set announcements
+	let querySnapshot = await db.collection("announcement").orderBy("date", "desc").limit(1).get();
+	var annc_img = document.getElementsByClassName('announcement-img');
+	var annc_title = document.getElementById('annc_title');
+	var annc_imgs = document.getElementById('annc_img');
+	var annc_ele = "";
+
+	querySnapshot.forEach(async (doc) => {
+		var imageurl = doc.data().imageurl;
+		var title = doc.data().title;
+			
+		var pathReference = storage.ref("announcement/"+imageurl);
+			
+		console.log(imageurl);
+		let url = await pathReference.getDownloadURL();
+			
+		annc_title.innerHTML = title;
+		annc_imgs.src = url;
+	});
+	
+	//booking
+	var book_ele = "";
+	var latest_booking = document.getElementById('latest_booking');
+	var today = new Date();
+	var today_time = today.getTime();
+	db.collection("booking").where("user_id", "==", uid).where("timestamp", ">", today_time).orderBy("timestamp", "asc").limit(1).get().then((querySnapshot) => {
+		querySnapshot.forEach(async (doc) => {
+
+			var facility = doc.data().facility;
+			var date = doc.data().date;
+			var duration = doc.data().duration;
+			var status = doc.data().status;
+			var time = doc.data().time;
+			var src = "";
+			
+			time = tConvert(time);			
+			
+			book_ele = `<div class="card-content-padding no-border display-flex flex-direction-column ">
+						<div class="block-header color-custom no-padding">Facility Booked</div>
+						<div class="block block-strong">
+							<p class="amont-due color-gold">${facility}</p>
+						</div>
+
+						<div class="block-header color-custom no-padding">Date & Time</div>
+						<div class="block block-strong">
+							<p class="amont-due no-margin-bottom color-gold">${date}</p>
+						</div>
+						<div class="block block-strong">
+							<p class="amont-due no-margin-top color-gold">${time}</p>
+						</div>
+					</div>`;
+			
+			//latest_booking.innerHTML = book_ele;
+		})
+	});
+}
+
+function tConvert (time) {
+  // Check correct time format and split into components
+  time = time.toString ().match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+  if (time.length > 1) { // If time format correct
+    time = time.slice (1);  // Remove full string match value
+    time[5] = +time[0] < 12 ? 'AM' : 'PM'; // Set AM/PM
+  }
+  return time.join (''); // return adjusted time or original string
 }
 
 function makeid(length) {
@@ -1232,7 +1288,7 @@ async function set_booking(){
 
 		//format date
 		var dateObj = new Date(date_chosen);
-		var month = monthNames[dateObj.getMonth()];
+		var month = dateObj.getMonth()+1;
 		var day = String(dateObj.getDate()).padStart(2, '0');
 		var year = dateObj.getFullYear();
 		var date = day  + '-'+ month  + '-' + year;
@@ -1327,10 +1383,9 @@ async function getFacility(){
 	
 	var facilityRef = db.collection("config").doc("facilities").collection("facilities_list");
 	
-	let facilities_list = await facilityRef.get();
+	let facilities_list = await facilityRef.orderBy("name", "asc").get();
 	
-	var fac_count = 0;
-	facilities_list.forEach(async (doc) => {
+	await facilities_list.forEach(async (doc) => {
 		//init vars
 		var img_url = doc.data().img;
 		var name = doc.data().name;
@@ -1341,59 +1396,16 @@ async function getFacility(){
 		var pathReference = storage.ref("facilities/"+img_url);
 			
 		let url = await pathReference.getDownloadURL();
-		
-		
-		console.log(fac_count);
-		if(fac_count == 0){
-			
-			facilities.innerHTML += `<div class="row no-gap">
-			<div class="col">
-			  <div class="card facility-card">
-				<div class="card-content card-content-padding card-margin-middle">
-				  <a href="" class="facility_redirect" id="${name}" onclick="app.data.Chosen_Facility('${name}');">
+		facilities.innerHTML += `<div>
+				  <a href="" onclick="app.data.Chosen_Facility(this)" id="${name}">
 					<img src="${url}" width="80" height="80">
 					<p class="subtitle">${name}</p>
 				  </a>
-				</div>
-			  </div>             
-			</div> 
-		  </div>`;
-		  console.log(facilities);
-		}else if(fac_count == 1){
-			var rows = document.getElementsByClassName('row no-gap');
-			var row_count = rows.length-1;
-			
-			rows[row_count].innerHTML += `<div class="col">
-			  <div class="card facility-card" >
-				<div class="card-content card-content-padding card-margin-middle">
-				  <a href="" class="facility_redirect" id="${name}" onclick="app.data.Chosen_Facility('${name}');">
-					<img src="${url}" width="80" height="80">
-					<p class="subtitle">${name}</p>
-				  </a>
-				</div>
-			  </div>             
-			</div> `;
-			
-			
-		}
-		
-		fac_count += 1;
-		
-		if(fac_count == 2){
-			fac_count = 0;
-		}
+				</div>`;
+				
+		console.log(facilities);
+
 	})
-	
-	
-	var cards = document.getElementsByClassName('facility_redirect');
-	for(var i=0; i< cards.length;i++){
-		cards[i].parentElement.addEventListener('click', function(e){
-			e.preventDefault();
-			facility_chosen = this.id;
-			console.log(facility_chosen);
-			redirect("facilities");
-		})
-	}
 }
 
 function chosen_facility(chosen){
