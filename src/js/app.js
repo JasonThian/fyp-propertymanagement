@@ -1723,8 +1723,10 @@ function getQrCode(){
 		lastQrCode = localStorage.getItem("latest-qr-code");
 		
 		try{
-			QrCodeData = JSON.parse(lastQrCode);
-			QrCodeTime = QrCodeData.time;
+			QrCodeData = lastQrCode.replaceAll(/[a-zA-Z ]+[:][ ]/g, "");
+			console.log(QrCodeData);
+			QrCodeArray = QrCodeData.split("\n");
+			QrCodeTime = QrCodeArray[4];
 		}catch(err){
 			console.log(err);
 		}
