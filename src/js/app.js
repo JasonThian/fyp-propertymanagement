@@ -677,9 +677,11 @@ async function homesetup(){
 	var latest_booking = document.getElementById('latest_booking');
 	var today = new Date();
 	var today_time = today.getTime();
-	db.collection("booking").where("user_id", "==", uid).where("timestamp", ">", today_time).orderBy("timestamp", "asc").limit(1).get().then((querySnapshot) => {
+	db.collection("booking").where("user_id", "==", uid).orderBy("date", "desc").limit(1).get().then((querySnapshot) => {
 		querySnapshot.forEach(async (doc) => {
-
+			
+			//.where("timestamp", ">", today_time).orderBy("timestamp", "asc")
+			
 			var facility = doc.data().facility;
 			var date = doc.data().date;
 			var duration = doc.data().duration;
@@ -704,7 +706,7 @@ async function homesetup(){
 						</div>
 					</div>`;
 			
-			//latest_booking.innerHTML = book_ele;
+			latest_booking.innerHTML = book_ele;
 		})
 	});
 }
