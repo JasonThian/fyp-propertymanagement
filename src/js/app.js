@@ -1000,9 +1000,10 @@ var booking_list = {
 	"BBQ Pit": {},
 	"Sky Lounge": {} 
 	};
- var calendarEvents = "";
- var DEFAULT_LIMIT = 3;
- const monthNames = ["January", "February", "March", "April", "May", "June",
+var booking_type = {};
+var calendarEvents = "";
+var DEFAULT_LIMIT = 3;
+const monthNames = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"];
 
 //initialize calendar
@@ -1295,7 +1296,8 @@ async function set_booking(){
 		var year = dateObj.getFullYear();
 		var date = day  + '-'+ month  + '-' + year;
 		
-		if(facility_chosen != "Sauna" && facility_chosen != "" && time_chosen != "" && date_chosen != ""){
+		//if facility is free
+		if(booking_type[facility_chosen] != "Charge" && facility_chosen != "" && time_chosen != "" && date_chosen != ""){
 			db.collection("booking").add({
 				date: date,
 				duration: "2 hours",
@@ -1312,7 +1314,8 @@ async function set_booking(){
 				toast.open();
 				redirect('bookingsuccess');
 			})
-		}else if(facility_chosen == "Sauna" && time_chosen != "" && date_chosen != ""){
+		//if facility is pay to use
+		}else if(booking_type[facility_chosen] == "Charge" && time_chosen != "" && date_chosen != ""){
 			console.log("dsa",localStorage.getItem("facility-payment-dont-show-again"));
 			if(localStorage.getItem("facility-payment-dont-show-again") == "set"){
 				redirect_payment();
@@ -1382,6 +1385,7 @@ async function getFacility(){
 	var facilities = document.getElementById('facility-list');
 	console.log(facilities);
 	booking_list = {};
+	booking_type = {};
 	
 	var facilityRef = db.collection("config").doc("facilities").collection("facilities_list");
 	
@@ -1391,9 +1395,11 @@ async function getFacility(){
 		//init vars
 		var img_url = doc.data().img;
 		var name = doc.data().name;
+		var booking_payment_type = doc.data().payment;
 		
 		//setup obj
 		booking_list[name] = {};
+		booking_type[name] = booking_payment_type;
 		
 		var pathReference = storage.ref("facilities/"+img_url);
 			
