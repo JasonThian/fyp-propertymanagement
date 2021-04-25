@@ -690,7 +690,7 @@ async function homesetup(){
 	var latest_booking = document.getElementById('latest_booking');
 	var today = new Date();
 	var today_time = today.getTime();
-	db.collection("booking").where("user_id", "==", uid).orderBy("date", "desc").limit(1).get().then((querySnapshot) => {
+	db.collection("booking").where("user_id", "==", uid).where("timestamp", ">", today_time).orderBy("timestamp", "asc").limit(1).get().then((querySnapshot) => {
 		querySnapshot.forEach(async (doc) => {
 			
 			//.where("timestamp", ">", today_time).orderBy("timestamp", "asc")
@@ -1013,9 +1013,10 @@ var booking_list = {
 	"BBQ Pit": {},
 	"Sky Lounge": {} 
 	};
- var calendarEvents = "";
- var DEFAULT_LIMIT = 3;
- const monthNames = ["January", "February", "March", "April", "May", "June",
+var booking_type = {};
+var calendarEvents = "";
+var DEFAULT_LIMIT = 3;
+const monthNames = ["January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"];
 
 //initialize calendar
@@ -1308,7 +1309,8 @@ async function set_booking(){
 		var year = dateObj.getFullYear();
 		var date = day  + '-'+ month  + '-' + year;
 		
-		if(facility_chosen != "Sauna" && facility_chosen != "" && time_chosen != "" && date_chosen != ""){
+		//if facility is free
+		if(booking_type[facility_chosen] != "Charge" && facility_chosen != "" && time_chosen != "" && date_chosen != ""){
 			db.collection("booking").add({
 				date: date,
 				duration: "2 hours",
@@ -1325,7 +1327,8 @@ async function set_booking(){
 				toast.open();
 				redirect('bookingsuccess');
 			})
-		}else if(facility_chosen == "Sauna" && time_chosen != "" && date_chosen != ""){
+		//if facility is pay to use
+		}else if(booking_type[facility_chosen] == "Charge" && time_chosen != "" && date_chosen != ""){
 			console.log("dsa",localStorage.getItem("facility-payment-dont-show-again"));
 			if(localStorage.getItem("facility-payment-dont-show-again") == "set"){
 				redirect_payment();
@@ -1395,6 +1398,7 @@ async function getFacility(){
 	var facilities = document.getElementById('facility-list');
 	console.log(facilities);
 	booking_list = {};
+	booking_type = {};
 	
 	var facilityRef = db.collection("config").doc("facilities").collection("facilities_list");
 	
@@ -1404,15 +1408,17 @@ async function getFacility(){
 		//init vars
 		var img_url = doc.data().img;
 		var name = doc.data().name;
+		var booking_payment_type = doc.data().payment;
 		
 		//setup obj
 		booking_list[name] = {};
+		booking_type[name] = booking_payment_type;
 		
 		var pathReference = storage.ref("facilities/"+img_url);
 			
 		let url = await pathReference.getDownloadURL();
-		facilities.innerHTML += `<div>
-				  <a href="" onclick="app.data.Chosen_Facility(this)" id="${name}">
+		facilities.innerHTML += `<div onclick="app.data.Chosen_Facility(this)" id="${name}">
+				  <a href="">
 					<img src="${url}" width="80" height="80">
 					<p class="subtitle">${name}</p>
 				  </a>
@@ -1584,8 +1590,10 @@ function SelectAnnc(id){
 		pathReference.getDownloadURL().then(function(url) {
 
 			var annc = document.getElementById("annc");
-			annc.innerHTML = `<img id="annc_pic" width="100%" src="${url}"/>
+			annc.innerHTML = `<
 							<p id="annc_title">${title}</p>
+							<img id="annc_pic" width="100%" src="${url}"/>
+							
 							<p id="annc_desc">${desc}</p>`;
 					
 		}).catch(function(error) {
@@ -1627,8 +1635,8 @@ function getAnnouncement(){
 			date = day+" "+month+" "+year+" "+hours+":"+minutes;
 			
 			annc_list.innerHTML += `<a href="#" id="${doc.id}" class="announcement-link">
-			<div class="block block-strong">
-				<div class="announcements">
+			<div class="card">
+				<div class="card-content card-content-padding">
 					<div class="date">
 						<p class="date-list">${date}</p>
 					</div>					
