@@ -139,7 +139,7 @@ function checkConnection() {
     states[Connection.CELL]     = 'Cell generic connection';
     states[Connection.NONE]     = 'No network connection';*/
 
-    console.log("Connection Log",'Connection type: ' + networkState);//states[networkState]);
+    console.log('Connection type: ' + networkState);//states[networkState]);
 	return networkState;
 }
 
@@ -161,6 +161,14 @@ function set_logout(){
 	var logout = document.getElementById('logout');
 	logout.addEventListener("click", function(e){
 		e.preventDefault();
+		
+		try{
+			var user_id = auth.currentUser.uid;
+			FCMPluginNG.unsubscribeFromTopic(user_id);
+		}catch(err){
+			console.log(err);
+		}
+		
 		auth.signOut().then(() => {
 			console.log("user signed out");
 			
@@ -228,6 +236,8 @@ async function init_script(){
 					console.log(token);
 				});
 				FCMPlugin.subscribeToTopic('announcement');
+				console.log("subscribe announcement success");
+				FCMPlugin.subscribeToTopic(uid,function(){console.log("success");},function(err){console.log(err);});
 				
 				FCMPlugin.onNotification(function(data){
 					
@@ -244,6 +254,9 @@ async function init_script(){
 						//Notification was received on device tray and tapped by the user.
 						console.log( JSON.stringify(data) );
 						console.log( "Background notification" );
+						
+						if(data.title == "Your bill is ready")
+							redirect("payment");
 					}else{
 						//Notification was received in foreground. Maybe the user needs to be notified.
 						console.log( JSON.stringify(data) );
