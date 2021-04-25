@@ -232,12 +232,17 @@ async function init_script(){
 			homesetup();
 
 			try{
+				FCMPlugin.subscribeToTopic(uid);
+			}catch(err){
+				console.log("Cannot subscribe to topic");
+				console.log(err);
+			}
+
+			try{
 				FCMPlugin.getToken(function(token){
 					console.log(token);
 				});
 				FCMPlugin.subscribeToTopic('announcement');
-				console.log("subscribe announcement success");
-				FCMPlugin.subscribeToTopic(uid,function(){console.log("success");},function(err){console.log(err);});
 				
 				FCMPlugin.onNotification(function(data){
 					
@@ -721,6 +726,19 @@ async function homesetup(){
 			
 			latest_booking.innerHTML = book_ele;
 		})
+	});
+	
+	//set billing
+	db.collection("billing").where("user_id", "==", uid).orderBy("date", "desc").limit(1).get().then((querySnapshot) => {
+		querySnapshot.forEach((doc) => {
+			var time = new Date();
+			time.setTime(doc.data().date.seconds * 1000);
+			
+			document.getElementById("date-due").innerHTML = time.toLocaleDateString("en-US");
+			document.getElementById("amount-due").innerHTML = "RM " + parseFloat(doc.data().amount/100).toFixed(2);
+		});
+	}).catch((err) => {
+		console.log(err);
 	});
 }
 
@@ -1375,14 +1393,22 @@ async function set_booking(){
 				time: time_chosen,
 				user_id: user_id
 			}).then((doc) =>{
-				var price = 1000 * 2;
-				localStorage.setItem("latest-payment-amount",parseFloat(price).toFixed(0));
-				localStorage.setItem("latest-payment-amount-string",parseFloat(parseFloat(price).toFixed(0)/100).toFixed(2));
-				localStorage.setItem("latest-payment-descrip",facility_chosen);
 				localStorage.setItem("latest-facility-document",doc.id);
+				localStorage.setItem("latest-payment-descrip",facility_chosen);
+			}).then(async() => {
+				await db.collection("config").doc("facilities").collection("facilities_list").where("name","==",facility_chosen).get().then((querySnapshot) => {
+					querySnapshot.forEach((doc) => {
+						var facilityPrice = doc.data().price;
+						
+						localStorage.setItem("latest-payment-amount",parseFloat(facilityPrice).toFixed(0));
+						localStorage.setItem("latest-payment-amount-string",parseFloat(parseFloat(facilityPrice).toFixed(0)/100).toFixed(2));
+					});
+				});
 				paymentPopup.close();
+			}).then(() => {
 				redirect("payment-method");
 			}).catch((err) => {
+				console.log(err);
 				timed_toast("An error has occured","center");
 			});
 		}
