@@ -43,6 +43,7 @@
 	margin: 25px 0 0 0;
 }
 .block-strong{
+
 	background-color: transparent;
 }
 .block-strong:before, .block-strong:after,.list .item-inner:after{
@@ -241,8 +242,7 @@
 	width: 50px;
 	height: 50px;
 	border-radius: 50%;
-	image-rendering: pixelated;
-	// image-rendering: -webkit-optimize-contrast;
+	
 	border: 1px solid #7278B9;
 }
 
@@ -257,14 +257,15 @@
 }
 
 p#annc_title{
-	font-size: 6vw;
+	font-size: 25px;
     font-weight: bold;
-    text-transform: capitalize;
-    text-align: center;
+	color:#CCA679;
 }
 
 p#annc_desc {
-    font-size: 18px;
+    font-size: 25px;
+   
+	color:white;
     text-align: justify;
 }
 
@@ -311,7 +312,8 @@ p#annc_desc {
 }
 //payment history
 .item-link{
-	background-color:white;
+	background: linear-gradient(to right bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
+	border-radius: 20px;
 	margin-top:10px;
 }
 //payment method 
@@ -431,6 +433,7 @@ p#annc_desc {
 
 .facility-name, .booking-time, .booking-duration, .booking-status{
 	margin: 0;
+	
 }
 
 //Select Time, Date and Duration
@@ -446,11 +449,20 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 	font-size: 18px;
 	padding: 4px;
 }
+.card
+{
+	background: linear-gradient(to right bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
+	width: 350px;
+}
+
 
 
 //Booking Success
 .booking-success{
+	font-size:15px;
 	display: flex;
+	color:white;
+	font-weight: 600;
 	justify-content: center;
 	flex-direction: column;
 	text-align: center;
@@ -471,7 +483,9 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 //payment_reminder
 .list .reminder
 {
-	background-color:white;
+	background: linear-gradient(to right bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
+	border-radius: 20px;
+	
 }
 
 /* Stripe Payment css */

@@ -1577,8 +1577,10 @@ function SelectAnnc(id){
 		pathReference.getDownloadURL().then(function(url) {
 
 			var annc = document.getElementById("annc");
-			annc.innerHTML = `<img id="annc_pic" width="100%" src="${url}"/>
+			annc.innerHTML = `<
 							<p id="annc_title">${title}</p>
+							<img id="annc_pic" width="100%" src="${url}"/>
+							
 							<p id="annc_desc">${desc}</p>`;
 					
 		}).catch(function(error) {
@@ -1620,8 +1622,8 @@ function getAnnouncement(){
 			date = day+" "+month+" "+year+" "+hours+":"+minutes;
 			
 			annc_list.innerHTML += `<a href="#" id="${doc.id}" class="announcement-link">
-			<div class="block block-strong">
-				<div class="announcements">
+			<div class="card">
+				<div class="card-content card-content-padding">
 					<div class="date">
 						<p class="date-list">${date}</p>
 					</div>					
