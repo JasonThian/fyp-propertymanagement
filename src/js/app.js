@@ -1635,7 +1635,7 @@ function getAnnouncement(){
 			date = day+" "+month+" "+year+" "+hours+":"+minutes;
 			
 			annc_list.innerHTML += `<a href="#" id="${doc.id}" class="announcement-link">
-			<div class="card">
+			<div class="card carder">
 				<div class="card-content card-content-padding">
 					<div class="date">
 						<p class="date-list">${date}</p>
