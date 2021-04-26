@@ -1434,7 +1434,7 @@ async function getFacility(){
 	
 	let facilities_list = await facilityRef.orderBy("name", "asc").get();
 	
-	await facilities_list.forEach(async (doc) => {
+	facilities_list.forEach(async (doc) => {
 		//init vars
 		var img_url = doc.data().img;
 		var name = doc.data().name;
@@ -1444,19 +1444,34 @@ async function getFacility(){
 		booking_list[name] = {};
 		booking_type[name] = booking_payment_type;
 		
-		var pathReference = storage.ref("facilities/"+img_url);
-			
-		let url = await pathReference.getDownloadURL();
 		facilities.innerHTML += `<div onclick="app.data.Chosen_Facility(this)" id="${name}">
 				  <a href="">
-					<img src="${url}" width="80" height="80">
+					<img src="images/dryx-logo.png" width="80" height="80" class="fac_img" id="${img_url}">
 					<p class="subtitle">${name}</p>
 				  </a>
 				</div>`;
-				
-		console.log(facilities);
 
 	})
+	
+	var facs = document.getElementsByClassName("fac_img");
+		
+	set_fac_img(facs,facs.length,0);
+}
+
+
+async function set_fac_img(ele,length,count){
+	
+	var pathReference = storage.ref("facilities/"+ele[count].id);
+			
+	let url = await pathReference.getDownloadURL();
+	ele[count].src = url;
+	console.log("length: " + length + " count: "+count);
+	count++;
+	if(count != length){
+		
+		set_fac_img(ele,length,count);
+	}
+
 }
 
 function chosen_facility(chosen){
