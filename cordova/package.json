@@ -13,9 +13,9 @@
   "author": "Apache Cordova Team",
   "license": "Apache-2.0",
   "devDependencies": {
-    "cordova-android": "^9.0.0",
-    "cordova-ios": "^6.2.0",
+    "cordova-android": "^9.1.0",
     "cordova-plugin-advanced-http-2": "^1.6.1",
+    "cordova-plugin-canvas2image": "git+https://github.com/devgeeks/Canvas2ImagePlugin.git",
     "cordova-plugin-fcm-ng": "^8.3.0",
     "cordova-plugin-file": "^6.0.2",
     "cordova-plugin-keyboard": "^1.2.0",
@@ -43,12 +43,10 @@
         "PHOTO_LIBRARY_ADD_USAGE_DESCRIPTION": "This app requires photo library access to function properly.",
         "PHOTO_LIBRARY_USAGE_DESCRIPTION": "This app requires photo library access to function properly."
       },
-      "cordova-plugin-network-information": {}
+      "cordova-plugin-network-information": {},
+      "org.devgeeks.Canvas2ImagePlugin": {}
     },
-    "platforms": [
-      "android",
-      "ios"
-    ]
+    "platforms": []
   },
   "dependencies": {
     "framework7-icons": "^4.0.2"

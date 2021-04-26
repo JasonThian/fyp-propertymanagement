@@ -216,8 +216,6 @@ async function init_script(){
 		console.log(err);
 	}
 	
-	document.addEventListener("deviceready", onOffline(), false);
-	
 	/* Check User Login */
 	auth.onAuthStateChanged(async user => {
 
@@ -230,6 +228,7 @@ async function init_script(){
 			
 			mainView.router.navigate({ name: 'home'});
 			homesetup();
+			app.preloader.hide();
 
 			try{
 				FCMPlugin.subscribeToTopic(uid);
@@ -276,13 +275,15 @@ async function init_script(){
 	
 			
 		}else{
+			console.log("Redirect to login page");
 			mainView.router.navigate({ name: 'login'});
+			app.preloader.hide();
 		}
 	});
 	
 	/* Get Stripe PaymentIntent */
 	setTimeout(()=>{
-		app.preloader.hide();
+		
 		const stripe = Stripe("pk_test_51HmpphAKsIRleTRbL8qxNUc97rkqnpYJRMpJ8JBry543rJ7PEXsv9vkr0JlqnjIK442Hb6c5IY7lcw7dall9vHs600xi3UqAyZ");
 		try{
 			let paymentIntent = parseURLParams(window.location.href);
@@ -407,6 +408,8 @@ async function init_script(){
 	}catch(err){
 		console.log(err);
 	}
+	
+	document.addEventListener("deviceready", onOffline(), false);
 }
 
 /* Get data from URL - GET Method - All data in Array */
@@ -626,6 +629,7 @@ function subscribe(token,topic){
 var user_type = "";
 ///////////// HOME SETUP
 async function homesetup(){
+
 	var uid = auth.currentUser.uid;
 	//fields
 	var username = document.getElementById("username");
@@ -1737,7 +1741,7 @@ function getQrCode(){
 	var QrCodeArray = null;
 	
 	try{
-		QrCodeData = lastQrCode.replaceAll(/[a-zA-Z ]+[:][ ]/g, "");
+		QrCodeData = lastQrCode.replace(/[a-zA-Z ]+[:][ ]/g, "");
 		console.log(QrCodeData);
 		QrCodeArray = QrCodeData.split("\n");
 		QrCodeTime = QrCodeArray[4];
@@ -1770,7 +1774,7 @@ function getQrCode(){
 		lastQrCode = localStorage.getItem("latest-qr-code");
 		
 		try{
-			QrCodeData = lastQrCode.replaceAll(/[a-zA-Z ]+[:][ ]/g, "");
+			QrCodeData = lastQrCode.replace(/[a-zA-Z ]+[:][ ]/g, "");
 			console.log(QrCodeData);
 			QrCodeArray = QrCodeData.split("\n");
 			QrCodeTime = QrCodeArray[4];
@@ -1779,7 +1783,7 @@ function getQrCode(){
 		}
 		
 		if(lastQrCode != null && lastQrCode != undefined && lastQrCode != ""){
-			if(QrCodeTime > time.getTime()){
+			if(parseInt(QrCodeTime) > time.getTime()){
 				shareQrCode();
 			}
 			else
@@ -1872,8 +1876,25 @@ function createQrCode(){
 
 /* Share Button - Not Functioning */
 function shareQrCode(){
-	var options = {
-		files: ['static/icons/img-placeholder.jpg']
+	var path = "";
+	window.canvas2ImagePlugin.saveImageDataToLibrary(
+        function(msg){
+            console.log(msg);
+			path = msg;
+			console.log("save qrcode success");
+        },
+        function(err){
+            console.log(err);
+        },
+        document.getElementById('qrcode-canvas'),
+        'qrcode/',
+        'shareQrCode.png'
+    );
+	
+	//window.open("https://wa.me/15551234567");
+	
+	/*var options = {
+		files: [path]
 	};
 	 
 	var onSuccess = function(result) {
@@ -1887,7 +1908,7 @@ function shareQrCode(){
 		timed_toast("Sharing failed", "center");
 	};
 	 
-	window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
+	window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);*/
 }
 
 function getPaymentDetails(id){
