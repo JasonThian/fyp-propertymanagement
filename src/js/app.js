@@ -244,13 +244,58 @@ async function init_script(){
 				FCMPlugin.subscribeToTopic('announcement');
 				
 				FCMPlugin.onNotification(function(data){
+					var notificationFull = "";
+					if(data.type == "chat"){
+						notificationFull = app.notification.create({
+							icon: '<img src="images/dryx-logo.png"></img>',
+							title: '<b>'+data.title.toUpperCase()+'</b>',
+							text: data.body,
+							closeTimeout: 3000,
+						});
+						
+						if (localStorage.getItem("unseen_msg") === null) {
+							localStorage.setItem("unseen_msg", 1);
+						}else{
+							var unseen_msg = localStorage.getItem("unseen_msg");
+							unseen_msg++;
+							localStorage.setItem("unseen_msg", unseen_msg);
+						}
+						
+						var badge = document.getElementById("badge");
+						if(badge != null){
+							badge.innerHTML = localStorage.getItem("unseen_msg");
+						}
+						
+					}else if(data.title == "Your bill is ready"){
+						notificationFull = app.notification.create({
+							icon: '<img src='+data.image+'></img>',
+							title: '<b>'+data.title.toUpperCase()+'</b>',
+							text: data.body,
+							closeTimeout: 3000,
+						});
+						
+						if (localStorage.getItem("unseen_payment") === null) {
+							localStorage.setItem("unseen_payment", 1);
+						}else{
+							var unseen_payment = localStorage.getItem("unseen_payment");
+							unseen_payment++;
+							localStorage.setItem("unseen_payment", unseen_payment);
+						}
+						
+						var payment_badge = document.getElementById("unseen_payment");
+						if(payment_badge != null){
+							payment_badge.innerHTML = localStorage.getItem("unseen_payment");
+						}
+						
+					}else{
+						notificationFull = app.notification.create({
+							icon: '<img src='+data.image+'></img>',
+							title: '<b>'+data.title.toUpperCase()+'</b>',
+							text: data.body,
+							closeTimeout: 3000,
+						});
+					}
 					
-					var notificationFull = app.notification.create({
-						icon: '<img src='+data.image+'></img>',
-						title: '<b>'+data.title.toUpperCase()+'</b>',
-						text: data.body,
-						closeTimeout: 3000,
-					});
 					notificationFull.open();
 					
 					
@@ -261,6 +306,8 @@ async function init_script(){
 						
 						if(data.title == "Your bill is ready")
 							redirect("payment");
+						else if(data.type == "chat")
+							redirect("chatbox");
 					}else{
 						//Notification was received in foreground. Maybe the user needs to be notified.
 						console.log( JSON.stringify(data) );
@@ -520,7 +567,7 @@ function check_msg_type2(doc,messages){
 
 // chatbox
 function chatbox(){
-	
+	localStorage.setItem("unseen_msg", 0);
 	var messagebar = app.messagebar.create({
         el: '.messagebar'
     });
@@ -631,7 +678,8 @@ var user_type = "";
 async function homesetup(){
 
 	var uid = auth.currentUser.uid;
-	//fields
+	/////fields
+	
 	var username = document.getElementById("username");
 	var user_pic = document.getElementById("user_pic");
 	
@@ -639,6 +687,28 @@ async function homesetup(){
 	var user_icon_name = document.getElementById("user_icon_name");
 	
 	console.log(uid);
+	
+	////badges
+	//chat badge
+	var badge = document.getElementById("badge");
+	var unseen_msg = localStorage.getItem("unseen_msg");
+	if(unseen_msg == 0 || unseen_msg == null){
+		badge.style.display = "none";
+	}else{
+		badge.style.display = "flex";
+		badge.innerHTML = unseen_msg;
+	}
+	
+	//payment badge
+	var payment_badge = document.getElementById("payment_badge");
+	var unseen_payment = localStorage.getItem("unseen_payment");
+	if(unseen_payment == 0 || unseen_payment == null){
+		payment_badge.style.display = "none";
+	}else{
+		payment_badge.style.display = "flex";
+		payment_badge.innerHTML = unseen_payment;
+	}
+		
 	//set user details
 	db.collection('landlord').doc(uid).get().then((doc) => {
 		console.log("getting user data");
@@ -1337,12 +1407,12 @@ async function set_booking(){
 				date: date,
 				duration: "2 hours",
 				facility: facility_chosen,
-				status: "pending",
+				status: "success",
 				time: time_chosen,
 				user_id: user_id
 			}).then(()=>{
 				var toast = app.toast.create({
-					text: 'Booking has been sent for verification',
+					text: 'Booking Successfull',
 					closeTimeout: 2000,
 					position: "center"
 				});
