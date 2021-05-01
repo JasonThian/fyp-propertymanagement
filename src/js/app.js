@@ -1655,6 +1655,7 @@ function SelectAnnc(id){
 function getAnnouncement(){
 	
 	var annc_list = document.getElementById("annc_list");
+
 	var list_ele = "";
 	var url_list = [];
 	  
@@ -1695,8 +1696,7 @@ function getAnnouncement(){
 				</div>	
 			</div>
 		</a>`;
-					
-					
+
 			url_list.push(imageurl);
 			console.log(imageurl);
 		});
@@ -1721,6 +1721,12 @@ function getAnnouncement(){
 				SelectAnnc(this.id)
 			})
 		}
+
+		// read_more.getElementById("read_more").addEventListener("click", function(e){
+		// 	e.preventDefault();
+		// 	redirect("announcement");
+		// 	SelectAnnc(this.id);
+		// })
 	});
 }
 
