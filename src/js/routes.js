@@ -42,6 +42,7 @@ var routes = [
     component: NewsPage,
   },
   {
+	name: 'chatbox',
     path: '/chatbox/',
     component: ChatPage,
   },
