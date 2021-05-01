@@ -29,6 +29,7 @@
                 <h5 id="user_icon_name" class="no-margin-bottom no-margin-top color-custom">Sara Lockharr | Landlord</h5>
               </div>
               <ul>
+                <li>
                 <a onclick="app.data.close_panel()" href="/edit/" class="button list-buttons padding-left padding-right"><span class="f7-icons size-25">person_fill</span>   Account Details</a>
                 <a onclick="app.data.close_panel()" href="/bookingdetail/" class="button list-buttons padding-left padding-right"><span class="f7-icons size-25">calendar_today</span>    Booking Detail</a>
                 <a onclick="app.data.close_panel()" data-popup=".popup-change-password" class="popup-open button list-buttons padding-left padding-right"><span class="f7-icons size-25">lock_shield</span>     Change Password</a>
@@ -36,6 +37,14 @@
                 <a onclick="app.data.close_panel()" href="/paymenthistory/" class="button list-buttons landlord padding-left padding-right"><span class="f7-icons size-25">clock</span>     Payment History</a>
                 <a onclick="app.data.close_panel()" href="/tenantlist/" class="button list-buttons landlord padding-left padding-right"><span class="f7-icons size-25">person_3_fill</span>     Tenant List</a>
                 <a onclick="app.data.close_panel()" href="/issuereport/" class="button list-buttons landlord padding-left padding-right"><span class="f7-icons size-25">question_circle_fill</span>     Issue Reporting</a>
+              </li>
+                <li class="padding">
+                  <span class="color-custom">Dark Mode</span>
+                  <label class="toggle toggle-init toggle-init">
+                    <input type="checkbox" checked/>
+                    <span class="toggle-icon"></span>
+                  </label>
+                </li>
               </ul>
             </div>
 		        	<a onclick="app.data.close_panel()" href="/login/" class="button margin-bottom padding-right padding-left button-raised button-fill button-large logout color-gold color-bg-custom" id="logout">Logout</a>
