@@ -58,28 +58,31 @@
 						<img id="annc_img" src="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8aHVtYW58ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80" 
 						width="100%" height="250px">						
 						<div class="card-footer no-border">
-							<a href="#" class="link text-align-center color-gold">Read more</a>
+							<!-- <a href="/news/" class="link text-align-center color-gold">Read more</a> -->
+							<a href="#" id="read_more" class="announcement-link link text-align-center color-gold">Read more</a>
 						</div>
 					</div>
 				</div>
 
 				<div class="block-title color-custom">Bill Details</div>
 				<div class="card bg-black">					
-					<div class="card-content-padding no-border text-align-center ">
-						<div class="block-header color-custom">Due Amount</div>
-						<div class="block block-strong">
-						  <p id="amount-due" class="amont-due color-gold">-</p>
-						</div>
-						<div class="block-header color-custom">Due Date</div>
-						<div class="block block-strong">
-							<p id="date-due" class="amont-due color-gold">-</p>
-						</div>
+					<div class="card-content-padding no-border text-align-center">
+						<a href="/payment/" class="no-padding no-margin">
+							<div class="block-header color-custom">Due Amount</div>
+							<div class="block block-strong">
+							<p id="amount-due" class="amont-due color-gold">-</p>
+							</div>
+							<div class="block-header color-custom">Due Date</div>
+							<div class="block block-strong">
+								<p id="date-due" class="amont-due color-gold">-</p>
+							</div>
+						</a>
 					</div>
 				</div>
 
 				<div class="block-title color-custom">Upcoming Facility Booked</div>
 				<div class="card bg-black" id="latest_booking">					
-					<div class="card-content-padding no-border display-flex flex-direction-column ">
+					<div class="card-content-padding no-border display-flex flex-direction-column">
 						<div class="block-header color-custom no-padding">Facility Booked</div>
 						<div class="block block-strong">
 							<p class="amont-due color-gold">Gym</p>
