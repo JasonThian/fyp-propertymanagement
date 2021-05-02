@@ -1,7 +1,5 @@
 @body-width: 480px;
 @body-height: 853px;
-//@body-height: 50em;
-//@body-width: 22.5em;
 @announcement-width: @body-width * 0.8;
 @announcement-height: @announcement-width * (9/16);
 @card-view-width: @body-width * 0.8;
@@ -22,6 +20,8 @@
 
 *{
 	font-family: 'Nunito', 'Arial', sans-serif;
+	image-rendering: -webkit-optimize-contrast;
+
 }
 
 /* Your app custom styles here */
@@ -59,15 +59,12 @@
 }
 
 .list .item-inner label{
-	margin-left: 70px;
-	font-size:25px;
-	text-align:center;
-	
-	
+	font-size: 6vw;
+	text-align: center;	
 }
 
 .list .item-inner label img{
-	margin-left: 20px;
+	margin-left: 5vw;
 	
 }
 
@@ -97,24 +94,6 @@
 	// margin-left: 2vw;
 }
 
-// .title{
-// 	margin-top: ;
-// }
-
-// .card-margin-middle{
-// 	margin: 0 auto;
-// 	vertical-align: middle;
-// 	padding: 20px 12px;
-// 	text-align: center;
-// 	font-size: 18px;
-// }
-
-// .card-inline-blocks{
-// 	width: @card-width;
-// 	display: inline-block; 
-// 	border-radius: 7%;
-// }
-
 .card-title{
 	color: #CCA679;
 }
@@ -133,12 +112,10 @@
 }
 
 .navbar-bg{
-	// visibility:hidden;
 	background-color: transparent;
 }
 
 .card-views{
-	// width: @card-view-width;
 	margin: 0 auto;
 	text-align: center;
 }
@@ -246,7 +223,6 @@
 	height: 50px;
 	border-radius: 50%;
 	image-rendering: pixelated;
-
 	border: 1px solid #7278B9;
 }
 
@@ -264,13 +240,6 @@ p#annc_title{
 	font-size: 25px;
     font-weight: bold;
 	color:#CCA679;
-}
-
-p#annc_desc {
-    font-size: 25px;
-   
-	color:white;
-    text-align: justify;
 }
 
 //qr code
@@ -302,14 +271,7 @@ p#annc_desc {
 .amount-large{
 	text-align: center;
     font-size: 11vw;
-}
-
-.page-content1{
-	// overflow-x: hidden; 
-	// overflow-y: scroll;
-	// padding: 10% 0%;
-	// background-color:white;
-}
+}	
 
 .list .payment{
 	padding: 5px 0;
@@ -320,23 +282,26 @@ p#annc_desc {
 	border-radius: 20px;
 	margin-top:10px;
 }
+
 //payment method 
 .title_payment{
-	font-size:25px;
-	margin-left:20px;
+	font-size: 4.5vw;
 	font-weight: bold;
-	margin-top:40px;
-	
 }
+
 .description{
-	font-size:20px;
-	margin-left:20px;
-	margin-top:10px;
+	font-size: 6vw;
 }
+
 .list .payment_method
 {
 	background-color:transparent;
 }
+
+.payment_method > li {
+	width: 80%;
+}
+
 
 //tenant_list
 .list .tenant_list{
@@ -398,6 +363,7 @@ p#annc_desc {
 //Select Facility 
 .subtitle{
 	color: #E4B37A;
+	font-size: 4.5vw;
 }
 
 //Booking Details
@@ -432,7 +398,6 @@ p#annc_desc {
 
 .facility-name, .booking-time, .booking-duration, .booking-status{
 	margin: 0;
-	
 }
 
 //Select Time, Date and Duration
@@ -706,7 +671,6 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 
 .message-group-sent{
 	width: 100%;
-	// margin-bottom: 20px;
 	text-align: right;
 }
 
@@ -726,7 +690,6 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 
 .message-sent:first-child > .message-sent-text{
 	border-top-right-radius: 20px;
-	// margin-top: 10px;
 }
 
 .message-sent:last-child > .message-sent-text{
@@ -747,7 +710,6 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 	width: 90%;
 	border-radius: 60px;
 	margin: 5px;
-	// outline: none;
 	font-size: 19px;
 	padding-left: 40px;
 	padding-right: 80px;
@@ -756,10 +718,11 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 	flex: 1;
 
 } 
-//issue
+
+//issue reporting
 .description_inputs textarea ,.description_inputs input{
 	width: 100%;
-	background: #3f3f3f;
+	background: #efefef;
 	border-radius: 8px;
 }
 
@@ -785,16 +748,11 @@ select[name="booking_duration"], select[name="booking_duration"] option{
 }
 
 
-img{
-	image-rendering: auto;
-	image-rendering: crisp-edges;
-	image-rendering: pixelated;
-	border-radius: 10px;
-}
-
-.tabbar{
-	// background: rgb(53, 53, 53);
-}
+// img{
+// 	image-rendering: auto;
+// 	image-rendering: crisp-edges;
+// 	image-rendering: pixelated;
+// }
 
 .amont-due{
 	font-size: 6vw;
@@ -805,7 +763,7 @@ img{
 }
 
 .color-custom{
-	color: #7278b9;
+	color: #7278b9 !important;
 }
 
 .color-gold{
@@ -832,6 +790,23 @@ img{
 	background: #383838;
 }
 
+.color-bg-gradient{
+	background: rgb(242,255,255);
+	background: -moz-linear-gradient(180deg, rgba(242,255,255,1) 0%, rgba(141,173,247,1) 100%);
+	background: -webkit-linear-gradient(180deg, rgba(242,255,255,1) 0%, rgba(141,173,247,1) 100%);
+	background: linear-gradient(180deg, rgba(242,255,255,1) 0%, rgba(141,173,247,1) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f2ffff",endColorstr="#8dadf7",GradientType=1);
+}
+
+.color-bg-champagne{
+	background: rgb(245,235,225);
+	background: -moz-linear-gradient(0deg, rgba(245,235,225,1) 0%, rgba(245,235,225,0.6615021008403361) 100%);
+	background: -webkit-linear-gradient(0deg, rgba(245,235,225,1) 0%, rgba(245,235,225,0.6615021008403361) 100%);
+	background: linear-gradient(0deg, rgba(245,235,225,1) 0%, rgba(245,235,225,0.6615021008403361) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f5ebe1",endColorstr="#f5ebe1",GradientType=1);
+}
+
+
 :root{
 	--f7-card-border-radius: 15px;
 	--f7-tabbar-link-active-border-color: #cca679;
@@ -845,45 +820,28 @@ img{
 
 
 .wrapper > div{
-	background: #484848;
-	padding: 1em;
+	border: 1px solid #7278b9;
+	backdrop-filter: blur(2rem);
+	border-radius: 10px;
+	cursor: pointer;
 }
 
 .wrapper{
 	display: grid;
-	grid-template-columns: 1fr 2fr 1fr;
+	grid-template-columns: 1fr 1fr;
 	grid-auto-rows: minmax(	100px, auto);
-	grid-gap: 5%;
+	grid-gap: 1vw;
 	text-align: center;
-	align-items: stretch;
 } 
 
-.wrapper div:nth-last-child(1){
-	grid-row: auto;
-    grid-column-start: 1;
-    grid-column-end: 4;
+// .wrapper div:nth-last-child(1){
+// 	grid-row: auto;
+//     grid-column-start: 1;
+//     grid-column-end: 3;
+// }
+
+.fac_img{
+	width: 50%;
 }
 
-.wrapper div:nth-child(1){
-	grid-row: 1;
-    grid-column-start: 1;
-    grid-column-end: 1;
-}
-
-.wrapper div:nth-child(2){
-	grid-row: 1;
-    grid-column-start: 2;
-    grid-column-end: 4;
-}
-
-.wrapper div:nth-child(3){
-	grid-row: 2;
-    grid-column-start: 1;
-    grid-column-end: 3;
-}
-
-.wrapper div:nth-child(4){
-	grid-row: 2;
-    grid-column-start: 3;
-}
 
