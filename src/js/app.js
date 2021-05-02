@@ -903,14 +903,11 @@ function issueReportPage(){
 				}
 				
 			}else{
-				toast("Please Select a image");
+				toast("Please Select an image");
 			}
 		})
 		
 	})
-	
-	
-	
 	
 }
 //////// EDIT PAGE
