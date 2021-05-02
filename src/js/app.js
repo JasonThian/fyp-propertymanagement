@@ -808,6 +808,10 @@ async function homesetup(){
 			var time = new Date();
 			time.setTime(doc.data().date.seconds * 1000);
 			
+			$("#homepage-payment").click(() => {
+				getPaymentDetails(doc.id);
+			});
+			
 			document.getElementById("date-due").innerHTML = time.toLocaleDateString("en-US");
 			document.getElementById("amount-due").innerHTML = "RM " + parseFloat(doc.data().amount/100).toFixed(2);
 		});
