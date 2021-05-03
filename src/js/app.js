@@ -549,6 +549,8 @@ $$(document).on('page:init', async function (e, page) {
 	}else if(pn == "issue_report"){
 		issueReportPage();
 		
+	}else if(pn == "issue_history"){
+		getIssueHistory();
 	}else if(pn == "chatbox"){
 		chatbox();
 		
@@ -925,6 +927,7 @@ function issueReportPage(){
 							block: report_block,
 							img: img_id+".png",
 							reporter: user_id,
+							status:"Not Solved",
 							pno: pno,
 							email: email,
 							name: name
@@ -1679,7 +1682,52 @@ function getPaymentHistory(){
 			Payment_list.innerHTML += elements;
 	})});
 }
-
+function getIssueHistory(){
+	var user_id = auth.currentUser.uid;
+	var Issue_List = document.getElementById("Issue_List");
+	var elements = "";
+	
+	db.collection("issues").where("reporter", "==", user_id).get().then((querySnapshot) => {
+		querySnapshot.forEach((doc) => {
+			if (doc.exists) {
+				var time = doc.data().date;		
+				var description = doc.data().desc;
+				var status = doc.data().status;
+				var block = doc.data().block;
+				
+				
+				var url = "";
+				if(status == "Solved"){
+					url = "static/icons/success.png";
+				}else{
+					url = "static/icons/fail.png";
+				}
+				
+				elements = `<ul>
+          <li>
+            <a href="#" class="item-link item-content">
+              <div class="item-media"><img src="${url}"/></div>
+              <div class="item-inner">
+                <div class="item-title-row">
+                  <div class="item-title">${block}</div>
+                  <div class="item-after">${status}</div>
+                </div>
+                <div class="item-text">${description}</div>
+              </div>
+            </a></li>
+		</ul>`;
+				
+				
+			}else{
+				elements = `<div class="block block-strong">
+					  <p>Sorry</p>
+					  <p>You have not made any payments</p>
+					</div>`
+			}
+			
+			Issue_List.innerHTML += elements;
+	})});
+}
 
 //Booking details
 function getBookingDetails(){
