@@ -20,10 +20,10 @@
 				<div class="item-title item-label color-white">Select Date</div>
 				<div class="item-input-wrap">
 					<input type="text" placeholder="Select date" readonly="readonly" id="calendar-events-disable"/>
-				  </div>
+				 </div>
 				</div>
 			</li>
-			<li class="item-content item-input">
+			<!-- <li class="item-content item-input">
 				<div class="item-inner">
 					<div class="item-title item-label color-white">Select Time:</div>
 					<div class="item-input-wrap input-dropdown-wrap">
@@ -39,14 +39,36 @@
 						</select>
 					</div>
 				</div>
+			</li> -->
+
+			<li>				
+				<a class="item-link smart-select smart-select-init" data-open-in="popover">
+					<!-- <div class="item-input-wrap input-dropdown-wrap"></div> -->
+					<select name="booking_time" id="time_select">
+						<option value="08:00" class="time_slot">8am</option>
+						<option value="10:00" class="time_slot">10am</option>
+						<option value="12:00" class="time_slot">12pm</option>
+						<option value="14:00" class="time_slot">2pm</option>
+						<option value="16:00" class="time_slot">4pm</option>
+						<option value="18:00" class="time_slot">6pm</option>
+						<option value="20:00" class="time_slot">8pm</option>
+						<option value="22:00" class="time_slot">10pm</option>
+					</select>
+					<div class="item-content color-custom">
+						<div class="item-inner  color-custom">
+							<div class="item-title">Select Time</div>
+						</div>
+					</div>
+				</a>
 			</li>
           
           
         </ul>
       </div>
-	<div class="block block-strong">
-		<a class="button button-raised button-fill button-large book-button" id="book-button">Book</a>
-    </div>
+	  
+	<div class="block">
+		<a class="button button-raised button-fill button-large color-bg-custom color-white" id="book-button">Book</a>
+	</div>
   </div>
   <div class="popup popup-facility-payment">
 		<div class="block">

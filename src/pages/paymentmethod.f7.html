@@ -12,40 +12,47 @@
         <div class="title color-gold">Payment</div>
       </div>
   </div>
-  <div class="page-content">
-  <div>
-    <div>
-      <div class="title_payment">Total Amount</div>
-		<div class="description">RM <span id="amount">0.00</span></div>
-    </div>
-	<div>
-      <div class="title_payment">Payment Details</div>
+<div class="page-content">
+	<div class="block">
+		<div class="title_payment">Total Amount</div>
+		<div class="description">RM<span id="amount"> </span></div>
+	</div>
+
+	<div class="block">
+		<div class="title_payment">Payment Details</div>
 		<div class="description" id="payment-description">Bill</div>
-    </div>
 	</div>
 	<div>
-      <div class="title_payment text-center">Choose Payment Method</div>
-		<div class="block list">
-		  <ul class="payment_method">
-			<li>
-				<div class="item-inner">
-					<input type="radio" name="pMethod" value="online" id="online">
-					<label for="online">Online Transfer<img src="static/icons/online.png" ></label>
-				</div>
-			</li>
-			<li>
-				<div class="item-inner">
-					<input type="radio" name="pMethod" value="credit" id="credit">
-					<label for="credit">Credit Card<img src="static/icons/creditcard.png" ></label>
-				</div>
-			</li>
-		  </ul>
+		<div class="title_payment text-center">Choose Payment Method</div>
+		<div class="list">
+			<ul class="payment_method">
+				<li>
+					<label class="item-radio item-radio-icon-start item-content">
+						<input type="radio" name="pMethod" value="online" id="online">	
+						<i class="icon icon-radio"></i>
+						<div class="item-inner">	
+							<div class="item-title">Online Transfer</div>							
+							<label for="online"><img src="static/icons/online.png" ></label>
+						</div>
+					</label>						
+				</li>
+				<li>
+					<label class="item-radio item-radio-icon-start item-content">
+						<input type="radio" name="pMethod" value="credit" id="credit">	
+						<i class="icon icon-radio"></i>
+						<div class="item-inner">	
+							<div class="item-title">Credit Card</div>							
+							<label for="credit"><img src="static/icons/creditcard.png" ></label>
+						</div>
+					</label>						
+				</li>
+			</ul>
 		</div>
-    </div>
-	<div class="block ">
-		<a class="button button-raised button-fill button-large" id="payment-selection">Next</a>
 	</div>
-  </div>
+	<div class="block">
+		<a class="button button-raised button-fill button-large color-bg-custom color-white" id="payment-selection">Next</a>
+	</div>
+</div>
 </div>
 </template>
 <script>

@@ -480,6 +480,22 @@ function parseURLParams(url) {
     return parms;
 }
 
+// function darkMode() {
+// 	var darkmode = document.getElementById("darkmode");
+// 	var pagecontent = document.getElementsByClassName("page");
+
+// 	darkmode.addEventListener("click", function(e){
+// 		for(var i = 0; i < pagecontent.length; i++){
+// 			if(pagecontent[i].classList.contains("theme-dark")){
+// 				pagecontent[i].classList.remove("theme-dark");				
+// 			}
+// 			else{
+// 				pagecontent[i].classList.add("theme-dark");
+// 			}
+// 		}		
+// 	});
+// }
+
 //page handler
 $$(document).on('page:init', async function (e, page) {
   var pn = page.name;
@@ -487,40 +503,59 @@ $$(document).on('page:init', async function (e, page) {
 	
 	if(pn == "login"){
 		set_login();
+		
 	}else if(pn == "home"){
 		homesetup();
+		
 	}else if(pn == "news"){
 		getAnnouncement();
+		
 	}else if(pn == "booking_details"){
 		getBookingDetails();
+		
 	}else if(pn == "payment_history"){
 		getPaymentHistory();
+		
 	}else if(pn == "payment_reminder"){
 		getPaymentReminder();
+		
 	}else if(pn == "bookfacility"){
 		getFacility();
+		
 	}else if(pn == "facilities"){
 		set_booking();
+		
 	}else if(pn == "tenant_list"){
 		getTenants();
+		
 	}else if(pn == "edit"){
 		getEditPage();
+		
 	}else if(pn == "payment-success"){
 		saveSuccessPaymentDetails();
+		
 	}else if(pn == "payment-method"){
 		getUserBillingPaymentMethod();
+		
 	}else if(pn == "billing"){
 		getBilling();
+		
 	}else if(pn == "payment"){
 		getUserBilling();
+		
 	}else if(pn == "qrcode"){
 		getQrCode();
+		
 	}else if(pn == "issue_report"){
 		issueReportPage();
+		
 	}else if(pn == "chatbox"){
 		chatbox();
+		
 	}
 	checkConnection();
+	// darkMode();
+	
 })
 
 function check_msg_type(doc){
@@ -783,20 +818,22 @@ async function homesetup(){
 			
 			time = tConvert(time);			
 			
-			book_ele = `<div class="card-content-padding no-border display-flex flex-direction-column ">
-						<div class="block-header color-custom no-padding">Facility Booked</div>
-						<div class="block block-strong">
-							<p class="amont-due color-gold">${facility}</p>
-						</div>
+			book_ele = `
+			<div class="card-content-padding no-border display-flex flex-direction-column ">
+				<div class="block-header color-custom no-padding">Facility Booked</div>
+				<div class="block block-strong">
+					<p class="amont-due color-gold">${facility}</p>
+				</div>
 
-						<div class="block-header color-custom no-padding">Date & Time</div>
-						<div class="block block-strong">
-							<p class="amont-due no-margin-bottom color-gold">${date}</p>
-						</div>
-						<div class="block block-strong">
-							<p class="amont-due no-margin-top color-gold">${time}</p>
-						</div>
-					</div>`;
+				<div class="block-header color-custom no-padding">Date & Time</div>
+				<div class="block block-strong">
+					<p class="amont-due no-margin-bottom color-gold">${date}</p>
+				</div>
+				<div class="block block-strong">
+					<p class="amont-due no-margin-top color-gold">${time}</p>
+				</div>
+			</div>
+			`;
 			
 			latest_booking.innerHTML = book_ele;
 		})
@@ -807,6 +844,10 @@ async function homesetup(){
 		querySnapshot.forEach((doc) => {
 			var time = new Date();
 			time.setTime(doc.data().date.seconds * 1000);
+			
+			$("#homepage-payment").click(() => {
+				getPaymentDetails(doc.id);
+			});
 			
 			document.getElementById("date-due").innerHTML = time.toLocaleDateString("en-US");
 			document.getElementById("amount-due").innerHTML = "RM " + parseFloat(doc.data().amount/100).toFixed(2);
@@ -903,14 +944,11 @@ function issueReportPage(){
 				}
 				
 			}else{
-				toast("Please Select a image");
+				toast("Please Select an image");
 			}
 		})
 		
 	})
-	
-	
-	
 	
 }
 //////// EDIT PAGE
@@ -1514,12 +1552,11 @@ async function getFacility(){
 		booking_list[name] = {};
 		booking_type[name] = booking_payment_type;
 		
-		facilities.innerHTML += `<div onclick="app.data.Chosen_Facility(this)" id="${name}">
-				  <a href="">
-					<img src="images/dryx-logo.png" width="80" height="80" class="fac_img" id="${img_url}">
-					<p class="subtitle">${name}</p>
-				  </a>
-				</div>`;
+		facilities.innerHTML += `
+					<div class="padding" onclick="app.data.Chosen_Facility(this)" id="${name}">
+				 		<img src="images/dryx-logo.png" class="margin-top margin-bottom fac_img" id="${img_url}">
+						<p class="subtitle">${name}</p>
+					</div>`;
 
 	})
 	
@@ -1658,6 +1695,10 @@ function getBookingDetails(){
 			var status = doc.data().status;
 			var time = doc.data().time;
 			var src = "";
+
+
+			
+
 			
 			if(facility === "AV Room")
 				src = "static/icons/cinema.png";
@@ -1670,19 +1711,28 @@ function getBookingDetails(){
 			else if(facility === "Ping-Pong Table")
 				src = "static/icons/ball.png";
 			
-			var elements = `<div class="booking-details">
-        <div class="booking-image">
-          <img src="${src}" class="booking-icons">
-        </div>
-        <div class="booking-info">
-          <h3 class="facility-name">${facility}</h3>
-          <h4 class="booking-time">${date}</h4>
-          <h4 class="booking-duration">${duration}</h4>
-          <h4 class="booking-status">${status}</h4>
-        </div>                  
-      </div>`;
+			var elements = `
+			<ul>
+				<div class="item-content booking-time">${date}</div>
+				<li class="item-content">				
+					<div class="item-media">				
+						<img src="${src}" class="booking-icons" style="width: 60px; height: 60px; border-radius: 50%" />
+					</div>
+					<div class="item-inner">
+						<div class="item-title-row color-gold">
+							<div class="item-title">${facility}</div>
+						</div>					
+						<div class="item-text booking-duration color-custom">${duration}</div>
+						<div class="item-text booking-status color-custom" style="text-transform: capitalize;">${status}</div>
+					</div>
+				</li>
+			</ul>
+
+	 		 `;
 			
 			booking_list.innerHTML += elements;
+
+			
 	})});
 }
 
@@ -1698,6 +1748,21 @@ function SelectAnnc(id){
 	docRef.get().then(function(doc) {
 		var title = doc.data().title;
 		var desc = doc.data().description;
+		var date = doc.data().date.toDate();
+			
+		var month = monthNames[date.getMonth()];
+		var day = String(date.getDate()).padStart(2, '0');
+		var year = date.getFullYear();
+		
+		// Hours part from the timestamp
+		var hours = date.getHours();
+		// Minutes part from the timestamp
+		var minutes = String(date.getMinutes()).padStart(2, '0');
+		// Seconds part from the timestamp
+		var seconds = String(date.getSeconds()).padStart(2, '0');
+		
+		date = day+" "+month+" "+year+" "+hours+":"+minutes;
+
 		var imageurl = doc.data().imageurl;
 			
 		var pathReference = storage.ref("announcement/"+imageurl);
@@ -1705,11 +1770,21 @@ function SelectAnnc(id){
 		pathReference.getDownloadURL().then(function(url) {
 
 			var annc = document.getElementById("annc");
-			annc.innerHTML = `<
-							<p id="annc_title">${title}</p>
-							<img id="annc_pic" width="100%" src="${url}"/>
-							
-							<p id="annc_desc">${desc}</p>`;
+			annc.innerHTML = `
+				<p class="text-align-center no-margin" id="annc_title">${title}</p>
+				<p class="text-align-center color-custom">${date}</p>
+				<div class="block">
+					<img id="annc_pic" width="100%" src="${url}"/>	
+				</div>		
+				<div class="block">
+					<p class="text-align-justify" id="annc_desc">${desc}</p>
+				</div>								
+				<div class="block block-strong">
+					<a href="/" class="button button-fill color-bg-custom color-white" style="text-transform: capitalize;">
+						Back To Home
+					</a>
+				</div>
+			`;
 					
 		}).catch(function(error) {
 			console.log(error);
@@ -1750,22 +1825,25 @@ function getAnnouncement(){
 			
 			date = day+" "+month+" "+year+" "+hours+":"+minutes;
 			
-			annc_list.innerHTML += `<a href="#" id="${doc.id}" class="announcement-link">
-			<div class="card carder">
-				<div class="card-content card-content-padding">
-					<div class="date">
-						<p class="date-list">${date}</p>
-					</div>					
-					<div class="announcement-icon-block">
-						<img class="announcement-small-icon" src="static/icons/1.png" id="${doc.id}"/>
-					</div>
-					<div class="announcement-text-block">
-						<h2 class="announcement-small-title">${title}</h2>
-						<p class="announcement-small-text">${desc}</p>
-					</div>			
-				</div>	
-			</div>
-		</a>`;
+		
+			annc_list.innerHTML += `
+				<a href="#" id="${doc.id}" class="announcement-link">
+					<ul>												
+						<div class="item-content color-custom">${date}</div>				
+						<li class="item-content">				
+							<div class="item-media">				
+								<img src="static/icons/1.png" id="${doc.id}" style="width: 40px; height: 40px; border-radius: 50%" />
+							</div>
+							<div class="item-inner">
+								<div class="item-title-row color-gold">
+									<div class="item-title">${title}</div>
+								</div>					
+								<div class="item-text">${desc}</div>
+							</div>
+						</li>
+					</ul>
+				</a>
+			`;
 
 			url_list.push(imageurl);
 			console.log(imageurl);
@@ -1788,15 +1866,14 @@ function getAnnouncement(){
 			announcement_link[i].addEventListener("click",function(e){
 				e.preventDefault();
 				redirect("announcement");
-				SelectAnnc(this.id)
+				SelectAnnc(this.id);
 			})
 		}
 
-		// read_more.getElementById("read_more").addEventListener("click", function(e){
-		// 	e.preventDefault();
-		// 	redirect("announcement");
-		// 	SelectAnnc(this.id);
-		// })
+		// var read_more = document.getElementById("read-more")
+		// read_more.addEventListener("click", function(e){
+		// 	alert("123123123");
+		// });
 	});
 }
 
