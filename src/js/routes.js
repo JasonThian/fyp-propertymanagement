@@ -21,7 +21,7 @@ import PaymentHistoryPage from '../pages/paymenthistory.f7.html';
 import PaymentReminderPage from '../pages/paymentreminder.f7.html';
 import TenantListPage from '../pages/tenantlist.f7.html';
 import IssueReport from '../pages/issuereport.f7.html';
-
+import IssueHistory from '../pages/issue_history.f7.html';
 
 import DynamicRoutePage from '../pages/dynamic-route.f7.html';
 import RequestAndLoad from '../pages/request-and-load.f7.html';
@@ -134,10 +134,16 @@ var routes = [
 	path: '/issuereport/',
     component: IssueReport,
   },
+  
+  {
+	path: '/issue_history/',
+    component: IssueHistory,
+  },
   {
     path: '/dynamic-route/blog/:blogId/post/:postId/',
     component: DynamicRoutePage,
   },
+
   {
     path: '/request-and-load/user/:userId/',
     async: function (routeTo, routeFrom, resolve, reject) {
