@@ -2032,9 +2032,9 @@ function loop_time(QRCodeTime,loop){
 	var timer = document.getElementById("time-left");
 	var currentTime = new Date();
 	var time = parseInt(QRCodeTime/1000) - parseInt(currentTime.getTime()/1000);
-	console.log(QRCodeTime);
-	console.log(currentTime.getTime());
-	console.log(time);
+	//console.log(QRCodeTime);
+	//console.log(currentTime.getTime());
+	//console.log(time);
 	var hours = time/3600;
 	var minutes = (time/60) % 60;
 	var seconds = time % 60;
@@ -2092,10 +2092,10 @@ function createQrCode(){
 
 /* Share Button - Not Functioning */
 function shareQrCode(){
-	var path = "";
+	/*var path = "";
 	window.canvas2ImagePlugin.saveImageDataToLibrary(
         function(msg){
-            console.log(msg);
+            console.log(JSON.stringify(msg));
 			path = msg;
 			console.log("save qrcode success");
         },
@@ -2105,12 +2105,15 @@ function shareQrCode(){
         document.getElementById('qrcode-canvas'),
         'qrcode/',
         'shareQrCode.png'
-    );
+    );*/
+	var canvas = document.getElementById('qrcode-canvas');
+	
+	var data = canvas.toDataURL();
 	
 	//window.open("https://wa.me/15551234567");
 	
-	/*var options = {
-		files: [path]
+	var options = {
+		files: [data]
 	};
 	 
 	var onSuccess = function(result) {
@@ -2124,7 +2127,7 @@ function shareQrCode(){
 		timed_toast("Sharing failed", "center");
 	};
 	 
-	window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);*/
+	window.plugins.socialsharing.shareWithOptions(options, onSuccess, onError);
 }
 
 function getPaymentDetails(id){
