@@ -12,6 +12,7 @@
 }
 * {
   font-family: 'Nunito', 'Arial', sans-serif;
+  image-rendering: -webkit-optimize-contrast;
 }
 /* Your app custom styles here */
 /*.landlord{
@@ -42,15 +43,11 @@
   justify-content: unset;
 }
 .list .item-inner label {
-  margin-left: 70px;
-  font-size: 25px;
+  font-size: 6vw;
   text-align: center;
 }
 .list .item-inner label img {
-  margin-left: 20px;
-}
-.page {
-  background: #2f2f2f;
+  margin-left: 5vw;
 }
 .card-title {
   color: #CCA679;
@@ -167,11 +164,6 @@ p#annc_title {
   font-weight: bold;
   color: #CCA679;
 }
-p#annc_desc {
-  font-size: 25px;
-  color: white;
-  text-align: justify;
-}
 #qrcode-canvas {
   padding: 10px;
   margin: 0 auto;
@@ -205,18 +197,17 @@ p#annc_desc {
   margin-top: 10px;
 }
 .title_payment {
-  font-size: 25px;
-  margin-left: 20px;
+  font-size: 4.5vw;
   font-weight: bold;
-  margin-top: 40px;
 }
 .description {
-  font-size: 20px;
-  margin-left: 20px;
-  margin-top: 10px;
+  font-size: 6vw;
 }
 .list .payment_method {
   background-color: transparent;
+}
+.payment_method > li {
+  width: 80%;
 }
 .list .tenant_list {
   background-color: white;
@@ -264,10 +255,7 @@ p#annc_desc {
 }
 .subtitle {
   color: #E4B37A;
-}
-#facility-list {
-  background: linear-gradient(to right bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3));
-  backdrop-filter: blur(2rem);
+  font-size: 4.5vw;
 }
 .booking-details {
   border: 1px solid #ffffff;
@@ -583,7 +571,7 @@ select[name="booking_duration"] option {
 .description_inputs textarea,
 .description_inputs input {
   width: 100%;
-  background: #3f3f3f;
+  background: #efefef;
   border-radius: 8px;
 }
 .description_inputs p {
@@ -603,15 +591,6 @@ select[name="booking_duration"] option {
   text-align: center;
   padding: 10px;
 }
-img {
-  image-rendering: auto;
-  image-rendering: crisp-edges;
-  image-rendering: pixelated;
-  border-radius: 10px;
-}
-.tabbar {
-  background: #353535;
-}
 .amont-due {
   font-size: 6vw;
 }
@@ -619,7 +598,7 @@ img {
   font-size: 11px;
 }
 .color-custom {
-  color: #7278b9;
+  color: #7278b9 !important;
 }
 .color-gold {
   color: #CCA679;
@@ -639,6 +618,20 @@ img {
 .bg-black {
   background: #383838;
 }
+.color-bg-gradient {
+  background: #f2ffff;
+  background: -moz-linear-gradient(180deg, #f2ffff 0%, #8dadf7 100%);
+  background: -webkit-linear-gradient(180deg, #f2ffff 0%, #8dadf7 100%);
+  background: linear-gradient(180deg, #f2ffff 0%, #8dadf7 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f2ffff", endColorstr="#8dadf7", GradientType=1);
+}
+.color-bg-champagne {
+  background: #f5ebe1;
+  background: -moz-linear-gradient(0deg, #f5ebe1 0%, rgba(245, 235, 225, 0.6615021) 100%);
+  background: -webkit-linear-gradient(0deg, #f5ebe1 0%, rgba(245, 235, 225, 0.6615021) 100%);
+  background: linear-gradient(0deg, #f5ebe1 0%, rgba(245, 235, 225, 0.6615021) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#f5ebe1", endColorstr="#f5ebe1", GradientType=1);
+}
 :root {
   --f7-card-border-radius: 15px;
   --f7-tabbar-link-active-border-color: #cca679;
@@ -650,38 +643,29 @@ img {
   --f7-label-text-color: #7278b9;
 }
 .wrapper > div {
-  background: #484848;
-  padding: 1em;
+  border: 1px solid #7278b9;
+  backdrop-filter: blur(2rem);
+  border-radius: 10px;
+  cursor: pointer;
 }
 .wrapper {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
   grid-auto-rows: minmax(100px, auto);
-  grid-gap: 5%;
+  grid-gap: 1vw;
   text-align: center;
-  align-items: stretch;
 }
-.wrapper div:nth-last-child(1) {
-  grid-row: 3;
-  grid-column-start: 1;
-  grid-column-end: 4;
+.fac_img {
+  width: 50%;
 }
-.wrapper div:nth-child(1) {
-  grid-row: 1;
-  grid-column-start: 1;
-  grid-column-end: 1;
+/* Fix for iOS App */
+.item .item-text {
+  color: rgba(0, 0, 0, 0.54);
+  color: #898989;
 }
-.wrapper div:nth-child(2) {
-  grid-row: 1;
-  grid-column-start: 2;
-  grid-column-end: 4;
+.margin-top {
+  margin-top: 16px !important;
 }
-.wrapper div:nth-child(3) {
-  grid-row: 2;
-  grid-column-start: 1;
-  grid-column-end: 3;
-}
-.wrapper div:nth-child(4) {
-  grid-row: 2;
-  grid-column-start: 3;
+.padding-top {
+  padding-top: 16px !important;
 }
