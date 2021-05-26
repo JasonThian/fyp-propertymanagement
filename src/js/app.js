@@ -2320,9 +2320,8 @@ function getUserBilling(){
 			});
 		}
 		else{
-			$("#pay-now-button").click(() => {
-				timed_toast("This bill has been paid","center");
-			});
+			$("#pay-now-button").remove();
+			timed_toast("This bill has been paid","center");
 		}
 	}).then(() => {
 		payNowButton.disabled = false;
